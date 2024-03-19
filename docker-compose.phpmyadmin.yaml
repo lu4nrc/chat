@@ -1,0 +1,14 @@
+version: "3"
+
+networks:
+  hellowchat:
+
+services:
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin:latest
+    environment:
+      - PMA_HOSTS=mysql
+    ports:
+      - ${PMA_PORT:-9000}:80
+    networks:
+      - hellowchat

@@ -1,0 +1,111 @@
+body {
+  margin: 0;
+}
+.app {
+  font-family: sans-serif;
+  text-align: center;
+  /* background: #f2f2f2; */
+  display: flex;
+  justify-content: center;
+  flex-direction: column;
+  align-items: center;
+  /* gap: 40px; */
+  /* height: 100vh */;
+}
+
+.inputCalendar {
+  color: #eee;
+  background-color: #fff;
+  font-weight: 500;
+  height: 48px;
+  font-size: 14px;
+  transition: all 0.3s ease;
+  /* width: 100%; */
+}
+.inputCalendar > div {
+  border-radius: 4px;
+  border: 1px solid transparent;
+  padding: 0 20px;
+  box-sizing: border-box;
+}
+.inputCalendar::placeholder {
+  color: #009688;
+}
+
+.inputCalendar:focus {
+  border-color: #009688;
+  opacity: 1;
+}
+
+.inputCalendar--empty {
+  color: #959595;
+  opacity: 0.6;
+}
+
+.inputCalendar--error {
+  border-color: #e73e39;
+  opacity: 0.8;
+}
+
+.calendar {
+  font-family: Arial, "Open Sans", "Helvetica Neue", sans-serif;
+  background-color: #fff;
+  border-radius: 4px;
+  /* box-shadow: 0 3px 15px rgba(0, 0, 0, 0.3); */
+  box-sizing: border-box;
+  min-width: 250px;
+  width: 280px;
+  /* padding: 16px; */
+  transition: all 0.2s ease;
+  border: 1px solid rgb(222, 222, 222);
+  overflow: hidden;
+}
+
+.calendar .react-calendar__tile--now {
+  background: transparent;
+}
+.calendar .react-calendar__tile--now:before {
+  content: "";
+  width: 7px;
+  height: 7px;
+  display: block;
+  border-bottom: 7px solid #009688;
+  border-radius: 4px;
+}
+
+.calendar .react-calendar__tile--rangeStart {
+  background: #90a4ae;
+  border-top-left-radius: 40px;
+  border-bottom-left-radius: 40px;
+}
+.calendar .react-calendar__tile--range {
+  background: #90a4ae;
+}
+.calendar .react-calendar__tile--rangeEnd {
+  background: #90a4ae;
+  border-top-right-radius: 40px;
+  border-bottom-right-radius: 40px;
+}
+.calendar .react-calendar__tile:focus {
+  background: #64ffda;
+  color: #000;
+}
+/* class="react-calendar__tile react-calendar__tile--active react-calendar__tile--range react-calendar__tile--rangeStart react-calendar__month-view__days__day" */
+
+.calendar .rdrDefinedRangesWrapper {
+  display: none;
+}
+.calendar .rdrCalendarWrapper {
+  width: 280px;
+}
+.calendar .rdrMonth,
+.calendar .rdrWeekDays {
+  width: calc(280px - 20px);
+  box-sizing: border-box;
+}
+.calendar .rdrDayDisabled {
+  background: #fff;
+}
+.calendar .rdrDayDisabled span {
+  color: #eee;
+}
