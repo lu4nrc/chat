@@ -291,7 +291,6 @@ const MessageInput = ({ ticketStatus }) => {
         alignItems={"center"}
         justifyContent="space-between"
         direction={"row"}
-        bgcolor={"red"}
       >
         <Stack direction={"column"} spacing={0.5}>
           {!message.fromMe && (
@@ -322,13 +321,6 @@ const MessageInput = ({ ticketStatus }) => {
         justifyContent={"space-between"}
         px={2}
         py={2}
-        sx={{
-          backgroundColor:
-            theme.palette.mode === "light"
-              ? "#F8FAFF"
-              : theme.palette.background.paper,
-          boxShadow: "0px 0px 2px rgba(0, 0, 0, 0.25)",
-        }}
       >
         {loading ? (
           <div>
@@ -361,16 +353,9 @@ const MessageInput = ({ ticketStatus }) => {
       <Stack
         px={2}
         py={2}
-        border={1}
-        borderColor={theme.palette.background.neutral}
+        borderTop={2}
+        borderColor={theme.palette.divider}
         spacing={0.5}
-        sx={{
-          backgroundColor:
-            theme.palette.mode === "light"
-              ? "#F8FAFF"
-              : theme.palette.background.paper,
-          /* boxShadow: "0px 0px 2px rgba(0, 0, 0, 0.25)", */
-        }}
       >
         {replyingMessage && renderReplyingMessage(replyingMessage)}
         <Stack
@@ -500,23 +485,15 @@ const MessageInput = ({ ticketStatus }) => {
               </Menu>
             </Hidden>
           </Stack>
-        <TextField
+          <TextField
             multiline
             fullWidth
-            
-/*             sx={{
-              backgroundColor: theme.palette.background.neutral,
-              height: 60,
-              borderRadius: 50,
-              overflow: "auto",
-              "& fieldset": { border: "none" },
-            }} */
             inputRef={(input) => {
               input && input.focus();
               input && (inputRef.current = input);
             }}
             placeholder="Mensagem..."
-  /*           placeholder={
+            /*           placeholder={
               ticketStatus === "open"
                 ? i18n.t("messagesInput.placeholderOpen")
                 : i18n.t("messagesInput.placeholderClosed")
@@ -533,7 +510,7 @@ const MessageInput = ({ ticketStatus }) => {
                 handleSendMessage();
               }
             }}
-          /> 
+          />
           {typeBar ? (
             <Stack>
               <Menu

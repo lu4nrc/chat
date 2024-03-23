@@ -12,20 +12,10 @@ const Chat = () => {
 
   return (
     <Grid container height={"100vh"}>
-      <Grid item xs={12} sm="auto" >
+      <Grid item xs={12} sm="auto">
         <TicketsManager />
       </Grid>
-      <Grid
-        item
-        xs={12}
-        sm
-        sx={{
-          backgroundColor:
-            theme.palette.mode === "light"
-              ? "#F0F4FA"
-              : theme.palette.background.default,
-        }}
-      >
+      <Grid item xs={12} sm>
         {ticketId ? (
           <>
             <Ticket />

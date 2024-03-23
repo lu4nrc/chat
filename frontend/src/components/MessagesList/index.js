@@ -236,7 +236,15 @@ const MessagesList = ({ ticketId, isGroup }) => {
         </audio>
       );
     } else if (message.mediaType === "video") {
-      return <video src={message.mediaUrl} controls />;
+      return (
+        <Box width={200} maxWidth="100%">
+          <video
+            style={{ width: "100%", height: "auto", borderRadius: "5px" }}
+            src={message.mediaUrl}
+            controls
+          />
+        </Box>
+      );
     } else {
       return (
         <Stack p={0.7}>
@@ -326,19 +334,7 @@ const MessagesList = ({ ticketId, isGroup }) => {
           }`,
           paddingX: `${message.quotedMsg.mediaType === "chat" ? "16px" : ""}`,
           paddingY: `${message.quotedMsg.mediaType === "chat" ? "8px" : ""}`,
-          bgcolor: `${
-            message.quotedMsg?.fromMe
-              ? `${
-                  theme.palette.mode === "light"
-                    ? "#CDD9E8"
-                    : theme.palette.background.paper
-                }`
-              : `${
-                  theme.palette.mode === "light"
-                    ? "#fff"
-                    : theme.palette.background.paper
-                }`
-          }`,
+          bgcolor: theme.palette.background.default
         }}
         borderRadius={1}
       >
@@ -379,16 +375,18 @@ const MessagesList = ({ ticketId, isGroup }) => {
     if (messagesList.length > 0) {
       const viewMessagesList = messagesList.map((message, index) => {
         if (!message.fromMe) {
-          console.log();
           return (
             /* ++++++++++ Recebidas ++++++++++ */
-            <Box key={message.id}>
+
+            <Box
+              key={message.id}
+              width={"fit-content"}
+              maxWidth={{ xs: "100%", md: "75%" }}
+            >
               <Box
-                sx={{
-                  display: "flex",
-                  alignContent: "center",
-                  justifyContent: "center",
-                }}
+                display={"flex"}
+                alignContent={"center"}
+                justifyContent={"center"}
               >
                 <Typography
                   variant="caption"
@@ -404,9 +402,8 @@ const MessagesList = ({ ticketId, isGroup }) => {
                 key={message.id}
                 alignItems={"start"}
                 bgcolor={theme.palette.background.paper}
-                borderRadius={1.2}
-                maxWidth={{ xs: "100%", md: "65%" }}
-                width={"max-content"}
+                marginRight={5}
+                borderRadius={0.7}
                 direction={"row"}
                 position={"relative"}
                 pr={"32px"}
@@ -426,7 +423,11 @@ const MessagesList = ({ ticketId, isGroup }) => {
                   <Stack direction={"column"} gap={0.5}>
                     {message.quotedMsg && renderQuotedMessage(message)}
                     <Typography
-                      style={{ paddingLeft: message.quotedMsg ? 8 : 0 }}
+                      sx={{
+                        overflow: "hidden",
+                        textOverflow: "ellipsis",
+                        paddingLeft: message.quotedMsg ? 8 : 0,
+                      }}
                     >
                       <MarkdownWrapper>{message.body}</MarkdownWrapper>
                     </Typography>
@@ -457,11 +458,9 @@ const MessagesList = ({ ticketId, isGroup }) => {
             /* ++++++++++ Enviadas ++++++++++ */
             <Box key={message.id}>
               <Box
-                sx={{
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                }}
+                display={"flex"}
+                alignContent={"center"}
+                justifyContent={"center"}
               >
                 <Typography
                   variant="caption"
@@ -480,16 +479,11 @@ const MessagesList = ({ ticketId, isGroup }) => {
                 direction={"row"}
               >
                 <Stack
-                  sx={{
-                    backgroundColor:
-                      theme.palette.mode === "light"
-                        ? "#d7e4f4"
-                        : theme.palette.background.neutral,
-                    boxShadow: "0px 0px 2px rgba(0,0,0, 0.25)",
-                  }}
-                  borderRadius={1.2}
-                  maxWidth={{ xs: "100%", md: "75%" }}
-                  width={"max-content"}
+                bgcolor={theme.palette.background.paper}
+                  width={"fit-content"}
+                  maxWidth={{ xs: "100%", md: "60%" }}
+                  marginLeft={5}
+                  borderRadius={0.7}
                   direction={"row"}
                   position={"relative"}
                   pr={"32px"}
@@ -560,16 +554,7 @@ const MessagesList = ({ ticketId, isGroup }) => {
   };
   const theme = useTheme();
   return (
-    <Stack
-      position="relative"
-      sx={{
-        flexGrow: 1,
-        height: "100%",
-        overflow: "hidden",
-        display: "flex",
-      }}
-      zIndex={1}
-    >
+    <>
       <MessageOptionsMenu
         message={selectedMessage}
         anchorEl={anchorEl}
@@ -594,18 +579,15 @@ const MessagesList = ({ ticketId, isGroup }) => {
       )}
 
       <Stack
+        p={0.5}
         direction="column"
-        sx={{
-          overflow: "auto",
-          width: "100%",
-          padding: "8px 16px",
-        }}
+        overflow={"auto"}
         onScroll={handleScroll}
         ref={stackRef}
       >
         {messagesList.length > 0 ? renderMessages() : []}
       </Stack>
-    </Stack>
+    </>
   );
 };
 

@@ -121,8 +121,6 @@ const TicketListItem = ({ ticket, setFilter }) => {
         py={0.5}
         marginBottom={0.3}
         bgcolor={theme.palette.background.neutral}
-        border={1}
-        borderColor={theme.palette.background.paper}
         onClick={(e) => {
           if (currentTicket.status === "pending") spyMessages(ticket.id);
           handleSelectTicket(ticket.id);

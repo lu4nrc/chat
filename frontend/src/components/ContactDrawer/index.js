@@ -38,7 +38,7 @@ const ContactDrawer = ({ open, handleDrawerClose, contact, loading }) => {
   /* const [tagOpen, setTagOpen] = useState(false); */
   const RootStyle = styled(m.div)(({ theme }) => ({
     ...cssStyles(theme).bgBlur({
-      color: theme.palette.background.paper,
+      color: theme.palette.background.default,
       opacity: 0.92,
     }),
     top: 0,
@@ -182,7 +182,7 @@ const ContactDrawer = ({ open, handleDrawerClose, contact, loading }) => {
 
                     <Stack spacing={0.5}>
                       <Stack
-                        bgcolor={(theme) => theme.palette.background.neutral}
+                        bgcolor={(theme) => theme.palette.background.paper}
                         direction={"column"}
                         justifyContent={"space-between"}
                         alignItems="flex-start"
@@ -205,7 +205,7 @@ const ContactDrawer = ({ open, handleDrawerClose, contact, loading }) => {
                     </Stack>
 
                     <Stack
-                      bgcolor={(theme) => theme.palette.background.neutral}
+                      bgcolor={(theme) => theme.palette.background.paper}
                       direction={"column"}
                       justifyContent={"space-between"}
                       borderRadius={1}
@@ -249,7 +249,7 @@ const ContactDrawer = ({ open, handleDrawerClose, contact, loading }) => {
 
                     <Stack>
                       <Stack
-                        bgcolor={(theme) => theme.palette.background.neutral}
+                        bgcolor={(theme) => theme.palette.background.paper}
                         direction={"column"}
                         justifyContent={"space-between"}
                         alignItems="flex-start"

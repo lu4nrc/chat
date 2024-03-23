@@ -4,7 +4,14 @@ import { useNavigate, useParams } from "react-router-dom";
 import { toast } from "react-toastify";
 import openSocket from "../../services/socket-io";
 
-import { Avatar, Box, Stack, Typography, useTheme } from "@mui/material";
+import {
+  Avatar,
+  Box,
+  IconButton,
+  Stack,
+  Typography,
+  useTheme,
+} from "@mui/material";
 
 import MessageInput from "../MessageInput/";
 
@@ -15,6 +22,7 @@ import api from "../../services/api";
 import ContactDrawer from "../ContactDrawer";
 import MessagesList from "../MessagesList";
 import TicketActionButtons from "../TicketActionButtons";
+import { ArrowLeft } from "@phosphor-icons/react";
 
 const Ticket = () => {
   const { ticketId } = useParams();
@@ -82,6 +90,7 @@ const Ticket = () => {
   }, [ticketId, navigate]);
 
   const handleDrawerOpen = () => {
+    console.log(`clicked`);
     setDrawerOpen(true);
   };
 
@@ -91,88 +100,103 @@ const Ticket = () => {
 
   return (
     <ReplyMessageProvider>
-      <Box>
-        {/* Header */}
-        <Stack
-          direction={"row"}
+      <Box display="flex" flexDirection="column" height="100vh">
+        <Box
+          height="fit-content"
+          padding={0.5}
+          display={"flex"}
           justifyContent={"space-between"}
+          flexDirection={"row"}
           alignItems={"center"}
-          width={"100%"}
-          
-          p={0.5}
-          sx={{
-            backgroundColor:
-              theme.palette.mode === "light"
-                ? "#F8FAFF"
-                : theme.palette.background.paper,
-            boxShadow: "0px 0px 2px rgba(0, 0, 0, 0.25)",
-          }}
+          borderBottom={2}
+          borderColor={theme.palette.divider}
         >
-          <Stack direction={"row"} spacing={2} px={2}>
+          {/* Header */}
+          <Stack flexDirection={"row"} gap={1} onClick={handleDrawerOpen}>
             <Stack
-              onClick={handleDrawerOpen}
-              sx={{ cursor: "pointer" }}
-              direction={"row"}
+              display={"flex"}
+              flexDirection={"row"}
               alignItems={"center"}
+              gap={1}
             >
+              <IconButton
+                sx={{
+                  display: { xs: "inherit", md: "none" },
+                  width: "32px",
+                  height: "32px",
+                }}
+                onClick={(e) => console.log()}
+              >
+                <ArrowLeft size={24} />
+              </IconButton>
+
               <Avatar
-                sx={{ width: 56, height: 56 }}
+                sx={{ width: 56, height: 56, cursor: "pointer" }}
                 src={contact.profilePicUrl}
                 alt="contact_image"
               />
-            </Stack>
-            <Stack direction={"column"} justifyContent={"center"}>
-              <Typography variant="subtitle1">{contact.name}</Typography>
-
-              {ticket.user?.name && (
-                <Typography variant="caption" color={"gray"}>
-                  Atribuído a: {ticket.user?.name}
-                </Typography>
-              )}
-              <Stack direction={"row"} spacing={1} flexWrap={"wrap"}>
-                {loading
-                  ? null
-                  : contact.tagslist?.map((e, i) => {
-                      return (
-                        <Box key={i} sx={{marginBottom: 10}} >
-                          <Chip
-                            label={e.name}
-                            
-                            sx={{
-                              height: 20,
-                              background: ` ${
-                                e.typetag === "user"
-                                  ? theme.palette.primary.main
-                                  : e.typetag === "enterprise"
-                                  ? "#193044"
-                                  : e.typetag === "custom"
-                                  ? "#F0F4F8"
-                                  : "#F0F4F8"
-                              }`,
-                              color: ` ${
-                                e.typetag === "user"
-                                  ? "#fff"
-                                  : e.typetag === "enterprise"
-                                  ? "#fff"
-                                  : "#444"
-                              }`,
-                            }}
-                          />
-                        </Box>
-                      );
-                    })}
-              </Stack>
+              <Box
+                display={"flex"}
+                flexDirection={"column"}
+                justifyContent={"center"}
+              >
+                <Typography variant="subtitle1">{contact.name}</Typography>
+                {ticket.user?.name && (
+                  <Typography variant="caption" color={"gray"}>
+                    Atribuído a: {ticket.user?.name}
+                  </Typography>
+                )}
+                <Stack
+                  sx={{ cursor: "pointer" }}
+                  direction={"row"}
+                  spacing={1}
+                  flexWrap={"wrap"}
+                >
+                  {loading
+                    ? null
+                    : contact.tagslist?.map((e, i) => {
+                        return (
+                          <Box key={i} sx={{ marginBottom: 10 }}>
+                            <Chip
+                              label={e.name}
+                              sx={{
+                                height: 20,
+                                background: ` ${
+                                  e.typetag === "user"
+                                    ? theme.palette.primary.main
+                                    : e.typetag === "enterprise"
+                                    ? "#193044"
+                                    : e.typetag === "custom"
+                                    ? "#F0F4F8"
+                                    : "#F0F4F8"
+                                }`,
+                                color: ` ${
+                                  e.typetag === "user"
+                                    ? "#fff"
+                                    : e.typetag === "enterprise"
+                                    ? "#fff"
+                                    : "#444"
+                                }`,
+                              }}
+                            />
+                          </Box>
+                        );
+                      })}
+                </Stack>
+              </Box>
             </Stack>
           </Stack>
           <TicketActionButtons ticket={ticket} />
-        </Stack>
-        {/* Mensagens */}
+        </Box>
 
-        {/*  <MessagesList ticketId={ticketId} isGroup={ticket.isGroup} />  */}
-
-        {/* Footer */}
-        <MessageInput ticketStatus={ticket.status} /> 
-
+        <Box flex="1" sx={{ overflow: "auto" }}>
+          {/* Mensagens */}
+          <MessagesList ticketId={ticketId} isGroup={ticket.isGroup} />
+        </Box>
+        <Box height="fit-content">
+          {/* mensagens footer */}
+          <MessageInput ticketStatus={ticket.status} />
+        </Box>
         <ContactDrawer
           open={drawerOpen}
           handleDrawerClose={handleDrawerClose}

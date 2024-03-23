@@ -50,10 +50,6 @@ const LoggedInLayout = () => {
       columns={16}
       height={"100vh"}
       container
-      sx={{
-        backgroundColor: theme.palette.background.paper,
-        boxShadow: "0px 0px 2px rgba(0, 0, 0, 0.25)",
-      }}
     >
       <Grid item sx={{ display: { xs: "none", sm: "block"} }}>
         <SideBar />

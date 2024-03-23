@@ -216,56 +216,60 @@ const Dashboard = () => {
         >
           <Stack
             flex={1}
-            bgcolor={theme.palette.background.paper}
-            borderRadius={2}
-            border={theme.palette.mode === "light" ? "1px solid #DFE3E8" : ""}
+            bgcolor={theme.palette.background.neutral}
+            borderRadius={1}
+            border={1}
+            borderColor={theme.palette.divider}
           >
             <CardContent>
               <Typography variant="h3">{data.length}</Typography>
-              <Typography color={theme.palette.text.disabled} variant="h6">
+              <Typography color={theme.palette.primary.main} variant="h6">
                 Quantidade de chamados
               </Typography>
             </CardContent>
           </Stack>
           <Stack
-            flex={1}
-            bgcolor={theme.palette.background.paper}
-            borderRadius={2}
-            border={theme.palette.mode === "light" ? "1px solid #DFE3E8" : ""}
+             flex={1}
+             bgcolor={theme.palette.background.neutral}
+             borderRadius={1}
+             border={1}
+             borderColor={theme.palette.divider}
           >
             <CardContent>
               <Typography variant="h3">{arredondaMinutos(espera)} </Typography>
-              <Typography color={theme.palette.text.disabled} variant="h6">
+              <Typography color={theme.palette.primary.main} variant="h6">
                 Tempo médio de espera
               </Typography>
             </CardContent>
           </Stack>
           <Stack
             flex={1}
-            bgcolor={theme.palette.background.paper}
-            borderRadius={2}
-            border={theme.palette.mode === "light" ? "1px solid #DFE3E8" : ""}
+            bgcolor={theme.palette.background.neutral}
+            borderRadius={1}
+            border={1}
+            borderColor={theme.palette.divider}
           >
             <CardContent>
               <Typography variant="h3">
                 {arredondaMinutos(atendimento)}
               </Typography>
-              <Typography color={theme.palette.text.disabled} variant="h6">
+              <Typography color={theme.palette.primary.main} variant="h6">
                 Tempo médio de atendimento
               </Typography>
             </CardContent>
           </Stack>
           <Stack
             flex={1}
-            bgcolor={theme.palette.background.paper}
-            borderRadius={2}
-            border={theme.palette.mode === "light" ? "1px solid #DFE3E8" : ""}
+            bgcolor={theme.palette.background.neutral}
+            borderRadius={1}
+            border={1}
+            borderColor={theme.palette.divider}
           >
             <CardContent>
               <Typography variant="h3">
                 {arredondaMinutos(finalizado)}{" "}
               </Typography>
-              <Typography color={theme.palette.text.disabled} variant="h6">
+              <Typography color={theme.palette.primary.main} variant="h6">
                 Tempo médio total
               </Typography>
             </CardContent>

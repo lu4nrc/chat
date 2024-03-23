@@ -319,23 +319,20 @@ const NewPainel = () => {
       >
         {/* Column 1 */}
         <Stack
-          bgcolor={theme.palette.background.paper}
+          bgcolor={theme.palette.background.default}
           direction={"column"}
           width={"100%"}
           borderRadius={1}
           overflow={"hidden"}
-          border={theme.palette.mode === "light" ? "1px solid #DFE3E8" : ""}
+          border={1}
+          borderColor={theme.palette.divider}
           sx={{
-            boxShadow: (theme) => theme.shadows[2],
             flex: 3,
           }}
         >
           <Stack direction={"row"} p={1} justifyContent={"space-between"}>
             <Typography variant="h6">Pendentes</Typography>
-            <Typography
-              color={(theme) => theme.palette.primary.main}
-              variant="h6"
-            >
+            <Typography color={theme.palette.primary.main} variant="h6">
               {listPending.length}
             </Typography>
             <Stack direction={"row"} spacing={0.5}>
@@ -399,15 +396,15 @@ const NewPainel = () => {
         </Stack>
         {/* Column 2 */}
         <Stack
-          bgcolor={theme.palette.background.paper}
+          bgcolor={theme.palette.background.default}
           direction={"column"}
           width={"100%"}
           height={"100%"}
           borderRadius={1}
           overflow={"hidden"}
-          border={theme.palette.mode === "light" ? "1px solid #DFE3E8" : ""}
+          border={1}
+          borderColor={theme.palette.divider}
           sx={{
-            boxShadow: (theme) => theme.shadows[3],
             flex: 3,
           }}
         >
@@ -477,14 +474,14 @@ const NewPainel = () => {
         </Stack>
         {/* Column 4*/}
         <Stack
-          bgcolor={theme.palette.background.paper}
+          bgcolor={theme.palette.background.default}
           direction={"column"}
           width={"100%"}
           borderRadius={1}
           overflow={"hidden"}
-          border={theme.palette.mode === "light" ? "1px solid #DFE3E8" : ""}
+          border={1}
+          borderColor={theme.palette.divider}
           sx={{
-            boxShadow: (theme) => theme.shadows[3],
             flex: 2,
           }}
         >
@@ -542,15 +539,16 @@ const NewPainel = () => {
 
         {/* Column 3 */}
         <Stack
-          bgcolor={theme.palette.background.paper}
+          bgcolor={theme.palette.background.default}
           direction={"column"}
           width={"100%"}
           height={"100%"}
           borderRadius={1}
           overflow={"hidden"}
-          border={theme.palette.mode === "light" ? "1px solid #DFE3E8" : ""}
+          border={1}
+          borderColor={theme.palette.divider}
           sx={{
-            boxShadow: (theme) => theme.shadows[3],
+   
             flex: 2,
           }}
         >
@@ -578,12 +576,6 @@ const NewPainel = () => {
                 bgcolor={theme.palette.background.neutral}
                 borderRadius={1}
                 flexWrap={"wrap"}
-                sx={
-                  {
-                    /* boxShadow: (theme) => theme.shadows[1], */
-                    /* border: "1px solid #DFE3E8", */
-                  }
-                }
               >
                 <Stack>
                   <Typography

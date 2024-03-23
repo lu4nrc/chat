@@ -83,7 +83,7 @@ function Login() {
               // backgroundColor: "#ffff",
               boxShadow: "0 1px 3px rgba(0, 0, 0, 0.1)",
             }}
-            bgcolor={theme.palette.background.paper}
+            bgcolor={theme.palette.background.neutral}
           >
             <Typography component="h1" variant="h5">
               Olá! bem vindo de volta

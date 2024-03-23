@@ -100,7 +100,7 @@ const useAuth = () => {
           color: "#64A57B",
         },
       });
-      navigate("/Scheduled");
+      navigate("/tickets");
       setLoading(false);
     } catch (err) {
       toastError(err);
@@ -127,9 +127,10 @@ const useAuth = () => {
 
   useEffect(() => {
     if (user.id) {
+      const intervalInMilliseconds = 8 * 60 * 60 * 1000; // 8 horas em milissegundos, valor anterior 60000 em segundos 60
       interval = setInterval(async () => {
         await api.put(`/users/time/${user.id}`);
-      }, 60000);
+      }, intervalInMilliseconds);
     }
   }, [user.id]);
 

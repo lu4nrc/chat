@@ -118,17 +118,13 @@ const TicketsManager = () => {
       <Stack
         height={"100%"}
         width={360}
-        border={1}
+        border={2}
         padding={1}
         gap={2}
-        borderColor={theme.palette.background.paper}
+        borderColor={theme.palette.divider}
+        bgcolor={theme.palette.background.default}
         sx={{
-          width: { xs: "100vw", sm: 360 } ,
-          backgroundColor:
-            theme.palette.mode === "light"
-              ? "#F8FAFF"
-              : theme.palette.background.default,
-          boxShadow: "0px 0px 2px rgba(0,0,0, 0.25)",
+          width: { xs: "100vw", sm: 360 },
         }}
       >
         <Button

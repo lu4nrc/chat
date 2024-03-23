@@ -2,7 +2,7 @@ import React, { useContext, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
 import { Check } from "@mui/icons-material";
-import { Divider, IconButton, Stack } from "@mui/material";
+import { Divider, IconButton, Stack, Box } from "@mui/material";
 import { ArrowCounterClockwise, CaretDown } from "@phosphor-icons/react";
 import { AuthContext } from "../../context/Auth/AuthContext";
 import toastError from "../../errors/toastError";
@@ -50,19 +50,18 @@ const TicketActionButtons = ({ ticket }) => {
       {ticket.status === "open" && (
         <>
           <Stack direction={"row"} alignItems={"center"} spacing={2}>
-            <IconButton
-              onClick={() => handleUpdateTicketStatus("pending", null)}
-            >
-              <ArrowCounterClockwise />
-            </IconButton>
-            {/*            <IconButton>
-              <MagnifyingGlass />
-            </IconButton> */}
-            <IconButton
-              onClick={() => handleUpdateTicketStatus("closed", user?.id)}
-            >
-              <Check />
-            </IconButton>
+            {/* <Box sx={{ display: { xs: "none", md: "block" } }}> */}
+              <IconButton
+                onClick={() => handleUpdateTicketStatus("pending", null)}
+              >
+                <ArrowCounterClockwise />
+              </IconButton>
+              <IconButton
+                onClick={() => handleUpdateTicketStatus("closed", user?.id)}
+              >
+                <Check />
+              </IconButton>
+            {/* </Box> */}
             <Divider orientation="vertical" flexItem />
             <IconButton onClick={handleOpenTicketOptionsMenu}>
               <CaretDown />
