@@ -8,7 +8,7 @@ import {
   Message as WbotMessage,
   MessageAck,
   Client
-} from "whatsapp-web-hellow.js";
+} from "whatsapp-web.js";
 
 import Contact from "../../models/Contact";
 import Ticket from "../../models/Ticket";

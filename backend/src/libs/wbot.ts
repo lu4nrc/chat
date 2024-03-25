@@ -1,5 +1,5 @@
 import qrCode from "qrcode-terminal";
-import { Client, LocalAuth } from "whatsapp-web-hellow.js";
+import { Client, LocalAuth } from "whatsapp-web.js";
 import { getIO } from "./socket";
 import Whatsapp from "../models/Whatsapp";
 import AppError from "../errors/AppError";

@@ -1,5 +1,5 @@
 import * as Sentry from "@sentry/node";
-import { Client } from "whatsapp-web-hellow.js";
+import { Client } from "whatsapp-web.js";
 
 import { getIO } from "../../libs/socket";
 import Whatsapp from "../../models/Whatsapp";

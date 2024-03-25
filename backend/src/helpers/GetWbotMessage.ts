@@ -1,4 +1,4 @@
-import { Message as WbotMessage } from "whatsapp-web-hellow.js";
+import { Message as WbotMessage } from "whatsapp-web.js";
 import Ticket from "../models/Ticket";
 import GetTicketWbot from "./GetTicketWbot";
 import AppError from "../errors/AppError";
