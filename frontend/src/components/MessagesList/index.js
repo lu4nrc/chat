@@ -52,8 +52,6 @@ const reducer = (state, action) => {
     return [...state];
   }
 
-  console.log(state);
-
   if (action.type === "UPDATE_MESSAGE") {
     const messageToUpdate = action.payload;
     const messageIndex = state.findIndex((m) => m.id === messageToUpdate.id);
@@ -81,6 +79,16 @@ const MessagesList = ({ ticketId, isGroup }) => {
   const [anchorEl, setAnchorEl] = useState(null);
   const messageOptionsMenuOpen = Boolean(anchorEl);
   const currentTicketId = useRef(ticketId);
+
+  /* ADD */
+  useEffect(() => {
+    dispatch({ type: "RESET" });
+    setPageNumber(1);
+
+    currentTicketId.current = ticketId;
+  }, [ticketId]);
+  /*  */
+
   const [, setTicket] = useState({});
   const stackRef = useRef(null);
   const previousScrollHeightRef = useRef(0);
@@ -174,7 +182,8 @@ const MessagesList = ({ ticketId, isGroup }) => {
 
     if (loading) return;
 
-    if (scrollTop < 100) {
+    if (scrollTop < 10) {
+      console.log("scrollTop");
       setLoading(true);
       loadMore();
     }
@@ -334,7 +343,7 @@ const MessagesList = ({ ticketId, isGroup }) => {
           }`,
           paddingX: `${message.quotedMsg.mediaType === "chat" ? "16px" : ""}`,
           paddingY: `${message.quotedMsg.mediaType === "chat" ? "8px" : ""}`,
-          bgcolor: theme.palette.background.default
+          bgcolor: theme.palette.background.default,
         }}
         borderRadius={1}
       >
@@ -479,7 +488,7 @@ const MessagesList = ({ ticketId, isGroup }) => {
                 direction={"row"}
               >
                 <Stack
-                bgcolor={theme.palette.background.paper}
+                  bgcolor={theme.palette.background.paper}
                   width={"fit-content"}
                   maxWidth={{ xs: "100%", md: "60%" }}
                   marginLeft={5}
@@ -561,31 +570,34 @@ const MessagesList = ({ ticketId, isGroup }) => {
         menuOpen={messageOptionsMenuOpen}
         handleClose={handleCloseMessageOptionsMenu}
       />
-      {loading && (
-        <Box
-          position="absolute"
-          zIndex={2}
-          sx={{
-            width: "100%",
-            height: "100%",
-            display: "flex",
-            flexDirection: "column",
-            alignItems: "center",
-            justifyContent: "center",
-          }}
-        >
-          <CircularProgress />
-        </Box>
-      )}
 
       <Stack
         p={0.5}
+        height={"100%"}
         direction="column"
         overflow={"auto"}
+        position={"relative"}
         onScroll={handleScroll}
         ref={stackRef}
       >
         {messagesList.length > 0 ? renderMessages() : []}
+        {loading && (
+          <Box
+            position="absolute"
+            zIndex={2}
+            sx={{
+              display: "flex",
+              flexDirection: "column",
+              alignItems: "center",
+              justifyContent: "center",
+              top: "50%",
+              left: "50%",
+              transform: "translate(-50%, -50%)",
+            }}
+          >
+            <CircularProgress />
+          </Box>
+        )}
       </Stack>
     </>
   );

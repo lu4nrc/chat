@@ -45,8 +45,7 @@
     "sequelize-typescript": "^1.1.0",
     "socket.io": "^4.6.1",
     "uuid": "^9.0.0",
-    "whatsapp-web-hellow.js": "github:GeorgesdaSilva/whatsapp-web-hellow.js",
-    "whatsapp-web.js": "^1.23.0",
+    "whatsapp-web.js": "github:lu4nrc/whatsapp-web.js",
     "yup": "^1.0.2"
   },
   "devDependencies": {
