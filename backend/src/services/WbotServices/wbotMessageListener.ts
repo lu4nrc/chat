@@ -507,7 +507,8 @@ const wbotMessageListener = (wbot: Session): void => {
     "api"
   ];
   wbot.on("message_create", async msg => {
-    if (substrings.some(v => msg?.wbotType === v)) {
+    handleMessage(msg, wbot);
+/*     if (substrings.some(v => msg?.wbotType === v)) {
       if (msg?.wbotType === "api") {
         var settings = await Setting.findOne({
           where: { key: "ticketCreate" }
@@ -519,12 +520,12 @@ const wbotMessageListener = (wbot: Session): void => {
       }
       return;
     } else {
-      handleMessage(msg, wbot);
-    }
+    } */
   });
 
   wbot.on("media_uploaded", async msg => {
-    if (substrings.some(v => msg?.wbotType === v)) {
+    handleMessage(msg, wbot);
+/*     if (substrings.some(v => msg?.wbotType === v)) {
       if (msg?.wbotType === "api") {
         var settings = await Setting.findOne({
           where: { key: "ticketCreate" }
@@ -536,8 +537,7 @@ const wbotMessageListener = (wbot: Session): void => {
       }
       return;
     } else {
-      handleMessage(msg, wbot);
-    }
+    } */
   });
 
   wbot.on("message_ack", async (msg, ack) => {
