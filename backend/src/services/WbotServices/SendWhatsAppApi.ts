@@ -25,7 +25,7 @@ export const SendWhatsAppApiMedia = async ({
             newMedia,
             {
                 sendAudioAsVoice: true,
-              //  wbotType: "api"
+                wbotType: "api"
             }
         );
     } catch (err) {
@@ -48,7 +48,7 @@ export const SendWhatsAppApiMessage = async ({
             hasBody,
             {
                 sendAudioAsVoice: true,
-               // wbotType: "api"
+                wbotType: "api"
             }
         );
     } catch (err) {

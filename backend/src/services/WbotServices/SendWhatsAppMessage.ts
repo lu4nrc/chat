@@ -34,7 +34,7 @@ const SendWhatsAppMessage = async ({
       {
         quotedMessageId: quotedMsgSerializedId,
         linkPreview: false,
-       // wbotType: wbotType
+        wbotType: wbotType
       }
     );
     await ticket.update({ lastMessage: body });

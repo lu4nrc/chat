@@ -31,7 +31,7 @@ const SendTransmissionService = async ({
         `${contact.number}@${contact.isGroup ? "g" : "c"}.us`,
         data,
         {
-         // wbotType: "transmission",
+          wbotType: "transmission",
         }
       );
     } catch (e:any) {
