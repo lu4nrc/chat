@@ -100,8 +100,14 @@ const Ticket = () => {
 
   return (
     <ReplyMessageProvider>
-      <Box display="flex" flexDirection="column" height="100vh">
+      <Box
+        display="flex"
+        flexDirection="column"
+        alignItems={"center"}
+        height="100vh"
+      >
         <Box
+          width={"100%"}
           height="fit-content"
           padding={0.5}
           display={"flex"}
@@ -189,11 +195,19 @@ const Ticket = () => {
           <TicketActionButtons ticket={ticket} />
         </Box>
 
-        <Box flex="1" sx={{ overflow: "auto" }}>
+        <Box
+          width={"100%"}
+          maxWidth={"1200px"}
+          flex="1"
+          sx={{
+            overflow: "auto",
+            display: "flex"
+          }}
+        >
           {/* Mensagens */}
           <MessagesList ticketId={ticketId} isGroup={ticket.isGroup} />
         </Box>
-        <Box height="fit-content">
+        <Box height="fit-content" width={"100%"}>
           {/* mensagens footer */}
           <MessageInput ticketStatus={ticket.status} />
         </Box>

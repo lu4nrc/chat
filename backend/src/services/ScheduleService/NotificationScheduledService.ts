@@ -1,7 +1,6 @@
 import Scheduled from "../../models/Scheduled";
 import { Op } from "sequelize";
 import ListWhatsAppsService from "../WhatsappService/ListWhatsAppsService";
-import { parseEndDate, parseInitialDate } from "../../utils/parserdate";
 import FindOrCreateTicketService from "../TicketServices/FindOrCreateTicketService";
 import SendWhatsAppMessage from "../WbotServices/SendWhatsAppMessage";
 import Ticket from "../../models/Ticket";

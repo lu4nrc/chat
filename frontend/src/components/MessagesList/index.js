@@ -389,17 +389,19 @@ const MessagesList = ({ ticketId, isGroup }) => {
 
             <Box
               key={message.id}
-              width={"fit-content"}
-              maxWidth={{ xs: "100%", md: "75%" }}
+
             >
               <Box
                 display={"flex"}
+                width={"100%"}
                 alignContent={"center"}
                 justifyContent={"center"}
+                
               >
                 <Typography
                   variant="caption"
-                  sx={{ color: theme.palette.text.secondary }}
+                  color={theme.palette.primary.main}
+                  
                 >
                   {renderDailyTimestamps(message, index)}
                 </Typography>
@@ -418,10 +420,14 @@ const MessagesList = ({ ticketId, isGroup }) => {
                 pr={"32px"}
                 minHeight={"38px"}
                 marginBottom={1}
+                width={message.mediaUrl ? "220px" : "fit-content"}
+                maxWidth={{ xs: "100%", md: "75%" }}
+                overflow={"hidden"}
+                wordWrap="break-word"
               >
                 <Stack direction={"column"} px={1} py={0.5}>
                   {isGroup && (
-                    <Typography color={"primary"} variant="caption">
+                    <Typography  color={"primary"} variant="caption">
                       {message.contact?.name}
                     </Typography>
                   )}
@@ -429,13 +435,18 @@ const MessagesList = ({ ticketId, isGroup }) => {
                     message.mediaType === "location" ||
                     message.mediaType === "vcard") &&
                     checkMessageMedia(message)}
-                  <Stack direction={"column"} gap={0.5}>
+                  <Stack
+                    direction={"column"}
+                    gap={0.5}
+                  
+                  >
                     {message.quotedMsg && renderQuotedMessage(message)}
                     <Typography
                       sx={{
-                        overflow: "hidden",
+                        
                         textOverflow: "ellipsis",
-                        paddingLeft: message.quotedMsg ? 8 : 0,
+                        wordWrap: "break-word",
+                        paddingLeft: message.quotedMsg ? 2 : 0,
                       }}
                     >
                       <MarkdownWrapper>{message.body}</MarkdownWrapper>
@@ -575,6 +586,7 @@ const MessagesList = ({ ticketId, isGroup }) => {
         p={0.5}
         height={"100%"}
         direction="column"
+        width={"100%"}
         overflow={"auto"}
         position={"relative"}
         onScroll={handleScroll}
