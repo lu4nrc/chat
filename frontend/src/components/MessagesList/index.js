@@ -420,6 +420,7 @@ const MessagesList = ({ ticketId, isGroup }) => {
                 pr={"32px"}
                 minHeight={"38px"}
                 marginBottom={1}
+                width={"fit-content"}
                 maxWidth={{ xs: "100%", md: "75%" }}
                 overflow={"hidden"}
                 wordWrap="break-word"
