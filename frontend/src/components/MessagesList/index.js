@@ -383,86 +383,119 @@ const MessagesList = ({ ticketId, isGroup }) => {
   const renderMessages = () => {
     if (messagesList.length > 0) {
       const viewMessagesList = messagesList.map((message, index) => {
-        return (
-          <Box
-            key={message.id}
-            display={"flex"}
-            flexDirection={"column"}
-            alignItems={!message.fromMe ? "start" : "end"}
-          >
+        if (message.mediaType === null) {
+          return (
             <Box
               display={"flex"}
               width={"100%"}
               alignContent={"center"}
               justifyContent={"center"}
             >
-              <Typography variant="caption" color={theme.palette.primary.main}>
-                {renderDailyTimestamps(message, index)}
-              </Typography>
+              <Box
+                p={1}
+                px={2}
+                borderRadius={1}
+                border={1}
+                borderColor={theme.palette.background.paper}
+                bgcolor={theme.palette.background.neutral}
+              >
+                <Typography
+                  variant="caption"
+                  color={theme.palette.primary.main}
+                >
+                  <MarkdownWrapper>{message.body}</MarkdownWrapper>
+                </Typography>
+              </Box>
             </Box>
-
-            {/* {renderMessageDivider(message, index)} */}
-
-            <Stack
+          );
+        } else
+          return (
+            <Box
               key={message.id}
-              alignItems={"start"}
-              bgcolor={!message.fromMe ? theme.palette.background.paper : theme.palette.background.neutral}
-              marginBottom={1}
-              borderRadius={0.8}
-              direction={"row"}
-              position={"relative"}
-              pr={"35px"}
-              minHeight={"38px"}
-              width={"fit-content"}
-              maxWidth={{ xs: "100%", md: "512px" }}
-              overflow={"hidden"}
-              wordWrap="break-word"
+              display={"flex"}
+              flexDirection={"column"}
+              alignItems={!message.fromMe ? "start" : "end"}
             >
-              <Stack direction={"column"} px={1} py={0.5}>
-                {isGroup && (
-                  <Typography color={"primary"} variant="caption">
-                    {message.contact?.name}
-                  </Typography>
-                )}
-                {(message.mediaUrl ||
-                  message.mediaType === "location" ||
-                  message.mediaType === "vcard") &&
-                  checkMessageMedia(message)}
+              <Box
+                display={"flex"}
+                width={"100%"}
+                alignContent={"center"}
+                justifyContent={"center"}
+              >
+                <Typography
+                  variant="caption"
+                  color={theme.palette.primary.main}
+                >
+                  {renderDailyTimestamps(message, index)}
+                </Typography>
+              </Box>
 
-                <Stack direction={"column"} gap={0.5}>
-                  {message.isDeleted && <Block fontSize="small" />}
-                  {message.quotedMsg && renderQuotedMessage(message)}
+              {/* {renderMessageDivider(message, index)} */}
 
-                  {message.mediaType === "audio" ||
-                  message.mediaType === "image" ? null : (
-                    <Typography
-                      style={{ paddingLeft: message.quotedMsg ? 8 : 0 }}
-                    >
-                      <MarkdownWrapper>{message.body}</MarkdownWrapper>
+              <Stack
+                key={message.id}
+                alignItems={"start"}
+                bgcolor={
+                  !message.fromMe
+                    ? theme.palette.background.paper
+                    : theme.palette.background.neutral
+                }
+                marginBottom={1}
+                borderRadius={0.8}
+                direction={"row"}
+                position={"relative"}
+                pr={"35px"}
+                minHeight={"38px"}
+                width={"fit-content"}
+                maxWidth={{ xs: "100%", md: "512px" }}
+                overflow={"hidden"}
+                wordWrap="break-word"
+              >
+                <Stack direction={"column"} px={1} py={0.5}>
+                  {isGroup && (
+                    <Typography color={"primary"} variant="caption">
+                      {message.contact?.name}
                     </Typography>
                   )}
-                </Stack>
-              </Stack>
+                  {(message.mediaUrl ||
+                    message.mediaType === "location" ||
+                    message.mediaType === "vcard") &&
+                    checkMessageMedia(message)}
 
-              <Box
-                sx={{ position: "absolute", right: 1, top: 0 }}
-                id="messageActionsButton"
-                disabled={message.isDeleted}
-                onClick={(e) => handleOpenMessageOptionsMenu(e, message)}
-              >
-                <ExpandMore />
-              </Box>
-              <Typography
-                sx={{ position: "absolute", right: 5, bottom: 1 }}
-                variant="caption"
-                color={"grey"}
-              >
-                {format(parseISO(message.createdAt), "HH:mm")}
-              </Typography>
-            </Stack>
-            {message.fromMe && renderMessageAck(message)}
-          </Box>
-        );
+                  <Stack direction={"column"} gap={0.5}>
+                    {message.isDeleted && <Block fontSize="small" />}
+                    {message.quotedMsg && renderQuotedMessage(message)}
+
+                    {message.mediaType === "audio" ||
+                    message.mediaType === "image" ? null : (
+                      <Typography
+                        style={{ paddingLeft: message.quotedMsg ? 8 : 0 }}
+                      >
+                        <MarkdownWrapper>{message.body}</MarkdownWrapper>
+                      </Typography>
+                    )}
+                  </Stack>
+                </Stack>
+
+                <Box
+                  sx={{ position: "absolute", right: 1, top: 0 }}
+                  id="messageActionsButton"
+                  disabled={message.isDeleted}
+                  onClick={(e) => handleOpenMessageOptionsMenu(e, message)}
+                >
+                  <ExpandMore />
+                </Box>
+                <Typography
+                  sx={{ position: "absolute", right: 5, bottom: 1 }}
+                  variant="caption"
+                  color={"grey"}
+                >
+                  {format(parseISO(message.createdAt), "HH:mm")}
+                </Typography>
+              </Stack>
+              {message.fromMe && renderMessageAck(message)}
+            </Box>
+          );
       });
       return viewMessagesList;
     } else {
