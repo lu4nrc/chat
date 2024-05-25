@@ -12,7 +12,14 @@ import {
   useTheme,
 } from "@mui/material";
 
-import { Check, Checks, Download } from "@phosphor-icons/react";
+import {
+  CaretDown,
+  Check,
+  Checks,
+  ClockCountdown,
+  Download,
+  Trash,
+} from "@phosphor-icons/react";
 import { Divider } from "rsuite";
 import toastError from "../../errors/toastError";
 import api from "../../services/api";
@@ -21,6 +28,7 @@ import MarkdownWrapper from "../MarkdownWrapper";
 import MessageOptionsMenu from "../MessageOptionsMenu";
 import ModalImageCors from "../ModalImageCors";
 import VcardPreview from "../VcardPreview";
+import AudioComp from "../AudioComp";
 
 const reducer = (state, action) => {
   if (action.type === "LOAD_MESSAGES") {
@@ -240,9 +248,10 @@ const MessagesList = ({ ticketId, isGroup }) => {
       return <ModalImageCors imageUrl={message.mediaUrl} />;
     } else if (message.mediaType === "audio") {
       return (
-        <audio controls>
+        <AudioComp audio={message.mediaUrl} />
+        /*         <audio controls>
           <source src={message.mediaUrl} type="audio/ogg" />
-        </audio>
+        </audio> */
       );
     } else if (message.mediaType === "video") {
       return (
@@ -264,7 +273,7 @@ const MessagesList = ({ ticketId, isGroup }) => {
             href={message.mediaUrl}
             fullWidth
           >
-            Baixar
+            Fazer Download
           </Button>
         </Stack>
       );
@@ -273,7 +282,7 @@ const MessagesList = ({ ticketId, isGroup }) => {
 
   const renderMessageAck = (message) => {
     if (message.ack === 0) {
-      return <AccessTime fontSize="small" />;
+      return <ClockCountdown fontSize="small" />;
     }
     if (message.ack === 1) {
       return <Check size={18} color="grey" />;
@@ -337,15 +346,19 @@ const MessagesList = ({ ticketId, isGroup }) => {
   const renderQuotedMessage = (message) => {
     return (
       <Box
-        sx={{
-          borderLeft: `${
-            message.quotedMsg.mediaType === "chat" ? "6px solid #FF2661" : ""
-          }`,
-          paddingX: `${message.quotedMsg.mediaType === "chat" ? "16px" : ""}`,
-          paddingY: `${message.quotedMsg.mediaType === "chat" ? "8px" : ""}`,
-          bgcolor: theme.palette.background.default,
-        }}
-        borderRadius={1}
+        display={"flex"}
+        flexDirection={"column"}
+        px={message.quotedMsg.mediaType === "chat" ? 1 : ""}
+        py={message.quotedMsg.mediaType === "chat" ? 0.5 : ""}
+        borderLeft={
+          message.quotedMsg.mediaType === "chat" ? "4px solid #FF2661" : ""
+        }
+        bgcolor={
+          message.fromMe
+            ? theme.palette.background.neutral
+            : theme.palette.background.default
+        }
+        borderRadius={0.5}
       >
         {!message.quotedMsg?.fromMe && (
           <Typography variant="caption">
@@ -358,15 +371,16 @@ const MessagesList = ({ ticketId, isGroup }) => {
         {message.quotedMsg.mediaType === "image" ? (
           <ModalImageCors imageUrl={message.quotedMsg.mediaUrl} />
         ) : message.quotedMsg.mediaType === "audio" ? (
-          <audio controls>
+          /*           <audio controls>
             <source src={message.quotedMsg.mediaUrl} type="audio/ogg" />
-          </audio>
+          </audio> */
+          <AudioComp audio={message.quotedMsg.mediaUrl} />
         ) : message.quotedMsg.mediaType === "video" ? (
           <video src={message.quotedMsg.mediaUrl} controls />
         ) : (
-          <p>
+          <Typography variant="caption">
             <MarkdownWrapper>{message.quotedMsg?.body}</MarkdownWrapper>
-          </p>
+          </Typography>
         )}
       </Box>
     );
@@ -386,10 +400,12 @@ const MessagesList = ({ ticketId, isGroup }) => {
         if (message.mediaType === null) {
           return (
             <Box
+              key={message.id}
               display={"flex"}
               width={"100%"}
               alignContent={"center"}
               justifyContent={"center"}
+              py={1}
             >
               <Box
                 p={1}
@@ -411,6 +427,8 @@ const MessagesList = ({ ticketId, isGroup }) => {
         } else
           return (
             <Box
+              sx={{ opacity: message.isDeleted ? 0.5 : 1 }}
+              pb={0.7}
               key={message.id}
               display={"flex"}
               flexDirection={"column"}
@@ -435,65 +453,87 @@ const MessagesList = ({ ticketId, isGroup }) => {
               <Stack
                 key={message.id}
                 alignItems={"start"}
+                justifyContent={"center"}
                 bgcolor={
-                  !message.fromMe
-                    ? theme.palette.background.paper
-                    : theme.palette.background.neutral
+                  !message.fromMe ? theme.palette.background.neutral : ""
                 }
-                marginBottom={1}
-                borderRadius={0.8}
-                direction={"row"}
+                sx={{
+                  borderRadius: message.fromMe
+                    ? "11px 11px 0px 11px"
+                    : "11px 11px 11px 0px", // superior esquerdo, superior direito, inferior direito, inferior esquerdo
+                }}
+                border={1}
+                padding={message.mediaType === "chat" ? 0.7 : 0}
+                borderColor={theme.palette.background.paper}
+                direction={"column"}
                 position={"relative"}
-                pr={"35px"}
-                minHeight={"38px"}
                 width={"fit-content"}
                 maxWidth={{ xs: "100%", md: "512px" }}
+                minHeight={40}
                 overflow={"hidden"}
-                wordWrap="break-word"
               >
-                <Stack direction={"column"} px={1} py={0.5}>
-                  {isGroup && (
-                    <Typography color={"primary"} variant="caption">
-                      {message.contact?.name}
-                    </Typography>
-                  )}
-                  {(message.mediaUrl ||
-                    message.mediaType === "location" ||
-                    message.mediaType === "vcard") &&
-                    checkMessageMedia(message)}
+                {isGroup && (
+                  <Typography color={"primary"} variant="caption">
+                    {message.contact?.name}
+                  </Typography>
+                )}
+                {(message.mediaUrl ||
+                  message.mediaType === "location" ||
+                  message.mediaType === "vcard") &&
+                  checkMessageMedia(message)}
 
-                  <Stack direction={"column"} gap={0.5}>
-                    {message.isDeleted && <Block fontSize="small" />}
-                    {message.quotedMsg && renderQuotedMessage(message)}
+                {message.isDeleted && (
+                  <Box
+                    sx={{ fontStyle: "italic" }}
+                    display={"flex"}
+                    alignItems={"center"}
+                    gap={0.5}
+                  >
+                    <Trash fontSize="small" />{" "}
+                    <Typography>Mensagem apagada</Typography>
+                  </Box>
+                )}
+                {message.quotedMsg && renderQuotedMessage(message)}
 
-                    {message.mediaType === "audio" ||
-                    message.mediaType === "image" ? null : (
-                      <Typography
-                        style={{ paddingLeft: message.quotedMsg ? 8 : 0 }}
-                      >
-                        <MarkdownWrapper>{message.body}</MarkdownWrapper>
-                      </Typography>
-                    )}
-                  </Stack>
-                </Stack>
-
+                {message.mediaType === "audio" ||
+                (message.mediaType === "image" && message.fromMe) ? null : (
+                  <p
+                    style={{
+                      whiteSpace: "pre-wrap",
+                      paddingLeft: 1,
+                      paddingRight: 2,
+                    }}
+                  >
+                    <MarkdownWrapper>{message.body}</MarkdownWrapper>
+                  </p>
+                )}
                 <Box
-                  sx={{ position: "absolute", right: 1, top: 0 }}
-                  id="messageActionsButton"
+                  sx={{ position: "absolute", right: 0, top: 0 }}
+                  bgcolor={"rgba(240, 240, 240, 0.5)"}
+                  borderRadius={"0px 11px 0px 11px"}
+                  display={"flex"}
+                  p={0.5}
                   disabled={message.isDeleted}
                   onClick={(e) => handleOpenMessageOptionsMenu(e, message)}
                 >
-                  <ExpandMore />
+                  <CaretDown id="messageActionsButton" />
                 </Box>
+              </Stack>
+              <Box
+                display={"flex"}
+                gap={0.5}
+                justifyContent={"center"}
+                alignItems={"center"}
+              >
                 <Typography
-                  sx={{ position: "absolute", right: 5, bottom: 1 }}
+                  // sx={{ position: "absolute", right: 5, bottom: 1 }}
                   variant="caption"
                   color={"grey"}
                 >
                   {format(parseISO(message.createdAt), "HH:mm")}
                 </Typography>
-              </Stack>
-              {message.fromMe && renderMessageAck(message)}
+                {message.fromMe && renderMessageAck(message)}
+              </Box>
             </Box>
           );
       });
