@@ -152,9 +152,13 @@ const MarkdownWrapper = React.memo(({ children }) => {
     // Expressões regulares refatoradas para serem mais eficientes
     const boldRegex = /\*([^*]+)\*/g;
     const tildaRegex = /~([^~]+)~/g;
+    const removeGreaterThanRegex = /> \*([^*]+)\*/g;
 
-    // Função para substituir o texto em negrito e riscado
+    // Função para substituir o texto
     const replaceText = (text, regex, replacement) => text.replace(regex, replacement);
+
+    // Função para remover o padrão "> *"
+    const removeGreaterThanPattern = (text) => text.replace(removeGreaterThanRegex, "*$1*");
 
     if (!children) return null;
 
@@ -176,6 +180,7 @@ const MarkdownWrapper = React.memo(({ children }) => {
 
     // Aplicando transformações no texto
     let modifiedChildren = children;
+    modifiedChildren = removeGreaterThanPattern(modifiedChildren);
     modifiedChildren = replaceText(modifiedChildren, boldRegex, "**$1**");
     modifiedChildren = replaceText(modifiedChildren, tildaRegex, "~~$1~~");
 

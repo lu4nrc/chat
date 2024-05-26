@@ -190,7 +190,7 @@ const MessageInput = ({ ticketStatus }) => {
       fromMe: true,
       mediaUrl: "",
       body: signMessage
-        ? `*${user?.name}:*\n${inputMessage.trim()}`
+        ? `> *${user?.name}*\n${inputMessage.trim()}`
         : inputMessage.trim(),
       quotedMsg: replyingMessage,
     };

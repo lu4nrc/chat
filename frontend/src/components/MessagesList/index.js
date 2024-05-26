@@ -249,23 +249,20 @@ const MessagesList = ({ ticketId, isGroup }) => {
     } else if (message.mediaType === "audio") {
       return (
         <AudioComp audio={message.mediaUrl} />
-        /*         <audio controls>
-          <source src={message.mediaUrl} type="audio/ogg" />
-        </audio> */
       );
     } else if (message.mediaType === "video") {
       return (
-        <Box width={200} maxWidth="100%">
+        <div style={{ width: "200px", maxWidth: "100%" }}>
           <video
             style={{ width: "100%", height: "auto", borderRadius: "5px" }}
             src={message.mediaUrl}
             controls
           />
-        </Box>
+        </div>
       );
     } else {
       return (
-        <Stack p={0.7}>
+        <div style={{padding: "5px"}}>
           <Button
             variant="contained"
             startIcon={<Download size={24} />}
@@ -275,7 +272,7 @@ const MessagesList = ({ ticketId, isGroup }) => {
           >
             Fazer Download
           </Button>
-        </Stack>
+        </div>
       );
     }
   };
@@ -298,11 +295,11 @@ const MessagesList = ({ ticketId, isGroup }) => {
   const renderDailyTimestamps = (message, index) => {
     if (index === 0) {
       return (
-        <Box key={`timestamp-${message.id}`}>
-          <span style={{ fontSize: 14 }}>
+        <div key={`timestamp-${message.id}`}>
+          <span style={{ fontSize: "12px"}}>
             {format(parseISO(messagesList[index].createdAt), "dd/MM/yyyy")}
           </span>
-        </Box>
+        </div>
       );
     }
     if (index < messagesList.length - 1) {
@@ -311,11 +308,11 @@ const MessagesList = ({ ticketId, isGroup }) => {
 
       if (!isSameDay(messageDay, previousMessageDay)) {
         return (
-          <Box key={`timestamp-${message.id}`}>
+          <div key={`timestamp-${message.id}`}>
             <span style={{ fontSize: 14 }}>
               {format(parseISO(messagesList[index].createdAt), "dd/MM/yyyy")}
             </span>
-          </Box>
+          </div>
         );
       }
     }
@@ -361,11 +358,11 @@ const MessagesList = ({ ticketId, isGroup }) => {
         borderRadius={0.5}
       >
         {!message.quotedMsg?.fromMe && (
-          <Typography variant="caption">
+          <p style={{fontSize: "12px", fontWeight: 600}}>
             <MarkdownWrapper>
               {message.quotedMsg?.contact?.name}
             </MarkdownWrapper>
-          </Typography>
+          </p>
         )}
 
         {message.quotedMsg.mediaType === "image" ? (
@@ -378,9 +375,15 @@ const MessagesList = ({ ticketId, isGroup }) => {
         ) : message.quotedMsg.mediaType === "video" ? (
           <video src={message.quotedMsg.mediaUrl} controls />
         ) : (
-          <Typography variant="caption">
+          <p
+            style={{
+              whiteSpace: "pre-wrap",
+              paddingLeft: 1,
+              paddingRight: 2,
+            }}
+          >
             <MarkdownWrapper>{message.quotedMsg?.body}</MarkdownWrapper>
-          </Typography>
+          </p>
         )}
       </Box>
     );
@@ -397,32 +400,38 @@ const MessagesList = ({ ticketId, isGroup }) => {
   const renderMessages = () => {
     if (messagesList.length > 0) {
       const viewMessagesList = messagesList.map((message, index) => {
+        console.log(message)
         if (message.mediaType === null) {
           return (
-            <Box
+            <div
+              style={{
+                display: "flex",
+                width: "100%",
+                alignItems: "center",
+                justifyContent: "center",
+                paddingY: 1,
+              }}
               key={message.id}
-              display={"flex"}
-              width={"100%"}
-              alignContent={"center"}
-              justifyContent={"center"}
-              py={1}
             >
-              <Box
-                p={1}
-                px={2}
-                borderRadius={1}
-                border={1}
-                borderColor={theme.palette.background.paper}
-                bgcolor={theme.palette.background.neutral}
+              <div
+                style={{
+                  padding: "5px 10px 5px 10px",
+                  borderRadius: "5px",
+                  border: `1px solid ${theme.palette.background.paper}`,
+                  backgroundColor: theme.palette.background.neutral,
+                  margin: "3px"
+                }}
               >
-                <Typography
-                  variant="caption"
-                  color={theme.palette.primary.main}
+                <span
+                  style={{
+                    color: theme.palette.info.main,
+                    fontSize: "12px",
+                  }}
                 >
                   <MarkdownWrapper>{message.body}</MarkdownWrapper>
-                </Typography>
-              </Box>
-            </Box>
+                </span>
+              </div>
+            </div>
           );
         } else
           return (
@@ -434,19 +443,20 @@ const MessagesList = ({ ticketId, isGroup }) => {
               flexDirection={"column"}
               alignItems={!message.fromMe ? "start" : "end"}
             >
-              <Box
-                display={"flex"}
-                width={"100%"}
-                alignContent={"center"}
-                justifyContent={"center"}
+              <div
+                style={{
+                  display: "flex",
+                  width: "100%",
+                  alignContent: "center",
+                  justifyContent: "center",
+                }}
               >
-                <Typography
-                  variant="caption"
-                  color={theme.palette.primary.main}
+                <span
+                  style={{ color: theme.palette.primary.main, fontWeight: 700 }}
                 >
                   {renderDailyTimestamps(message, index)}
-                </Typography>
-              </Box>
+                </span>
+              </div>
 
               {/* {renderMessageDivider(message, index)} */}
 
@@ -473,9 +483,15 @@ const MessagesList = ({ ticketId, isGroup }) => {
                 overflow={"hidden"}
               >
                 {isGroup && (
-                  <Typography color={"primary"} variant="caption">
+                  <p
+                    style={{
+                      color: theme.palette.primary.main,
+                      fontSize: 12,
+                      fontWeight: 700,
+                    }}
+                  >
                     {message.contact?.name}
-                  </Typography>
+                  </p>
                 )}
                 {(message.mediaUrl ||
                   message.mediaType === "location" ||
@@ -483,20 +499,22 @@ const MessagesList = ({ ticketId, isGroup }) => {
                   checkMessageMedia(message)}
 
                 {message.isDeleted && (
-                  <Box
-                    sx={{ fontStyle: "italic" }}
-                    display={"flex"}
-                    alignItems={"center"}
-                    gap={0.5}
+                  <div
+                    style={{
+                      fontStyle: "italic",
+                      display: "flex",
+                      alignItems: "center",
+                      gap: 0.5,
+                    }}
                   >
-                    <Trash fontSize="small" />{" "}
-                    <Typography>Mensagem apagada</Typography>
-                  </Box>
+                    <Trash fontSize="small" /> <span>Mensagem apagada</span>
+                  </div>
                 )}
                 {message.quotedMsg && renderQuotedMessage(message)}
 
                 {message.mediaType === "audio" ||
-                (message.mediaType === "image" && message.fromMe) ? null : (
+                (message.mediaType === "image" && message.body.trim().endsWith('.jpeg')) ? null : (
+                  
                   <p
                     style={{
                       whiteSpace: "pre-wrap",
@@ -504,36 +522,44 @@ const MessagesList = ({ ticketId, isGroup }) => {
                       paddingRight: 2,
                     }}
                   >
+
                     <MarkdownWrapper>{message.body}</MarkdownWrapper>
                   </p>
                 )}
-                <Box
-                  sx={{ position: "absolute", right: 0, top: 0 }}
-                  bgcolor={"rgba(240, 240, 240, 0.5)"}
-                  borderRadius={"0px 11px 0px 11px"}
-                  display={"flex"}
-                  p={0.5}
-                  disabled={message.isDeleted}
-                  onClick={(e) => handleOpenMessageOptionsMenu(e, message)}
-                >
-                  <CaretDown id="messageActionsButton" />
-                </Box>
+                {!message.isDeleted && (
+                  <div
+                    onClick={(e) => handleOpenMessageOptionsMenu(e, message)}
+                    style={{
+                      position: "absolute",
+                      right: 0,
+                      top: 0,
+                      backgroundColor: "rgba(240, 240, 240, 0.5)",
+                      borderRadius: "0px 11px 0px 11px",
+                      display: "flex",
+                      padding: "2px",
+                    }}
+                  >
+                    <CaretDown id="messageActionsButton" />
+                  </div>
+                )}
               </Stack>
-              <Box
-                display={"flex"}
-                gap={0.5}
-                justifyContent={"center"}
-                alignItems={"center"}
+              <div
+                style={{
+                  display: "flex",
+                  gap: "10px",
+                  justifyContent: "center",
+                  alignItems: "center",
+                }}
               >
-                <Typography
+                <span
                   // sx={{ position: "absolute", right: 5, bottom: 1 }}
-                  variant="caption"
-                  color={"grey"}
+
+                  style={{ color: "grey", fontSize: "12px" }}
                 >
                   {format(parseISO(message.createdAt), "HH:mm")}
-                </Typography>
+                </span>
                 {message.fromMe && renderMessageAck(message)}
-              </Box>
+              </div>
             </Box>
           );
       });
@@ -564,10 +590,10 @@ const MessagesList = ({ ticketId, isGroup }) => {
       >
         {messagesList.length > 0 ? renderMessages() : []}
         {loading && (
-          <Box
-            position="absolute"
-            zIndex={2}
-            sx={{
+          <div
+            style={{
+              position: "absolute",
+              zIndex: 2,
               display: "flex",
               flexDirection: "column",
               alignItems: "center",
@@ -578,7 +604,7 @@ const MessagesList = ({ ticketId, isGroup }) => {
             }}
           >
             <CircularProgress />
-          </Box>
+          </div>
         )}
       </Stack>
     </>

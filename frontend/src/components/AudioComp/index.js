@@ -43,7 +43,7 @@ const AudioComp = ({ audio }) => {
       <div ref={containerRef} />
 
       <Box>
-        <Typography variant="caption">{isPlaying ? formatTime(currentTime) : formatTime(currentTime > 0 ? currentTime : wavesurfer?.decodedData?.duration)}{}</Typography>
+        <span style={{fontSize: "12px", fontWeight: 700}}>{isPlaying ? formatTime(currentTime) : formatTime(currentTime > 0 ? currentTime : wavesurfer?.decodedData?.duration)}{}</span>
       </Box>
     </Box>
   );
