@@ -513,7 +513,7 @@ const MessagesList = ({ ticketId, isGroup }) => {
                 {message.quotedMsg && renderQuotedMessage(message)}
 
                 {message.mediaType === "audio" ||
-                (message.mediaType === "image" && message.body.trim().endsWith('.jpeg')) ? null : (
+                (message.mediaType === "image" && (message.body.trim().endsWith('.jpeg') || message.body.trim().endsWith('.webp'))) ? null : (
                   
                   <p
                     style={{
