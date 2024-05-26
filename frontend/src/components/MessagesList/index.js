@@ -400,7 +400,6 @@ const MessagesList = ({ ticketId, isGroup }) => {
   const renderMessages = () => {
     if (messagesList.length > 0) {
       const viewMessagesList = messagesList.map((message, index) => {
-        console.log(message)
         if (message.mediaType === null) {
           return (
             <div
