@@ -15,6 +15,8 @@ const VcardPreview = ({ contact, numbers }) => {
   const navigate = useNavigate();
   const { user } = useContext(AuthContext);
 
+
+
   const [selectedContact, setContact] = useState({
     name: "",
     number: 0,
@@ -27,12 +29,14 @@ const VcardPreview = ({ contact, numbers }) => {
         try {
           let contactObj = {
             name: contact,
-            number: numbers.replace(/\D/g, ""),
+            // number: numbers.replace(/\D/g, ""),
+            number: numbers !== undefined && numbers.replace(/\D/g, ""),
             email: "",
           };
           const { data } = await api.post("/contact", contactObj);
           setContact(data);
         } catch (err) {
+          console.log(err);
           toastError(err);
         }
       };
@@ -61,11 +65,9 @@ const VcardPreview = ({ contact, numbers }) => {
           minWidth: "250px",
         }}
       >
-        <Grid container spacing={1}>
-          <Grid item xs={2}>
+        <div>
+          <div style={{ display: "flex", padding: "10px" }}>
             <Avatar src={selectedContact.profilePicUrl} />
-          </Grid>
-          <Grid item xs={9}>
             <Typography
               style={{ marginTop: "12px", marginLeft: "10px" }}
               variant="subtitle1"
@@ -74,19 +76,17 @@ const VcardPreview = ({ contact, numbers }) => {
             >
               {selectedContact.name}
             </Typography>
-          </Grid>
-          <Grid item xs={12}>
-            <Divider />
-            <Button
-              fullWidth
-              color="primary"
-              onClick={handleNewChat}
-              disabled={!selectedContact.number}
-            >
-              Conversar
-            </Button>
-          </Grid>
-        </Grid>
+          </div>
+          <Divider />
+          <Button
+            fullWidth
+            color="primary"
+            onClick={handleNewChat}
+            disabled={!selectedContact.number}
+          >
+            Enviar mensagem
+          </Button>
+        </div>
       </div>
     </>
   );

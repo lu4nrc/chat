@@ -4,6 +4,7 @@ import openSocket from "../../services/socket-io";
 
 import { AccessTime, Block, ExpandMore } from "@mui/icons-material";
 import {
+  Avatar,
   Box,
   Button,
   CircularProgress,
@@ -87,6 +88,44 @@ const MessagesList = ({ ticketId, isGroup }) => {
   const [anchorEl, setAnchorEl] = useState(null);
   const messageOptionsMenuOpen = Boolean(anchorEl);
   const currentTicketId = useRef(ticketId);
+
+  const removerHashDoNomeDoArquivo = (nomeArquivo) => {
+    // Remove a hash do nome do arquivo
+    const partesNomeArquivo = nomeArquivo.split(".");
+    return (
+      partesNomeArquivo.slice(0, -2).join(".") + "." + partesNomeArquivo.pop()
+    );
+  };
+
+  const baixarArquivoSemHash = async (url, nomeArquivo) => {
+    try {
+      const response = await fetch(url);
+      const blob = await response.blob();
+      const blobUrl = window.URL.createObjectURL(blob);
+
+      // Obtém o nome do arquivo sem a hash
+      const nomeArquivoSemHash = removerHashDoNomeDoArquivo(nomeArquivo);
+
+      // Cria um link temporário
+      const link = document.createElement("a");
+      link.href = blobUrl;
+      link.setAttribute("download", nomeArquivoSemHash); // Define o atributo 'download' para baixar o arquivo
+      // Adiciona um evento de clique para baixar o arquivo quando o botão for clicado
+      link.addEventListener(
+        "click",
+        () => {
+          document.body.removeChild(link);
+        },
+        { once: true }
+      );
+      // Adiciona o link ao DOM
+      document.body.appendChild(link);
+      // Simula um clique para iniciar o download
+      link.click();
+    } catch (error) {
+      console.error("Erro ao baixar arquivo:", error);
+    }
+  };
 
   /* ADD */
   useEffect(() => {
@@ -243,13 +282,11 @@ const MessagesList = ({ ticketId, isGroup }) => {
           }
         }
       }
-      return <VcardPreview contact={contact} numbers={obj[0].number} />;
+      return <VcardPreview contact={contact} numbers={obj[0]?.number} />;
     } else if (message.mediaType === "image") {
       return <ModalImageCors imageUrl={message.mediaUrl} />;
     } else if (message.mediaType === "audio") {
-      return (
-        <AudioComp audio={message.mediaUrl} />
-      );
+      return <AudioComp audio={message.mediaUrl} />;
     } else if (message.mediaType === "video") {
       return (
         <div style={{ width: "200px", maxWidth: "100%" }}>
@@ -261,13 +298,13 @@ const MessagesList = ({ ticketId, isGroup }) => {
         </div>
       );
     } else {
+      const nomeArquivo = message.mediaUrl.split("/").pop();
       return (
-        <div style={{padding: "5px"}}>
+        <div style={{ padding: "5px" }}>
           <Button
             variant="contained"
-            startIcon={<Download size={24} />}
-            target="_blank"
-            href={message.mediaUrl}
+            startIcon={<Download />}
+            onClick={() => baixarArquivoSemHash(message.mediaUrl, nomeArquivo)} // Chama a função para baixar o arquivo sem a hash
             fullWidth
           >
             Fazer Download
@@ -296,7 +333,7 @@ const MessagesList = ({ ticketId, isGroup }) => {
     if (index === 0) {
       return (
         <div key={`timestamp-${message.id}`}>
-          <span style={{ fontSize: "12px"}}>
+          <span style={{ fontSize: "12px" }}>
             {format(parseISO(messagesList[index].createdAt), "dd/MM/yyyy")}
           </span>
         </div>
@@ -358,7 +395,7 @@ const MessagesList = ({ ticketId, isGroup }) => {
         borderRadius={0.5}
       >
         {!message.quotedMsg?.fromMe && (
-          <p style={{fontSize: "12px", fontWeight: 600}}>
+          <p style={{ fontSize: "12px", fontWeight: 600 }}>
             <MarkdownWrapper>
               {message.quotedMsg?.contact?.name}
             </MarkdownWrapper>
@@ -418,7 +455,7 @@ const MessagesList = ({ ticketId, isGroup }) => {
                   borderRadius: "5px",
                   border: `1px solid ${theme.palette.background.paper}`,
                   backgroundColor: theme.palette.background.neutral,
-                  margin: "3px"
+                  margin: "3px",
                 }}
               >
                 <span
@@ -512,8 +549,13 @@ const MessagesList = ({ ticketId, isGroup }) => {
                 {message.quotedMsg && renderQuotedMessage(message)}
 
                 {message.mediaType === "audio" ||
-                (message.mediaType === "image" && (message.body.trim().endsWith('.jpeg') || message.body.trim().endsWith('.webp'))) ? null : (
-                  
+                (message.mediaType === "image" &&
+                  (message.body.trim().endsWith(".jpeg") ||
+                    message.body.trim().endsWith(".webp"))) ||
+                message.mediaType === "vcard" ? null : message.mediaType ===
+                  "application" ? (
+                  removerHashDoNomeDoArquivo(message.body)
+                ) : (
                   <p
                     style={{
                       whiteSpace: "pre-wrap",
@@ -521,7 +563,6 @@ const MessagesList = ({ ticketId, isGroup }) => {
                       paddingRight: 2,
                     }}
                   >
-
                     <MarkdownWrapper>{message.body}</MarkdownWrapper>
                   </p>
                 )}
