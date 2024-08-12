@@ -44,7 +44,7 @@
     "sequelize-cli": "^5.5.1",
     "sequelize-typescript": "^1.1.0",
     "socket.io": "^4.6.1",
-    "whatsapp-web.js": "github:lu4nrc/whatsapp-web.js",
+    "whatsapp-web.js": "1.25.0",
     "uuid": "^9.0.0",
     "yup": "^1.0.2"
   },
