@@ -4,7 +4,6 @@ import AppError from "../errors/AppError";
 import AuthUserService from "../services/UserServices/AuthUserService";
 import { SendRefreshToken } from "../helpers/SendRefreshToken";
 import { RefreshTokenService } from "../services/AuthServices/RefreshTokenService";
-import UpdateStatusUserService from "../services/UserServices/UpdateStatusUserService";
 
 export const store = async (req: Request, res: Response): Promise<Response> => {
   const { email, password } = req.body;
@@ -47,7 +46,6 @@ export const remove = async (
   res: Response
 ): Promise<Response> => {
   const {userId}=req.params;
-  await  UpdateStatusUserService({userId:userId,status: "inactive"})
   res.clearCookie("jrt");
 
   return res.send();

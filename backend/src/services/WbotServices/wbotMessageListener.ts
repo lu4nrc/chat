@@ -52,6 +52,7 @@ const verifyContact = async (msgContact: WbotContact): Promise<Contact> => {
 const verifyQuotedMessage = async (
   msg: WbotMessage
 ): Promise<Message | null> => {
+  console.log({from: msg.from, body: msg.body})
   if (!msg.hasQuotedMsg) return null;
 
   const wbotQuotedMsg = await msg.getQuotedMessage();
@@ -96,7 +97,7 @@ const verifyMediaMessage = async (
     const ext = media.mimetype.split("/")[1].split(";")[0];
     media.filename = `${randomId}-${new Date().getTime()}.${ext}`;
   } else {
-    media.filename = media.filename.split('.').slice(0,-1).join('.')+'.'+randomId+'.'+media.filename.split('.').slice(-1);
+        media.filename = media.filename.split('.').slice(0,-1).join('.')+'-hash:'+randomId+'.'+media.filename.split('.').slice(-1);
   }
   media.filename = media.filename.replace(/[!@#$%&*]/g, "");
   try {

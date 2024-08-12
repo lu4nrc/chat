@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-/* import { getHoursCloseTicketsAuto } from "../../config"; */
+import { getHoursCloseTicketsAuto } from "../../config";
 import toastError from "../../errors/toastError";
 
 import api from "../../services/api";
@@ -36,9 +36,9 @@ const useTickets = ({
                     })
                     setTickets(data.tickets)
 
-                    /* let horasFecharAutomaticamente = getHoursCloseTicketsAuto(); */
+                    let horasFecharAutomaticamente = getHoursCloseTicketsAuto();
 
-/*                     if (status === "open" && horasFecharAutomaticamente && horasFecharAutomaticamente !== "" &&
+                    if (status === "open" && horasFecharAutomaticamente && horasFecharAutomaticamente !== "" &&
                         horasFecharAutomaticamente !== "0" && Number(horasFecharAutomaticamente) > 0) {
 
                         let dataLimite = new Date()
@@ -51,7 +51,7 @@ const useTickets = ({
                                     closeTicket(ticket)
                             }
                         })
-                    } */
+                    }
 
                     setHasMore(data.hasMore)
                     setCount(data.count)
@@ -62,12 +62,12 @@ const useTickets = ({
                 }
             }
 
-  /*           const closeTicket = async (ticket) => {
+            const closeTicket = async (ticket) => {
                 await api.put(`/tickets/${ticket.id}`, {
                     status: "closed",
                     userId: ticket.userId || null,
                 })
-            } */
+            }
 
             fetchTickets()
         }, 500)

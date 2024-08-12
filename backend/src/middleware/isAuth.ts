@@ -14,7 +14,6 @@ interface TokenPayload {
 
 const isAuth = (req: Request, res: Response, next: NextFunction): void => {
   const authHeader = req.headers.authorization;
-  
 
   if (!authHeader) {
     throw new AppError("ERR_SESSION_EXPIRED", 401);
@@ -24,7 +23,8 @@ const isAuth = (req: Request, res: Response, next: NextFunction): void => {
 
   try {
     const decoded = verify(token, authConfig.secret);
-    const { id, profile } = decoded as TokenPayload;  
+    const { id, profile } = decoded as TokenPayload;
+
     req.user = {
       id,
       profile

@@ -175,14 +175,6 @@ const NewPainel = () => {
     const notBelongsToUserQueues = (ticket) =>
       ticket.queueId && userQueueIds.indexOf(ticket.queueId) === -1;
 
-    /*         socket.on("connect", () => {
-      if (statuses) {
-        socket.emit("joinTickets", statuses);
-      } else {
-        socket.emit("joinNotification");
-      }
-    }); */
-
     socket.on("connect", () => {
       statuses.forEach((status) => {
         if (status) {
@@ -537,34 +529,74 @@ const NewPainel = () => {
           </Stack>
         </Stack>
 
-        {/* Column 3 */}
+        {/* Column 3 */}  
         <Stack
           bgcolor={theme.palette.background.default}
           direction={"column"}
           width={"100%"}
-          height={"100%"}
           borderRadius={1}
           overflow={"hidden"}
           border={1}
           borderColor={theme.palette.divider}
           sx={{
-   
-            flex: 2,
+            flex: 3,
           }}
         >
           <Stack direction={"row"} p={1} justifyContent={"space-between"}>
             <Typography variant="h6">Atendentes</Typography>
-
-            <Typography
-              color={(theme) => theme.palette.primary.main}
-              variant="h6"
-            >
+            <Typography color={theme.palette.primary.main} variant="h6">
               {resultUsers.length}
             </Typography>
+            <Stack direction={"row"} spacing={0.5}>
+              <Box
+                sx={{
+                  backgroundColor: theme.palette.background.neutral,
+                  paddingY: 0.5,
+                  paddingX: 1,
+                  borderRadius: 2,
+                }}
+              >
+                <Typography color={"green"} fontWeight={"bold"}>
+                  {/* {amounTimePassed.pending.lessthanten} */}
+                </Typography>
+              </Box>
+              <Box
+                sx={{
+                  backgroundColor: theme.palette.background.neutral,
+                  paddingY: 0.5,
+                  paddingX: 1,
+                  borderRadius: 2,
+                }}
+              >
+                <Typography color={"orange"} fontWeight={"bold"}>
+                  {/* {amounTimePassed.pending.lessthantwenty} */}
+                </Typography>
+              </Box>
+              <Box
+                sx={{
+                  backgroundColor: theme.palette.background.neutral,
+                  paddingY: 0.5,
+                  paddingX: 1,
+                  borderRadius: 2,
+                }}
+              >
+                <Typography color={"red"} fontWeight={"bold"}>
+                  {/*  {amounTimePassed.pending.greaterthanthirty} */}
+                </Typography>
+              </Box>
+            </Stack>
           </Stack>
           <Divider sx={{ borderStyle: "dashed", marginBottom: 1 }} />
-          <Stack direction={"column"} spacing={0.5} px={1}>
-            {resultUsers.map((el, index) => (
+          <Stack
+            direction={"column"}
+            px={0.8}
+            width={"100%"}
+            height={"100%"}
+            spacing={1}
+            sx={{ overflow: "auto" }}
+          >
+            
+{resultUsers.map((el, index) => (
               <Stack
                 key={index}
                 py={1.2}
@@ -638,3 +670,6 @@ const NewPainel = () => {
 };
 
 export default NewPainel;
+
+
+

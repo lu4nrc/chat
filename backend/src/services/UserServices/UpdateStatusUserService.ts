@@ -18,6 +18,7 @@ const UpdateStatusUserService = async ({
   status,
   datetime
 }: Request): Promise<Response> => {
+  console.log("Update Status:" ,userId, status)
   const user = await ShowUserService(userId);
   await user.update({
     datetime,

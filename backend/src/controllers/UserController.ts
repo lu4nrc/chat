@@ -110,23 +110,6 @@ export const updateProfileImage = async (
   return res.status(200).json({});
 };
 
-
-export const updateStatus = async (
-  req: Request,
-  res: Response
-): Promise<Response> => {
-  const { userId} = req.params;
-  const {status} = req.body;
-  const user= await UpdateStatusUserService({ status, userId ,datetime:new Date()});
-
-  const io = getIO();
-  io.emit("user", {
-    action: "update",
-    user
-  });
-  return res.status(200).json({});
-};
-
 export const updateTimer = async (
   req: Request,
   res: Response

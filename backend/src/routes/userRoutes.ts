@@ -17,7 +17,7 @@ userRoutes.put("/users/:userId", isAuth, UserController.update);
 
 userRoutes.put("/users/time/:userId", isAuth, UserController.updateTimer);
 
-userRoutes.put("/users/status/:userId", isAuth, UserController.updateStatus);
+//userRoutes.put("/users/status/:userId", isAuth, UserController.updateStatus);
 
 userRoutes.put("/users/image/:userId", isAuth, upload.single("fileupload"),
     UserController.updateProfileImage);

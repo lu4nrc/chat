@@ -90,11 +90,19 @@ const MessagesList = ({ ticketId, isGroup }) => {
   const currentTicketId = useRef(ticketId);
 
   const removerHashDoNomeDoArquivo = (nomeArquivo) => {
-    // Remove a hash do nome do arquivo
-    const partesNomeArquivo = nomeArquivo.split(".");
-    return (
-      partesNomeArquivo.slice(0, -2).join(".") + "." + partesNomeArquivo.pop()
-    );
+    // Expressão regular para identificar o padrão "nome_do_arquivo-[hash].extensao"
+    const regex = /(.*)-hash:(.*?)\.(.*)/;
+    // Verifica se o nome do arquivo corresponde ao padrão
+    const match = nomeArquivo.match(regex);
+    
+    if (match) {
+      // Remove a hash do nome do arquivo
+      const nomeSemHash = match[1] + "." + match[3];
+      return nomeSemHash;
+    } else {
+      // Retorna o nome do arquivo sem alterações se não houver hash
+      return nomeArquivo;
+    }
   };
 
   const baixarArquivoSemHash = async (url, nomeArquivo) => {
@@ -229,8 +237,7 @@ const MessagesList = ({ ticketId, isGroup }) => {
 
     if (loading) return;
 
-    if (scrollTop < 10) {
-      console.log("scrollTop");
+    if (scrollTop < 10) {;
       setLoading(true);
       loadMore();
     }

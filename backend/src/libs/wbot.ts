@@ -43,16 +43,30 @@ export const initWbot = async (whatsapp: Whatsapp): Promise<Session> => {
         sessionCfg = JSON.parse(whatsapp.session);
       }
 
-      const args:String = process.env.CHROME_ARGS || "";
+      const args: String = process.env.CHROME_ARGS || "";
 
       const wbot: Session = new Client({
         session: sessionCfg,
-        authStrategy: new LocalAuth({clientId: 'bd_'+whatsapp.id}),
+        authStrategy: new LocalAuth({ clientId: "bd_" + whatsapp.id }),
+        restartOnAuthFail: true,
+        qrMaxRetries: 4,
+        webVersionCache: {
+          type: "none"
+        },
         puppeteer: {
           executablePath: process.env.CHROME_BIN || undefined,
+          headless: true,
+          args: [
+            "--no-sandbox",
+            "--disable-setuid-sandbox",
+            "--disable-dev-shm-usage",
+            "--disable-accelerated-2d-canvas",
+            "--no-first-run",
+            "--no-zygote",
+            "--disable-gpu"
+          ],
           // @ts-ignore
-          browserWSEndpoint: process.env.CHROME_WS || undefined,
-          args: args.split(' ')
+          browserWSEndpoint: process.env.CHROME_WS || undefined
         }
       });
 
@@ -68,6 +82,10 @@ export const initWbot = async (whatsapp: Whatsapp): Promise<Session> => {
           wbot.id = whatsapp.id;
           sessions.push(wbot);
         }
+
+        wbot.on("loading_screen", (percent, message) => {
+          console.log("TELA DE CARREGAMENTO", percent, message);
+        });
 
         io.emit("whatsappSession", {
           action: "update",
