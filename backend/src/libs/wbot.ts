@@ -56,15 +56,7 @@ export const initWbot = async (whatsapp: Whatsapp): Promise<Session> => {
         puppeteer: {
           executablePath: process.env.CHROME_BIN || undefined,
           headless: true,
-          args: [
-            "--no-sandbox",
-            "--disable-setuid-sandbox",
-            "--disable-dev-shm-usage",
-            "--disable-accelerated-2d-canvas",
-            "--no-first-run",
-            "--no-zygote",
-            "--disable-gpu"
-          ],
+          args: args.split(' '),
           // @ts-ignore
           browserWSEndpoint: process.env.CHROME_WS || undefined
         }
