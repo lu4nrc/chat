@@ -52,7 +52,6 @@ const verifyContact = async (msgContact: WbotContact): Promise<Contact> => {
 const verifyQuotedMessage = async (
   msg: WbotMessage
 ): Promise<Message | null> => {
-  console.log({from: msg.from, body: msg.body})
   if (!msg.hasQuotedMsg) return null;
 
   const wbotQuotedMsg = await msg.getQuotedMessage();
@@ -68,8 +67,9 @@ const verifyQuotedMessage = async (
 
 // generate random id string for file names, function got from: https://stackoverflow.com/a/1349426/1851801
 function makeRandomId(length: number) {
-  let result = '';
-  const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+  let result = "";
+  const characters =
+    "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
   const charactersLength = characters.length;
   let counter = 0;
   while (counter < length) {
@@ -97,7 +97,12 @@ const verifyMediaMessage = async (
     const ext = media.mimetype.split("/")[1].split(";")[0];
     media.filename = `${randomId}-${new Date().getTime()}.${ext}`;
   } else {
-        media.filename = media.filename.split('.').slice(0,-1).join('.')+'-hash:'+randomId+'.'+media.filename.split('.').slice(-1);
+    media.filename =
+      media.filename.split(".").slice(0, -1).join(".") +
+      "-hash:" +
+      randomId +
+      "." +
+      media.filename.split(".").slice(-1);
   }
   media.filename = media.filename.replace(/[!@#$%&*]/g, "");
   try {
@@ -524,8 +529,14 @@ const wbotMessageListener = (wbot: Session): void => {
     "api"
   ];
   wbot.on("message_create", async msg => {
+    console.log({
+      locale: "wbotMessageList",
+      type: msg.type,
+      message: msg.body
+    });
+
     handleMessage(msg, wbot);
-     if (substrings.some(v => msg?.wbotType === v)) {
+    if (substrings.some(v => msg?.wbotType === v)) {
       if (msg?.wbotType === "api") {
         var settings = await Setting.findOne({
           where: { key: "ticketCreate" }
@@ -537,7 +548,7 @@ const wbotMessageListener = (wbot: Session): void => {
       }
       return;
     } else {
-    } 
+    }
   });
 
   wbot.on("media_uploaded", async msg => {
@@ -554,7 +565,7 @@ const wbotMessageListener = (wbot: Session): void => {
       }
       return;
     } else {
-    } 
+    }
   });
 
   wbot.on("message_ack", async (msg, ack) => {
