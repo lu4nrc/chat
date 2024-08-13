@@ -13,7 +13,18 @@ interface Session extends Client {
 const sessions: Session[] = [];
 
 const syncUnreadMessages = async (wbot: Session) => {
+  console.log({
+    locale: "wbot.ts",
+    fn: "syncUnreadMessages:",
+    pushname: wbot.info.pushname
+  });
   const chats = await wbot.getChats();
+  console.log(
+    "syncUnreadMessages:",
+    chats.length > 1
+      ? `Unread MSG > 0: ${wbot.info.pushname}`
+      : `Unread MSG < 0: ${wbot.info.pushname}`
+  );
 
   /* eslint-disable no-restricted-syntax */
   /* eslint-disable no-await-in-loop */
@@ -35,15 +46,19 @@ const syncUnreadMessages = async (wbot: Session) => {
 export const initWbot = async (whatsapp: Whatsapp): Promise<Session> => {
   return new Promise((resolve, reject) => {
     try {
+      console.log("Starting WhatsApp bot initialization...");
+
       const io = getIO();
       const sessionName = whatsapp.name;
       let sessionCfg;
 
       if (whatsapp && whatsapp.session) {
+        console.log("initWbot", whatsapp.session);
         sessionCfg = JSON.parse(whatsapp.session);
       }
 
       const args: String = process.env.CHROME_ARGS || "";
+      //console.log("Chrome arguments:", args);
 
       const wbot: Session = new Client({
         session: sessionCfg,
@@ -62,9 +77,11 @@ export const initWbot = async (whatsapp: Whatsapp): Promise<Session> => {
         }
       });
 
+      console.log("Initializing WhatsApp bot...");
       wbot.initialize();
 
       wbot.on("qr", async qr => {
+        console.log("QR code received");
         logger.info("Session:", sessionName);
         qrCode.generate(qr, { small: true });
         await whatsapp.update({ qrcode: qr, status: "qrcode", retries: 0 });
@@ -82,11 +99,11 @@ export const initWbot = async (whatsapp: Whatsapp): Promise<Session> => {
       });
 
       wbot.on("loading_screen", (percent, message) => {
-        console.log("TELA DE CARREGAMENTO", percent, message);
+        console.log("Loading screen:", percent, message);
       });
 
       wbot.on("authenticated", async session => {
-        logger.info(`Session: ${sessionName} AUTHENTICATED`);
+        logger.info(`Session: ${sessionName} Authenticated SUCCESSFULLY`);
       });
 
       wbot.on("auth_failure", async msg => {
@@ -113,13 +130,15 @@ export const initWbot = async (whatsapp: Whatsapp): Promise<Session> => {
       });
 
       wbot.on("ready", async () => {
-        logger.info(`Session: ${sessionName} READY`);
+        logger.info(`Session: ${sessionName} WhatsApp bot is READY`);
 
         await whatsapp.update({
           status: "CONNECTED",
           qrcode: "",
           retries: 0
         });
+
+        logger.info(`STATUS: CONNECTED`);
 
         io.emit("whatsappSession", {
           action: "update",
@@ -133,22 +152,18 @@ export const initWbot = async (whatsapp: Whatsapp): Promise<Session> => {
         }
 
         wbot.sendPresenceAvailable();
-        await syncUnreadMessages(wbot);
+        console.log("sendPresenceAvailable: OK");
 
+        //TODO: O problema está aqui nesse infeliz!!
+        // await syncUnreadMessages(wbot);
+
+        console.log({locale:"wbot.ts", fn: "initWbot", sessionName: `${sessionName}` });
         resolve(wbot);
       });
-
-      //TODO: Correcao provisoria
-      wbot.on("message_create", async msg => {
-        await handleMessage(msg, wbot)
-        console.log({
-          locale: "wbot.ts",
-          type: msg.type,
-          message: msg.body
-        });
-      });
     } catch (err) {
+      console.error("Error during bot initialization:", err);
       logger.error(err);
+      reject(err); // Ensure promise rejection on initialization error
     }
   });
 };
