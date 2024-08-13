@@ -470,7 +470,9 @@ const handleMsgAck = async (msg: WbotMessage, ack: MessageAck) => {
   }
 };
 
+//TODO: error acontece aqui
 const wbotMessageListener = (wbot: Session): void => {
+  console.log("AQUI");
   const substrings = [
     "remove_schedule",
     "reminder",
@@ -478,14 +480,16 @@ const wbotMessageListener = (wbot: Session): void => {
     "transmission",
     "api"
   ];
+
   wbot.on("message_create", async msg => {
     console.log({
-      locale: "wbotMessageListener",
+      locale: "wbotMessageListener.ts",
       type: msg.type,
       message: msg.body
     });
 
-    handleMessage(msg, wbot);
+   // handleMessage(msg, wbot);
+
     if (substrings.some(v => msg?.wbotType === v)) {
       if (msg?.wbotType === "api") {
         var settings = await Setting.findOne({
@@ -493,7 +497,7 @@ const wbotMessageListener = (wbot: Session): void => {
         });
         if (settings === null) return;
         if (settings.value === "enabled") {
-          handleMessage(msg, wbot);
+        //  handleMessage(msg, wbot);
         }
       }
       return;

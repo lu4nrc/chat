@@ -56,7 +56,7 @@ export const initWbot = async (whatsapp: Whatsapp): Promise<Session> => {
         puppeteer: {
           executablePath: process.env.CHROME_BIN || undefined,
           headless: true,
-          args: args.split(' '),
+          args: args.split(" "),
           // @ts-ignore
           browserWSEndpoint: process.env.CHROME_WS || undefined
         }
@@ -68,25 +68,23 @@ export const initWbot = async (whatsapp: Whatsapp): Promise<Session> => {
         logger.info("Session:", sessionName);
         qrCode.generate(qr, { small: true });
         await whatsapp.update({ qrcode: qr, status: "qrcode", retries: 0 });
-        
-        
+
         const sessionIndex = sessions.findIndex(s => s.id === whatsapp.id);
         if (sessionIndex === -1) {
           wbot.id = whatsapp.id;
           sessions.push(wbot);
         }
-        
-        
+
         io.emit("whatsappSession", {
           action: "update",
           session: whatsapp
         });
       });
-      
+
       wbot.on("loading_screen", (percent, message) => {
         console.log("TELA DE CARREGAMENTO", percent, message);
       });
-      
+
       wbot.on("authenticated", async session => {
         logger.info(`Session: ${sessionName} AUTHENTICATED`);
       });
@@ -138,6 +136,16 @@ export const initWbot = async (whatsapp: Whatsapp): Promise<Session> => {
         await syncUnreadMessages(wbot);
 
         resolve(wbot);
+      });
+
+      //TODO: Correcao provisoria
+      wbot.on("message_create", async msg => {
+        await handleMessage(msg, wbot)
+        console.log({
+          locale: "wbot.ts",
+          type: msg.type,
+          message: msg.body
+        });
       });
     } catch (err) {
       logger.error(err);
