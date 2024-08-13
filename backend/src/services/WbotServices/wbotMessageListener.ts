@@ -23,10 +23,8 @@ import ShowWhatsAppService from "../WhatsappService/ShowWhatsAppService";
 import { debounce } from "../../helpers/Debounce";
 import UpdateTicketService from "../TicketServices/UpdateTicketService";
 import CreateContactService from "../ContactServices/CreateContactService";
-import formatBody from "../../helpers/Mustache";
-import OpeningHours from "../../models/OpeningHour";
-import Setting from "../../models/Setting";
 import GetContactService from "../ContactServices/GetContactService";
+import formatBody from "../../helpers/Mustache";
 
 interface Session extends Client {
   id?: number;
@@ -92,26 +90,27 @@ const verifyMediaMessage = async (
     throw new Error("ERR_WAPP_DOWNLOAD_MEDIA");
   }
 
-  let randomId = makeRandomId(7);
+  let randomId = makeRandomId(5);
+
   if (!media.filename) {
     const ext = media.mimetype.split("/")[1].split(";")[0];
     media.filename = `${randomId}-${new Date().getTime()}.${ext}`;
   } else {
     media.filename =
       media.filename.split(".").slice(0, -1).join(".") +
-      "-hash:" +
+      "." +
       randomId +
       "." +
       media.filename.split(".").slice(-1);
   }
-  media.filename = media.filename.replace(/[!@#$%&*]/g, "");
+
   try {
     await writeFileAsync(
       join(__dirname, "..", "..", "..", "public", media.filename),
       media.data,
       "base64"
     );
-  } catch (err: any) {
+  } catch (err) {
     Sentry.captureException(err);
     logger.error(err);
   }
@@ -153,11 +152,13 @@ const verifyMessage = async (
     quotedMsgId: quotedMsg?.id
   };
 
+  // temporaryly disable ts checks because of type definition bug for Location object
+  // @ts-ignore
   await ticket.update({
     lastMessage:
       msg.type === "location"
-        ? ""
-          ? "Localization - "
+        ? msg.location.description
+          ? "Localization - " + msg.location.description.split("\\n")[0]
           : "Localization"
         : msg.body
   });
@@ -175,7 +176,13 @@ const prepareLocation = (msg: WbotMessage): WbotMessage => {
 
   msg.body = "data:image/png;base64," + msg.body + "|" + gmapsUrl;
 
-  msg.body += "|" + (msg.location.latitude + ", " + msg.location.longitude);
+  // temporaryly disable ts checks because of type definition bug for Location object
+  // @ts-ignore
+  msg.body +=
+    "|" +
+    (msg.location.description
+      ? msg.location.description
+      : msg.location.latitude + ", " + msg.location.longitude);
 
   return msg;
 };
@@ -202,84 +209,25 @@ const verifyQueue = async (
   const choosenQueue = queues[+selectedOption - 1];
 
   if (choosenQueue) {
-    const openingHours = await OpeningHours.findOne({ where: { id: 1 } });
-    const awaymessage = formatBody(`\u200e${openingHours?.message}`, contact); //mensagem de ausência
-    var now = new Date();
-    var day = openingHours?.days[new Date().getDay()];
-    var start1 = new Date(day!.start1);
-    var start2 = new Date(day!.start2);
-    var end1 = new Date(day!.end1);
-    var end2 = new Date(day!.end2);
-    var t1 = new Date(
-      new Date(
-        now.getFullYear(),
-        now.getMonth(),
-        now.getDate(),
-        start1.getHours(),
-        start1.getMinutes()
-      )
-    );
-    var e1 = new Date(
-      new Date(
-        now.getFullYear(),
-        now.getMonth(),
-        now.getDate(),
-        end1.getHours(),
-        end1.getMinutes()
-      )
-    );
-    var t2 = new Date(
-      new Date(
-        now.getFullYear(),
-        now.getMonth(),
-        now.getDate(),
-        start2.getHours(),
-        start2.getMinutes()
-      )
-    );
-    var e2 = new Date(
-      new Date(
-        now.getFullYear(),
-        now.getMonth(),
-        now.getDate(),
-        end2.getHours(),
-        end2.getMinutes()
-      )
-    );
-    var isManha = now >= t1 && now <= e1;
-    var isTarde = now >= t2 && now <= e2;
-
     await UpdateTicketService({
       ticketData: { queueId: choosenQueue.id },
       ticketId: ticket.id
     });
 
     const body = formatBody(`\u200e${choosenQueue.greetingMessage}`, contact);
-    const sentMessage = await wbot.sendMessage(`${contact.number}@c.us`, body);
-    await verifyMessage(sentMessage, ticket, contact);
 
-    if ((day!.open && isManha) || (day!.open && isTarde)) {
-      return;
-    } else {
-      const debouncedSentMessage = debounce(
-        async () => {
-          const sentMessage = await wbot.sendMessage(
-            `${contact.number}@c.us`,
-            awaymessage
-          );
-          verifyMessage(sentMessage, ticket, contact);
-        },
-        3000,
-        ticket.id
-      );
-      debouncedSentMessage();
-    }
+    const sentMessage = await wbot.sendMessage(`${contact.number}@c.us`, body);
+
+    await verifyMessage(sentMessage, ticket, contact);
   } else {
     let options = "";
+
     queues.forEach((queue, index) => {
       options += `*${index + 1}* - ${queue.name}\n`;
     });
+
     const body = formatBody(`\u200e${greetingMessage}\n${options}`, contact);
+
     const debouncedSentMessage = debounce(
       async () => {
         const sentMessage = await wbot.sendMessage(
@@ -291,6 +239,7 @@ const verifyQueue = async (
       3000,
       ticket.id
     );
+
     debouncedSentMessage();
   }
 };
@@ -305,9 +254,9 @@ const isValidMsg = (msg: WbotMessage): boolean => {
     msg.type === "image" ||
     msg.type === "document" ||
     msg.type === "vcard" ||
+    //msg.type === "multi_vcard" ||
     msg.type === "sticker" ||
-    msg.type === "location" ||
-    msg.type === "multi_vcard"
+    msg.type === "location"
   )
     return true;
   return false;
@@ -337,8 +286,8 @@ const handleMessage = async (
         !msg.hasMedia &&
         msg.type !== "location" &&
         msg.type !== "chat" &&
-        msg.type !== "vcard" &&
-        msg.type !== "multi_vcard"
+        msg.type !== "vcard"
+        //&& msg.type !== "multi_vcard"
       )
         return;
 
@@ -414,16 +363,17 @@ const handleMessage = async (
           }
         }
         for await (const ob of obj) {
-          await CreateContactService({
+          const cont = await CreateContactService({
             name: contact,
             number: ob.number.replace(/\D/g, "")
           });
         }
       } catch (error) {
-        logger.error(error);
+        console.log(error);
       }
     }
-    if (msg.type === "multi_vcard") {
+
+    /* if (msg.type === "multi_vcard") {
       try {
         const array = msg.vCards.toString().split("\n");
         let name = "";
@@ -463,7 +413,7 @@ const handleMessage = async (
               name: cont.name,
               number: cont.number
             });
-          } catch (error: any) {
+          } catch (error) {
             if (error.message === "ERR_DUPLICATED_CONTACT") {
               const cont = await GetContactService({
                 name: ob.name,
@@ -480,9 +430,9 @@ const handleMessage = async (
         }
         msg.body = JSON.stringify(conts);
       } catch (error) {
-        logger.error(error);
+        console.log(error);
       }
-    }
+    } */
   } catch (err) {
     Sentry.captureException(err);
     logger.error(`Error handling whatsapp message: Err: ${err}`);
@@ -530,7 +480,7 @@ const wbotMessageListener = (wbot: Session): void => {
   ];
   wbot.on("message_create", async msg => {
     console.log({
-      locale: "wbotMessageList",
+      locale: "wbotMessageListener",
       type: msg.type,
       message: msg.body
     });
