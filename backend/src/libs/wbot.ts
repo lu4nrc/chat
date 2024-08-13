@@ -76,23 +76,25 @@ export const initWbot = async (whatsapp: Whatsapp): Promise<Session> => {
         logger.info("Session:", sessionName);
         qrCode.generate(qr, { small: true });
         await whatsapp.update({ qrcode: qr, status: "qrcode", retries: 0 });
-
+        
+        
         const sessionIndex = sessions.findIndex(s => s.id === whatsapp.id);
         if (sessionIndex === -1) {
           wbot.id = whatsapp.id;
           sessions.push(wbot);
         }
-
-        wbot.on("loading_screen", (percent, message) => {
-          console.log("TELA DE CARREGAMENTO", percent, message);
-        });
-
+        
+        
         io.emit("whatsappSession", {
           action: "update",
           session: whatsapp
         });
       });
-
+      
+      wbot.on("loading_screen", (percent, message) => {
+        console.log("TELA DE CARREGAMENTO", percent, message);
+      });
+      
       wbot.on("authenticated", async session => {
         logger.info(`Session: ${sessionName} AUTHENTICATED`);
       });
