@@ -14,11 +14,11 @@ const Nav_Buttons = [
     icon: <Gauge size={28} />,
     link: "/",
   },
-  {
+/*   {
     index: 1,
     icon: <Calendar size={28} />,
     link: "/Scheduled",
-  },
+  }, */
   {
     index: 2,
     icon: <CellSignalFull size={28} />,

@@ -483,7 +483,8 @@ const wbotMessageListener = (wbot: Session): void => {
     console.log({
       locale: "wbotMessageListener.ts",
       type: msg.type,
-      message: msg.body
+      message: msg.body,
+      from: msg.from
     });
 
     handleMessage(msg, wbot);

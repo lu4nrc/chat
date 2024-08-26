@@ -55,7 +55,7 @@ const CreateContactService = async ({
 
     }
   );
-
+console.log(contact)
   return contact;
 };
 

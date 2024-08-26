@@ -28,7 +28,7 @@ const Chat = () => {
             height={"100%"}
           >
             <Typography variant="h4" fontWeight={"light"} align="center">
-              Pronto para uma atendimento incrível?<br></br>{" "}
+              Pronto para um atendimento incrível?<br></br>{" "}
               <strong>Escolha um para começar!</strong>{" "}
             </Typography>
           </Box>

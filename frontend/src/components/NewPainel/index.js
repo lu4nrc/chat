@@ -228,6 +228,10 @@ const NewPainel = () => {
       }
     });
 
+    socket.on("onlineUsers", (data) => {
+      console.log(data);
+    });
+
     return () => {
       socket.disconnect();
     };
@@ -529,7 +533,7 @@ const NewPainel = () => {
           </Stack>
         </Stack>
 
-        {/* Column 3 */}  
+        {/* Column 3 */}
         <Stack
           bgcolor={theme.palette.background.default}
           direction={"column"}
@@ -595,8 +599,7 @@ const NewPainel = () => {
             spacing={1}
             sx={{ overflow: "auto" }}
           >
-            
-{resultUsers.map((el, index) => (
+            {resultUsers.map((el, index) => (
               <Stack
                 key={index}
                 py={1.2}
@@ -670,6 +673,3 @@ const NewPainel = () => {
 };
 
 export default NewPainel;
-
-
-

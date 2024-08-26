@@ -1,172 +1,79 @@
-/* eslint-disable react/react-in-jsx-scope */
-import { Visibility, VisibilityOff } from "@mui/icons-material";
-import {
-  Box,
-  Button,
-  CssBaseline,
-  Grid,
-  IconButton,
-  InputAdornment,
-  Link,
-  TextField,
-  Typography,
-  useTheme,
-} from "@mui/material";
-
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { AuthContext } from "@/context/Auth/AuthContext";
 import React, { useContext, useState } from "react";
-import { Link as RouterLink } from "react-router-dom";
-import { AuthContext } from "../../context/Auth/AuthContext";
-import { i18n } from "../../translate/i18n";
-import AttendentsImg from "../../assets/Login-bro.png";
+import { Link } from "react-router-dom";
 
-function Login() {
+const Login = () => {
   const [user, setUser] = useState({ email: "", password: "" });
   const [showPassword, setShowPassword] = useState(false);
   const { handleLogin } = useContext(AuthContext);
-  const theme = useTheme();
+
+  console.log(user);
   const handleChangeInput = (e) => {
-    setUser({ ...user, [e.target.name]: e.target.value });
+    setUser({ ...user, [e.target.id]: e.target.value });
   };
 
   const handleSubmit = (e) => {
     e.preventDefault();
     handleLogin(user);
   };
-  const backgroundImg = {
-    backgroundImage: `url(${AttendentsImg})`,
-    backgroundSize: "contain",
-    backgroundPosition: "left",
-  };
-
   return (
-    <Grid
-      container
-      component="main"
-      style={{ ...backgroundImg, backgroundRepeat: "no-repeat" }}
-      justifyContent="flex-end"
-    >
-      <CssBaseline />
-      <Grid
-        style={{
-          display: "flex",
-          flexDirection: "column",
-          alignItems: "center",
-          justifyContent: "center",
-          height: "100vh",
-        }}
-        item
-        xs={0}
-        sm={0}
-        md={6}
-        elevation={0}
-      ></Grid>
-
-      <Grid item xs={12} sm={12} md={4} px={2}>
-        <Box
-          style={{
-            display: "flex",
-            flexDirection: "column",
-            alignItems: "center",
-            justifyContent: "center",
-            height: "100vh",
-          }}
-        >
-          <Box
-            p={3}
-            borderRadius={2}
-            style={{
-              display: "flex",
-              height: "500px",
-              flexDirection: "column",
-              alignItems: "start",
-              justifyContent: "center",
-              // backgroundColor: "#ffff",
-              boxShadow: "0 1px 3px rgba(0, 0, 0, 0.1)",
-            }}
-            bgcolor={theme.palette.background.neutral}
-          >
-            <Typography component="h1" variant="h5">
-              Olá! bem vindo de volta
-            </Typography>
-            <Typography component="h1" variant="body1" mb={3}>
-              faça login com os dados que você inseriu
-              <br />
-              durante seu registro.
-            </Typography>
-            <Box
-              component="form"
-              noValidate
-              onSubmit={handleSubmit}
-              style={{ mt: 10, maxWidth: 320 }}
-            >
-              <TextField
-                margin="normal"
-                required
-                fullWidth
+    <div className="w-full h-screen lg:grid lg:min-h-[600px] lg:grid-cols-2 xl:min-h-[800px]">
+      <div className="hidden bg-muted lg:block ">
+        {/*       <Image
+        src="/placeholder.svg"
+        alt="Image"
+        width="1920"
+        height="1080"
+        className="h-full w-full object-cover dark:brightness-[0.2] dark:grayscale"
+      /> */}
+      </div>
+      <div className="flex items-center justify-center py-12">
+        <div className="mx-auto grid w-[350px] gap-6">
+          <div className="grid gap-2 text-center">
+            <h1 className="text-3xl font-bold">Entrar</h1>
+            <p className="text-balance text-muted-foreground">
+              Digite seu e-mail abaixo para fazer login em sua conta
+            </p>
+          </div>
+          <form onSubmit={handleSubmit} className="grid gap-4">
+            <div className="grid gap-2">
+              <Label htmlFor="email">Email</Label>
+              <Input
                 id="email"
-                placeholder={i18n.t("login.form.email")}
-                value={user.email}
+                type="email"
                 onChange={handleChangeInput}
-                name="email"
-                autoComplete="email"
-                autoFocus
-              />
-              <TextField
-                margin="normal"
+                placeholder="m@hellowchat.com"
                 required
-                fullWidth
-                name="password"
-                placeholder={i18n.t("login.form.password")}
-                value={user.password}
-                onChange={handleChangeInput}
-                id="password"
-                autoComplete="current-password"
-                type={showPassword ? "text" : "password"}
-                InputProps={{
-                  endAdornment: (
-                    <InputAdornment position="end">
-                      <IconButton
-                        aria-label="toggle password visibility"
-                        onClick={() => setShowPassword((e) => !e)}
-                      >
-                        {showPassword ? <VisibilityOff /> : <Visibility />}
-                      </IconButton>
-                    </InputAdornment>
-                  ),
-                }}
               />
-
-              <Button
-                color="primary"
-                type="submit"
-                fullWidth
-                variant="contained"
-                disableElevation
-                style={{
-                  marginTop: 3,
-                  marginBottom: 2,
-                  padding: 10,
-                  borderRadius: 9,
-                }}
-              >
-                Entrar
-              </Button>
-              <Grid item xs mt={1}>
+            </div>
+            <div className="grid gap-2">
+              <div className="flex items-center">
+                <Label htmlFor="password">senha</Label>
                 <Link
-                  href="#"
-                  variant="body2"
-                  component={RouterLink}
-                  to="/reset/pass"
+                  href="/forgot-password"
+                  className="ml-auto inline-block text-sm underline"
                 >
-                  Esqueceu sua senha, recupere aqui.
+                  Esqueceu sua senha?
                 </Link>
-              </Grid>
-            </Box>
-          </Box>
-        </Box>
-      </Grid>
-    </Grid>
+              </div>
+              <Input
+                id="password"
+                type="password"
+                onChange={handleChangeInput}
+                required
+              />
+            </div>
+            <Button type="submit" className="w-full">
+              Login
+            </Button>
+          </form>
+        </div>
+      </div>
+    </div>
   );
-}
+};
 
 export default Login;

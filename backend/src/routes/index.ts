@@ -14,6 +14,7 @@ import apiRoutes from "./apiRoutes";
 import scheduledRoutes from "./scheduledRoutes";
 import tagRoutes from "./tagRoutes";
 import transmissionRoutes from "./transmissionRoutes";
+import DashboardRoutes from "./dashboardRoutes";
 const routes = Router();
 
 routes.use(userRoutes);
@@ -30,4 +31,5 @@ routes.use("/api/messages", apiRoutes);
 routes.use(scheduledRoutes);
 routes.use(tagRoutes);
 routes.use(transmissionRoutes);
+routes.use(DashboardRoutes);
 export default routes;

@@ -7,6 +7,7 @@ import { CssBaseline, styled } from "@mui/material";
 import { AuthProvider } from "./context/Auth/AuthContext";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import "./index.css";
 
 const GlobalStyles = styled("div")({
   "*::-webkit-scrollbar": {
@@ -31,19 +32,21 @@ const GlobalStyles = styled("div")({
 
 const App = () => {
   return (
-    <AuthProvider>
-      <SettingsProvider>
-        <CssBaseline />
-        <ToastContainer />
-        <GlobalStyles>
-          <ThemeProvider>
-            <ThemeSettings>
-              <Router />
-            </ThemeSettings>
-          </ThemeProvider>
-        </GlobalStyles>
-      </SettingsProvider>
-    </AuthProvider>
+
+      <AuthProvider>
+        <SettingsProvider>
+          <CssBaseline />
+          <ToastContainer />
+          <GlobalStyles>
+            <ThemeProvider>
+              <ThemeSettings>
+                <Router />
+              </ThemeSettings>
+            </ThemeProvider>
+          </GlobalStyles>
+        </SettingsProvider>
+      </AuthProvider>
+ 
   );
 };
 

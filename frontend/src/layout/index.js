@@ -1,18 +1,16 @@
 import React, { useState, useEffect, useContext } from "react";
-import { List, Box, Stack, Grid } from "@mui/material";
 
-import { useTheme } from "@mui/material/styles";
 import { Outlet } from "react-router-dom";
 
 import SideBar from "./SideBar";
 import { AuthContext } from "../context/Auth/AuthContext";
-import BackdropLoading from "../components/BackdropLoading";
+
 import NewsModal from "../components/NewsModal";
 import useLocalStorage from "../hooks/useLocalStorage";
+import BackdropLoading from "../components/BackdropLoading";
 
 const LoggedInLayout = () => {
-  const theme = useTheme();
-  const { loading } = useContext(AuthContext);
+  const { loading, user } = useContext(AuthContext);
 
   const [newsModal, setNewsModal] = useState(false);
   const [storedValue, setValue] = useLocalStorage("newsmodal", null);
@@ -46,19 +44,16 @@ const LoggedInLayout = () => {
   }
 
   return (
-    <Grid
-      columns={16}
-      height={"100vh"}
-      container
-    >
-      <Grid item sx={{ display: { xs: "none", sm: "block"} }}>
-        <SideBar />
-      </Grid>
-      <Grid item xs={16} sm>
-        <Outlet />
+    <div className="flex min-h-screen w-full flex-col bg-muted/40">
+      <SideBar />
+
+      <div className="flex flex-col sm:gap-4  sm:pl-14">
+        <main className="grid flex-1 items-start gap-4 md:gap-8">
+          <Outlet context={[]} />
+        </main>
         <NewsModal open={newsModal} onClose={() => setNewsModal(false)} />
-      </Grid>
-    </Grid>
+      </div>
+    </div>
   );
 };
 

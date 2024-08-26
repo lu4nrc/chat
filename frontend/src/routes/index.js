@@ -9,7 +9,7 @@ import Users from "../pages/Users";
 import Contacts from "../pages/Contacts/";
 import QuickAnswers from "../pages/QuickAnswers/";
 import Queues from "../pages/Queues/";
-import Scheduled from "../pages/Scheduled/index";
+
 import { useAuthContext } from "../context/Auth/AuthContext";
 import { WhatsAppsProvider } from "../context/WhatsApp/WhatsAppsContext";
 import Transmission from "../pages/Transmission";
@@ -21,6 +21,7 @@ import "dayjs/locale/pt-br";
 import ErrorPage from "../pages/error";
 import NewPainel from "../components/NewPainel";
 import Search from "../pages/Search";
+import PanelPage from "../pages/Panel";
 // import SettingsDrawer from "../components/settings/drawer";
 
 function Router() {
@@ -80,17 +81,14 @@ function Router() {
           path: "/Queues",
           element: <Queues />,
         },
-        {
-          path: "/Scheduled",
-          element: <Scheduled />,
-        },
+   
         {
           path: "/Transmission",
           element: <Transmission />,
         },
         {
           path: "/Panel",
-          element: <NewPainel />,
+          element: <PanelPage />,
         },
         {
           path: "/404",

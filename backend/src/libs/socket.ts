@@ -3,17 +3,17 @@ import { Server } from "http";
 import AppError from "../errors/AppError";
 import { logger } from "../utils/logger";
 import { jwtDecode } from "jwt-decode";
-import UpdateStatusUserService from "../services/UserServices/UpdateStatusUserService";
 
 let io: SocketIO;
 export const initIO = (httpServer: Server): SocketIO => {
   io = new SocketIO(httpServer, {
     cors: {
-      origin: process.env.FRONTEND_URL
-    }
+      origin: process.env.FRONTEND_URL,
+    },
   });
 
-  const users: any = {};
+  const users = new Map<string, { id: number; username: string }>();
+  const emittedUsers = new Set<number>(); 
 
   interface DecodedProps {
     usarname: string;
@@ -23,71 +23,81 @@ export const initIO = (httpServer: Server): SocketIO => {
     exp: number;
   }
 
-  io.on("connection", socket => {
+  const emitOnlineUsers = () => {
+    const onlineUsers = Array.from(users.values());
+    io.emit("onlineUsers", onlineUsers);
+    console.log(users);
+  };
+
+  io.on("connection", (socket) => {
+    const totalSockets = io.engine.clientsCount;
     const token = socket.handshake.query.token;
 
     if (token && token !== "null") {
       const decoded: DecodedProps = jwtDecode(token as string);
 
       try {
-
-        const userExists = Object.values(users).some(
-          user => user.id === decoded.id
-        );
-
-        users[socket.id] = { id: decoded.id, username: decoded.usarname };
         
-        if (!userExists) {
-          UpdateStatusUserService({
-            userId: decoded.id,
-            status: "active"
-          }).catch(error => {
-            logger.error(`Failed to update user status: ${error.message}`);
-          });
-        }
+        if (!emittedUsers.has(decoded.id)) {
+          users.set(socket.id, { id: decoded.id, username: decoded.usarname });
+          emittedUsers.add(decoded.id); 
 
-        logger.info(`Usuário conectado: ${decoded.usarname}`);
+          emitOnlineUsers();
+
+          logger.info(
+            `Usuário conectado: ${decoded.usarname} - SOCKETS: ${totalSockets}`
+          );
+        }
       } catch (error) {
-        logger.error(`Error decoding token: ${error.message}`);
+        logger.error(
+          `Error decoding token: ${error.message} - SOCKETS: ${totalSockets}`
+        );
       }
     } else {
-      logger.info(`Usuário conectado: sem TOKEN`);
+      logger.info(`Usuário conectado: sem TOKEN - SOCKETS: ${totalSockets}`);
     }
 
     socket.on("joinChatBox", (ticketId: string) => {
-      logger.info("A client joined a ticket channel");
+      logger.info(
+        `A client joined a ticket channel - SOCKETS: ${totalSockets}`
+      );
       socket.join(ticketId);
     });
 
     socket.on("joinNotification", () => {
-      logger.info("A client joined notification channel");
+      logger.info(
+        `A client joined notification channel - SOCKETS: ${totalSockets}`
+      );
       socket.join("notification");
     });
 
     socket.on("joinTickets", (status: string) => {
-      logger.info(`A client joined to ${status} tickets channel.`);
+      logger.info(
+        `A client joined to ${status} tickets channel - SOCKETS: ${totalSockets}`
+      );
       socket.join(status);
     });
 
     socket.on("disconnect", () => {
-      logger.info(`Socket Desconencted`);
+      const totalSockets = io.engine.clientsCount;
+      logger.info(`Socket Desconectado - SOCKETS: ${totalSockets}`);
 
-      if (users[socket.id]) {
-        const userId = users[socket.id].id;
-        delete users[socket.id];
+      const user = users.get(socket.id);
 
-      const userExists = Object.values(users).some(
-          user => user.id === userId
-        ); 
+      if (user) {
+        users.delete(socket.id);
 
-        if (!userExists) {
-          UpdateStatusUserService({
-            userId: userId,
-            status: "inactive"
-          }).catch(error => {
-            logger.error(`Failed to update user status: ${error.message}`);
-          });
-        } 
+        // Verifica se todos os sockets do usuário foram desconectados
+        const userStillConnected = Array.from(users.values()).some(
+          (u) => u.id === user.id
+        );
+
+        if (!userStillConnected) {
+          emittedUsers.delete(user.id); // Remove o usuário dos emitidos se ele não tiver mais sockets
+          emitOnlineUsers(); // Emitir lista de usuários online atualizada
+        }
+
+        
       }
     });
   });
