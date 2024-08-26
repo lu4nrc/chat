@@ -23,11 +23,9 @@ const PanelPage = () => {
   }, []);
 
   return (
-    <div>
-      <Button size="sm" variant="ghost">
-        Save
-      </Button>
-      {data && data.map(el => <div>{el.username}</div>)}
+    <div className="flex justify-center items-center">
+
+      {/* {data && data.map(el => <div>{el.username}</div>)} */}
       <Test />
     </div>
   );

@@ -88,7 +88,7 @@ function Router() {
         },
         {
           path: "/Panel",
-          element: <NewPainel />,
+          element: <PanelPage />,
         },
         {
           path: "/404",
