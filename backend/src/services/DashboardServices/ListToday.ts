@@ -46,7 +46,7 @@ const ListToday = async (): Promise<Response> => {
     where: {
       isGroup: false,
       createdAt: {
-        [Op.between]: [startOfDay(fourteenDaysAgo), endOfDay(today)]
+        [Op.between]: [startOfDay(today), endOfDay(today)]
       }
     },
     include: includeCondition,
