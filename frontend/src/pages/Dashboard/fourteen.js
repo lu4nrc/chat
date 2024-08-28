@@ -61,123 +61,11 @@ const chartConfig = {
   },
 };
 
-const data = [
-  {
-    hour: "00",
-    open: getRandomInt(0, 10),
-    pending: getRandomInt(0, 10),
-    closed: getRandomInt(0, 10),
-  },
-  {
-    hour: "01",
-    open: getRandomInt(0, 10),
-    pending: getRandomInt(0, 10),
-    closed: getRandomInt(0, 10),
-  },
-  {
-    hour: "02",
-    open: getRandomInt(0, 10),
-    pending: getRandomInt(0, 10),
-    closed: getRandomInt(0, 10),
-  },
-  {
-    hour: "03",
-    open: getRandomInt(0, 10),
-    pending: getRandomInt(0, 10),
-    closed: getRandomInt(0, 10),
-  },
-  {
-    hour: "04",
-    open: getRandomInt(0, 10),
-    pending: getRandomInt(0, 10),
-    closed: getRandomInt(0, 10),
-  },
-  {
-    hour: "05",
-    open: getRandomInt(0, 10),
-    pending: getRandomInt(0, 10),
-    closed: getRandomInt(0, 10),
-  },
-  {
-    hour: "06",
-    open: getRandomInt(0, 10),
-    pending: getRandomInt(0, 10),
-    closed: getRandomInt(0, 10),
-  },
-  {
-    hour: "07",
-    open: getRandomInt(0, 10),
-    pending: getRandomInt(0, 10),
-    closed: getRandomInt(0, 10),
-  },
-  {
-    hour: "08",
-    open: getRandomInt(0, 10),
-    pending: getRandomInt(0, 10),
-    closed: getRandomInt(0, 10),
-  },
-  /*   {hour: '09', open: getRandomInt(0, 10), pending: getRandomInt(0, 10), closed: getRandomInt(0, 10)},
-  {hour: '10', open: getRandomInt(0, 10), pending: getRandomInt(0, 10), closed: getRandomInt(0, 10)},
-  {hour: '11', open: getRandomInt(0, 10), pending: getRandomInt(0, 10), closed: getRandomInt(0, 10)},
-  {hour: '12', open: getRandomInt(0, 10), pending: getRandomInt(0, 10), closed: getRandomInt(0, 10)},
-  {hour: '13', open: getRandomInt(0, 10), pending: getRandomInt(0, 10), closed: getRandomInt(0, 10)},
-  {hour: '14', open: getRandomInt(0, 10), pending: getRandomInt(0, 10), closed: getRandomInt(0, 10)},
-  {hour: '15', open: getRandomInt(0, 10), pending: getRandomInt(0, 10), closed: getRandomInt(0, 10)}, */
-  {
-    hour: "16",
-    open: getRandomInt(0, 10),
-    pending: getRandomInt(0, 10),
-    closed: getRandomInt(0, 10),
-  },
-  {
-    hour: "17",
-    open: getRandomInt(0, 10),
-    pending: getRandomInt(0, 10),
-    closed: getRandomInt(0, 10),
-  },
-  {
-    hour: "18",
-    open: getRandomInt(0, 10),
-    pending: getRandomInt(0, 10),
-    closed: getRandomInt(0, 10),
-  },
-  {
-    hour: "19",
-    open: getRandomInt(0, 10),
-    pending: getRandomInt(0, 10),
-    closed: getRandomInt(0, 10),
-  },
-  {
-    hour: "20",
-    open: getRandomInt(0, 10),
-    pending: getRandomInt(0, 10),
-    closed: getRandomInt(0, 10),
-  },
-  {
-    hour: "21",
-    open: getRandomInt(0, 10),
-    pending: getRandomInt(0, 10),
-    closed: getRandomInt(0, 10),
-  },
-  {
-    hour: "22",
-    open: getRandomInt(0, 10),
-    pending: getRandomInt(0, 10),
-    closed: getRandomInt(0, 10),
-  },
-  {
-    hour: "23",
-    open: getRandomInt(0, 10),
-    pending: getRandomInt(0, 10),
-    closed: getRandomInt(0, 10),
-  },
-];
-
 function getRandomInt(min, max) {
   return Math.floor(Math.random() * (max - min + 1)) + min;
 }
 
-const Today = () => {
+const FourteenDays = () => {
   const [loading, setLoading] = useState();
   const [hours, setHours] = useState();
   const [status, setStatus] = useState();
@@ -189,7 +77,8 @@ const Today = () => {
     (async () => {
       setLoading(true);
       try {
-        const { data } = await api.get("/dashboard/today");
+        const { data } = await api.get("/dashboard/fourteen");
+
         setHours(data.today);
         setUsersData(data.users);
         setQueuesData(data.queues);
@@ -250,7 +139,7 @@ const Today = () => {
         {hours && (
           <Card className="h-full">
             <CardHeader className="flex flex-row items-center">
-              <CardTitle>Atendimentos (Período de 24 horas)</CardTitle>
+              <CardTitle>Atendimentos (Período de 14 dias)</CardTitle>
             </CardHeader>
 
             <CardContent>
@@ -266,15 +155,17 @@ const Today = () => {
                 >
                   <CartesianGrid vertical={false} />
                   <XAxis
-                    dataKey="hour"
+                    dataKey="date"
                     tickLine={false}
                     axisLine={false}
                     tickMargin={8}
-                    tickFormatter={(value) =>
-                      value[0] == "0"
-                        ? `${value.slice(1, 2)}h`
-                        : `${value.slice(0, 2)}h`
-                    }
+                    tickFormatter={(value) => {
+                      const date = new Date(value + "T00:00:00Z"); // Força a data a ser interpretada como UTC
+                      return date.toLocaleDateString("pt-BR", {
+                        weekday: "short",
+                        timeZone: "UTC", // Garante que o fuso horário UTC seja usado
+                      });
+                    }}
                   />
                   <ChartTooltip
                     cursor={false}
@@ -299,48 +190,9 @@ const Today = () => {
                       offset={12}
                       className="fill-foreground"
                       fontSize={12}
+                      
                     />
                   </Line>
-                  {/*                   <Line
-                    name="Aguardando"
-                    dataKey="pending"
-                    type="natural"
-                    stroke="var(--color-pending)"
-                    strokeWidth={2}
-                    dot={{
-                      fill: "var(--color-pending)",
-                    }}
-                    activeDot={{
-                      r: 6,
-                    }}
-                  >
-                    <LabelList
-                      position="top"
-                      offset={12}
-                      className="fill-foreground"
-                      fontSize={12}
-                    />
-                  </Line> */}
-                  {/*                   <Line
-                    name="Fechados"
-                    dataKey="closed"
-                    type="natural"
-                    stroke="var(--color-closed)"
-                    strokeWidth={2}
-                    dot={{
-                      fill: "var(--color-closed)",
-                    }}
-                    activeDot={{
-                      r: 6,
-                    }}
-                  >
-                    <LabelList
-                      position="top"
-                      offset={12}
-                      className="fill-foreground"
-                      fontSize={12}
-                    />
-                  </Line> */}
                 </LineChart>
               </ChartContainer>
             </CardContent>
@@ -365,4 +217,4 @@ const Today = () => {
   );
 };
 
-export default Today;
+export default FourteenDays;

@@ -18,7 +18,7 @@ const Chat = () => {
       <Grid item xs={12} sm>
         {ticketId ? (
           <>
-            <Ticket />
+              <Ticket /> 
           </>
         ) : (
           <Box

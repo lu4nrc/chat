@@ -100,12 +100,7 @@ const Ticket = () => {
 
   return (
     <ReplyMessageProvider>
-      <Box
-        display="flex"
-        flexDirection="column"
-        alignItems={"center"}
-        height="100vh"
-      >
+      <div className="grid grid-rows-[auto_1fr_auto] h-screen">
         <Box
           width={"100%"}
           height="fit-content"
@@ -118,6 +113,7 @@ const Ticket = () => {
           borderColor={theme.palette.divider}
         >
           {/* Header */}
+
           <Stack flexDirection={"row"} gap={1} onClick={handleDrawerOpen}>
             <Stack
               display={"flex"}
@@ -192,32 +188,21 @@ const Ticket = () => {
               </Box>
             </Stack>
           </Stack>
+
           <TicketActionButtons ticket={ticket} />
         </Box>
 
-        <Box
-          width={"100%"}
-          maxWidth={"1200px"}
-          flex="1"
-          sx={{
-            overflow: "auto",
-            display: "flex"
-          }}
-        >
-          {/* Mensagens */}
-          <MessagesList ticketId={ticketId} isGroup={ticket.isGroup} />
-        </Box>
-        <Box height="fit-content" width={"100%"}>
-          {/* mensagens footer */}
-          <MessageInput ticketStatus={ticket.status} />
-        </Box>
+        <MessagesList ticketId={ticketId} isGroup={ticket.isGroup} />
+
+        <MessageInput ticketStatus={ticket.status} />
+
         <ContactDrawer
           open={drawerOpen}
           handleDrawerClose={handleDrawerClose}
           contact={contact}
           loading={loading}
         />
-      </Box>
+      </div>
     </ReplyMessageProvider>
   );
 };

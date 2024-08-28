@@ -1,4 +1,10 @@
-import React, { useContext, useEffect, useReducer, useState } from "react";
+import React, {
+  useCallback,
+  useContext,
+  useEffect,
+  useReducer,
+  useState,
+} from "react";
 import openSocket from "../../services/socket-io";
 
 import TicketListItem from "../TicketListItem";
@@ -90,19 +96,14 @@ const reducer = (state, action) => {
 };
 
 const TicketsList = (props) => {
-  const {
-    status,
-    searchParam,
-    filter,
-    setFilter,
-    showAll,
-    selectedQueueIds,
-    updateCount,
-    style,
-  } = props;
+  const { status, searchParam, showAll, selectedQueueIds, updateCount, style } =
+    props;
+
   const [pageNumber, setPageNumber] = useState(1);
   const [ticketsList, dispatch] = useReducer(reducer, []);
   const { user } = useContext(AuthContext);
+
+  const [filter, setFilter] = useState()
 
   useEffect(() => {
     dispatch({ type: "RESET" });
@@ -123,12 +124,13 @@ const TicketsList = (props) => {
       type: "LOAD_TICKETS",
       payload: tickets,
     });
-  }, [tickets, status, searchParam]);
+  }, [tickets]);
 
   useEffect(() => {
     const socket = openSocket();
 
     const shouldUpdateTicket = (ticket) =>
+      !searchParam &&
       (!ticket.userId || ticket.userId === user?.id || showAll) &&
       (!ticket.queueId || selectedQueueIds.indexOf(ticket.queueId) > -1);
 
@@ -188,7 +190,7 @@ const TicketsList = (props) => {
     return () => {
       socket.disconnect();
     };
-  }, [status, showAll, user, selectedQueueIds]);
+  }, [status, searchParam, showAll, user, selectedQueueIds]);
 
   useEffect(() => {
     if (typeof updateCount === "function") {
@@ -207,6 +209,7 @@ const TicketsList = (props) => {
     const { scrollTop, scrollHeight, clientHeight } = e.currentTarget;
 
     if (scrollHeight - (scrollTop + 100) < clientHeight) {
+      e.currentTarget.scrollTop = scrollTop - 100;
       loadMore();
     }
   };
@@ -220,13 +223,12 @@ const TicketsList = (props) => {
 
   return (
     <List
-    
       sx={
         style ?? {
           width: "100%",
           height: "calc(100vh - 180px)",
           overflow: "auto",
-          paddingTop: "12px"
+          paddingTop: "12px",
         }
       }
       onScroll={handleScroll}

@@ -10,7 +10,6 @@ const Login = () => {
   const [showPassword, setShowPassword] = useState(false);
   const { handleLogin } = useContext(AuthContext);
 
-  console.log(user);
   const handleChangeInput = (e) => {
     setUser({ ...user, [e.target.id]: e.target.value });
   };

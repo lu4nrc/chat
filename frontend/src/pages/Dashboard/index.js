@@ -1,7 +1,5 @@
 import React from "react";
 
-
-
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
   DropdownMenu,
@@ -15,6 +13,8 @@ import { File, ListFilter, PlusCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import Today from "./today";
+import SevenDays from "./seven";
+import FourteenDays from "./fourteen";
 
 const Dashboard = () => {
   return (
@@ -29,12 +29,12 @@ const Dashboard = () => {
             {/* //TODO: Colocar botao perfil */}
           </div>
         </div>
-        <Tabs defaultValue="all">
+        <Tabs defaultValue="today">
           <div className="flex items-center">
             <TabsList>
-              <TabsTrigger value="all">Hoje</TabsTrigger>
-              <TabsTrigger value="active">7 Dias</TabsTrigger>
-              <TabsTrigger value="draft">14 dias</TabsTrigger>
+              <TabsTrigger value="today">Hoje</TabsTrigger>
+              <TabsTrigger value="seven">7 Dias</TabsTrigger>
+              <TabsTrigger value="fourteen">14 dias</TabsTrigger>
             </TabsList>
             <div className="ml-auto flex items-center gap-2">
               <DropdownMenu>
@@ -69,8 +69,14 @@ const Dashboard = () => {
               </Button>
             </div>
           </div>
-          <TabsContent value="all">
+          <TabsContent value="today">
             <Today />
+          </TabsContent>
+          <TabsContent value="seven">
+            <SevenDays />
+          </TabsContent>
+          <TabsContent value="fourteen">
+            <FourteenDays />
           </TabsContent>
         </Tabs>
       </div>

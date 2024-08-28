@@ -34,13 +34,11 @@ const ListToday = async (): Promise<Response> => {
     {
       model: Queue,
       as: "queue",
-      attributes: ["name"]
+      attributes: ["name", "color"]
     }
   ];
 
   const today = new Date();
-  const sevenDaysAgo = subDays(today, 7);
-  const fourteenDaysAgo = subDays(today, 14);
 
   const tickets = await Ticket.findAll({
     where: {
@@ -118,7 +116,11 @@ const ListToday = async (): Promise<Response> => {
         if (user) {
           user[status]++;
           user.total++;
-          if (status === "closed") user.m_time += m_time;
+          if (status === "closed") {
+            user.m_time += m_time;
+            user.tickets.push(current)
+            user.m_time_avg = Math.round(user.m_time / user.closed);
+          }
         } else {
           acc.users.push({
             id: userId,
@@ -127,13 +129,15 @@ const ListToday = async (): Promise<Response> => {
             open: status === "open" ? 1 : 0,
             pending: status === "pending" ? 1 : 0,
             closed: status === "closed" ? 1 : 0,
-            m_time: status === "closed" ? m_time : 0
+            m_time: status === "closed" ? m_time : 0,
+            m_time_avg: status === "closed" ? m_time : 0,
+            tickets: [current]
           });
         }
       }
       //?Grouped by Queue
       const queueName = current.queue ? current.queue.name : "Sem departamento";
-      const queueIdKey = queueId || -1; // Using -1 as a key for "Sem departamento"
+      const queueIdKey = queueId || -1; // Usando -1 como chave para "Sem departamento"
       let queue = acc.queues.find(queue => queue.id === queueIdKey);
 
       const mq_time =
@@ -142,22 +146,29 @@ const ListToday = async (): Promise<Response> => {
       if (queue) {
         queue[status]++;
         queue.total++;
-        if (status === "closed") queue.mq_time += mq_time;
+        if (status === "closed") {
+         // queue.tickets.push(current);
+          queue.mq_time += mq_time;
+          queue.mq_time_avg = Math.round(queue.mq_time / queue.closed);
+        }
       } else {
         acc.queues.push({
           id: queueIdKey,
           queue_name: queueName,
+          fill: current.queue ? current.queue.color : "hsl(0, 0%, 90%)",
           total: 1,
           open: status === "open" ? 1 : 0,
           pending: status === "pending" ? 1 : 0,
           closed: status === "closed" ? 1 : 0,
-          mq_time: status === "closed" ? mq_time : 0
+          mq_time: status === "closed" ? mq_time : 0,
+          mq_time_avg: status === "closed" ? mq_time : 0,
+        //  tickets: []
         });
       }
 
       //?Grouped by Contact
 
-/*       if (!acc.contacts[contactId]) {
+      /*       if (!acc.contacts[contactId]) {
         acc.contacts[contactId] = {
           contact_name: current.contact?.name || "Sem contato",
           n_closed: 0
@@ -184,15 +195,7 @@ const ListToday = async (): Promise<Response> => {
     }
   );
 
-  const sortedUsers = grouped.users.sort(
-    (a, b) => parseInt(b.m_time, 10) - parseInt(a.m_time, 10)
-  );
-
   const sortedHours = grouped.today.sort(
-    (a, b) => parseInt(a.hour, 10) - parseInt(b.hour, 10)
-  );
-
-  const sortedQueues = grouped.queues.sort(
     (a, b) => parseInt(a.hour, 10) - parseInt(b.hour, 10)
   );
 
@@ -200,8 +203,8 @@ const ListToday = async (): Promise<Response> => {
     today: sortedHours,
     status: grouped.status,
     media: grouped.media,
-    queues: sortedQueues,
-    users: sortedUsers
+    queues: grouped.queues,
+    users: grouped.users
   };
 };
 
