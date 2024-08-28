@@ -8,12 +8,12 @@ let io: SocketIO;
 export const initIO = (httpServer: Server): SocketIO => {
   io = new SocketIO(httpServer, {
     cors: {
-      origin: process.env.FRONTEND_URL,
-    },
+      origin: process.env.FRONTEND_URL
+    }
   });
 
   const users = new Map<string, { id: number; username: string }>();
-  const emittedUsers = new Set<number>(); 
+  const emittedUsers = new Set<number>();
 
   interface DecodedProps {
     usarname: string;
@@ -26,10 +26,10 @@ export const initIO = (httpServer: Server): SocketIO => {
   const emitOnlineUsers = () => {
     const onlineUsers = Array.from(users.values());
     io.emit("onlineUsers", onlineUsers);
-    console.log(users);
+    //console.log(users);
   };
 
-  io.on("connection", (socket) => {
+  io.on("connection", socket => {
     const totalSockets = io.engine.clientsCount;
     const token = socket.handshake.query.token;
 
@@ -37,16 +37,15 @@ export const initIO = (httpServer: Server): SocketIO => {
       const decoded: DecodedProps = jwtDecode(token as string);
 
       try {
-        
         if (!emittedUsers.has(decoded.id)) {
           users.set(socket.id, { id: decoded.id, username: decoded.usarname });
-          emittedUsers.add(decoded.id); 
+          emittedUsers.add(decoded.id);
 
           emitOnlineUsers();
 
-          logger.info(
+          /*  logger.info(
             `Usuário conectado: ${decoded.usarname} - SOCKETS: ${totalSockets}`
-          );
+          ); */
         }
       } catch (error) {
         logger.error(
@@ -58,23 +57,23 @@ export const initIO = (httpServer: Server): SocketIO => {
     }
 
     socket.on("joinChatBox", (ticketId: string) => {
-      logger.info(
+      /*  logger.info(
         `A client joined a ticket channel - SOCKETS: ${totalSockets}`
-      );
+      ); */
       socket.join(ticketId);
     });
 
     socket.on("joinNotification", () => {
-      logger.info(
+      /*  logger.info(
         `A client joined notification channel - SOCKETS: ${totalSockets}`
-      );
+      ); */
       socket.join("notification");
     });
 
     socket.on("joinTickets", (status: string) => {
-      logger.info(
+      /*   logger.info(
         `A client joined to ${status} tickets channel - SOCKETS: ${totalSockets}`
-      );
+      ); */
       socket.join(status);
     });
 
@@ -87,17 +86,14 @@ export const initIO = (httpServer: Server): SocketIO => {
       if (user) {
         users.delete(socket.id);
 
-        // Verifica se todos os sockets do usuário foram desconectados
         const userStillConnected = Array.from(users.values()).some(
-          (u) => u.id === user.id
+          u => u.id === user.id
         );
 
         if (!userStillConnected) {
-          emittedUsers.delete(user.id); // Remove o usuário dos emitidos se ele não tiver mais sockets
-          emitOnlineUsers(); // Emitir lista de usuários online atualizada
+          emittedUsers.delete(user.id);
+          emitOnlineUsers();
         }
-
-        
       }
     });
   });
