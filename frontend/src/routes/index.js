@@ -22,15 +22,32 @@ import ErrorPage from "../pages/error";
 import NewPainel from "../components/NewPainel";
 import Search from "../pages/Search";
 import PanelPage from "../pages/Panel";
+import { useEffect, useState } from "react";
+import openSocket from "../services/socket-io";
 // import SettingsDrawer from "../components/settings/drawer";
 
 function Router() {
+  const [users, setUsers] = useState();
+
   const { isAuth } = useAuthContext();
+
+  useEffect(() => {
+    const socket = openSocket();
+
+    socket.on("onlineUsers", (data) => {
+      console.log(data);
+      setUsers(data);
+    });
+
+    return () => {
+      socket.disconnect();
+    };
+  }, []);
 
   return useRoutes([
     {
       path: "/login",
-      element: isAuth ? <Navigate to="/" replace /> : <Login />,
+      element: isAuth ? <Navigate to="/tickets" replace /> : <Login />,
     },
     {
       path: "/",
@@ -81,7 +98,7 @@ function Router() {
           path: "/Queues",
           element: <Queues />,
         },
-   
+
         {
           path: "/Transmission",
           element: <Transmission />,

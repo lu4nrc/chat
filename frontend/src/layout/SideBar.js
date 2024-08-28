@@ -20,7 +20,11 @@ import {
 } from "lucide-react";
 
 import { NavLink } from "react-router-dom";
-import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 
 const SideBar = (props) => {
   const { onToggleMode } = useSettings();
@@ -54,18 +58,25 @@ const SideBar = (props) => {
   return (
     <aside className="fixed inset-y-0 left-0 z-10 hidden w-14 flex-col border-r bg-background sm:flex">
       <nav className="flex flex-col items-center gap-4 px-2 sm:py-5">
-        <Tooltip>
-          <TooltipTrigger asChild>
-            <NavLink
-              to="/"
-              className="flex h-9 w-9 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:text-foreground md:h-9 md:w-9 aria-[current=page]:bg-primary aria-[current=page]:text-white   "
-            >
-              <Gauge className="h-6 w-6" />
-              <span className="sr-only">Dashboard</span>
-            </NavLink>
-          </TooltipTrigger>
-          <TooltipContent side="right">Dashboard</TooltipContent>
-        </Tooltip>
+        <Can
+          role={user.profile}
+          perform="drawer-admin-items:view"
+          yes={() => (
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <NavLink
+                  to="/"
+                  className="flex h-9 w-9 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:text-foreground md:h-9 md:w-9 aria-[current=page]:bg-primary aria-[current=page]:text-white   "
+                >
+                  <Gauge className="h-6 w-6" />
+                  <span className="sr-only">Dashboard</span>
+                </NavLink>
+              </TooltipTrigger>
+              <TooltipContent side="right">Dashboard</TooltipContent>
+            </Tooltip>
+          )}
+        />
+
         <Tooltip>
           <TooltipTrigger asChild>
             <NavLink
