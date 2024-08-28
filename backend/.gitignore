@@ -6,10 +6,13 @@ dist
 .env.test
 .wwebjs_auth/*
 .wwebjs_cache/*
+.clinic/*
+
 
 package-lock.json
 yarn.lock
 yarn-error.log
+node_trace.1.log
 
 /src/config/sentry.js
 
