@@ -355,7 +355,7 @@ const Today = () => {
       </div>
 
       <div class="col-span-1 md:col-span-3 ">
-        <UsersCard usersData={usersData} loading={loading} />
+        {usersData && <UsersCard usersData={usersData} loading={loading} />}
       </div>
 
       <div class="col-span-1 md:col-span-4">

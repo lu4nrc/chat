@@ -74,12 +74,14 @@ const useAuth = () => {
 
   useEffect(() => {
     const socket = openSocket();
+
     socket.on("user", (data) => {
       if (data.action === "update" && data.user.id === user.id) {
         clearInterval(interval);
         setUser(data.user);
       }
     });
+   
     return () => {
       socket.disconnect();
     };

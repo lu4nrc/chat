@@ -120,7 +120,7 @@ const UsersCard = ({ usersData, loading }) => {
                       <AvatarFallback>
                         {el.user_name
                           .split(" ")
-                          .map((palavra) => palavra[0].toUpperCase())
+                          .map((palavra) =>palavra? palavra[0].toUpperCase() : "HC")
                           .join("")}
                       </AvatarFallback>
                     </Avatar>
