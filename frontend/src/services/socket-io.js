@@ -1,16 +1,13 @@
 import openSocket from "socket.io-client";
 import { getBackendUrl } from "../config";
 
-
-
 function connectToSocket() {
     const token = localStorage.getItem("token");
-    const userId = localStorage.getItem("userId");
     return openSocket(getBackendUrl(), {
       transports: ["websocket", "polling", "flashsocket"],
-        query: {
-            token: JSON.parse(token),
-        },
+      query: {
+        token: JSON.parse(token),
+      },
     });
 }
 
