@@ -2,26 +2,6 @@ import { format, isSameDay, parseISO } from "date-fns";
 import React, { useEffect, useReducer, useRef, useState } from "react";
 import openSocket from "../../services/socket-io";
 
-import { AccessTime, Block, ExpandMore } from "@mui/icons-material";
-import {
-  Avatar,
-  Box,
-  Button,
-  CircularProgress,
-  Stack,
-  Typography,
-  useTheme,
-} from "@mui/material";
-
-import {
-  CaretDown,
-  Check,
-  Checks,
-  ClockCountdown,
-  Download,
-  Trash,
-} from "@phosphor-icons/react";
-import { Divider } from "rsuite";
 import toastError from "../../errors/toastError";
 import api from "../../services/api";
 import LocationPreview from "../LocationPreview";
@@ -30,6 +10,17 @@ import MessageOptionsMenu from "../MessageOptionsMenu";
 import ModalImageCors from "../ModalImageCors";
 import VcardPreview from "../VcardPreview";
 import AudioComp from "../AudioComp";
+import { Button } from "../ui/button";
+import {
+  Check,
+  CheckCheck,
+  ChevronDown,
+  Clock,
+  Download,
+  LoaderCircle,
+  Trash,
+} from "lucide-react";
+import { cn } from "@/lib/utils";
 
 const reducer = (state, action) => {
   if (action.type === "LOAD_MESSAGES") {
@@ -90,19 +81,16 @@ const MessagesList = ({ ticketId, isGroup }) => {
   const currentTicketId = useRef(ticketId);
 
   const removerHashDoNomeDoArquivo = (nomeArquivo) => {
-    // Expressão regular para identificar o padrão "nome_do_arquivo-[hash].extensao"
-    const regex = /(.*)-hash:(.*?)\.(.*)/;
-    // Verifica se o nome do arquivo corresponde ao padrão
-    const match = nomeArquivo.match(regex);
-    
-    if (match) {
-      // Remove a hash do nome do arquivo
-      const nomeSemHash = match[1] + "." + match[3];
-      return nomeSemHash;
-    } else {
-      // Retorna o nome do arquivo sem alterações se não houver hash
-      return nomeArquivo;
-    }
+    // Encontra a posição dos dois últimos pontos no nome do arquivo
+    const lastDotIndex = nomeArquivo.lastIndexOf(".");
+    const secondLastDotIndex = nomeArquivo.lastIndexOf(".", lastDotIndex - 1);
+
+    // Extrai a parte antes do segundo ponto e a extensão do arquivo após o último ponto
+    const nameWithoutHash =
+      nomeArquivo.slice(0, secondLastDotIndex) +
+      nomeArquivo.slice(lastDotIndex);
+
+    return nameWithoutHash;
   };
 
   const baixarArquivoSemHash = async (url, nomeArquivo) => {
@@ -237,7 +225,7 @@ const MessagesList = ({ ticketId, isGroup }) => {
 
     if (loading) return;
 
-    if (scrollTop < 10) {;
+    if (scrollTop < 10) {
       setLoading(true);
       loadMore();
     }
@@ -296,43 +284,37 @@ const MessagesList = ({ ticketId, isGroup }) => {
       return <AudioComp audio={message.mediaUrl} />;
     } else if (message.mediaType === "video") {
       return (
-        <div style={{ width: "200px", maxWidth: "100%" }}>
-          <video
-            style={{ width: "100%", height: "auto", borderRadius: "5px" }}
-            src={message.mediaUrl}
-            controls
-          />
-        </div>
+        <video
+          className="h-auto w-56 rounded-lg"
+          src={message.mediaUrl}
+          controls
+        />
       );
     } else {
       const nomeArquivo = message.mediaUrl.split("/").pop();
       return (
-        <div style={{ padding: "5px" }}>
-          <Button
-            variant="contained"
-            startIcon={<Download />}
-            onClick={() => baixarArquivoSemHash(message.mediaUrl, nomeArquivo)} // Chama a função para baixar o arquivo sem a hash
-            fullWidth
-          >
-            Fazer Download
-          </Button>
-        </div>
+        <Button
+          size="icon"
+          onClick={() => baixarArquivoSemHash(message.mediaUrl, nomeArquivo)} // Chama a função para baixar o arquivo sem a hash
+        >
+          <Download className="pr-1" />
+        </Button>
       );
     }
   };
 
   const renderMessageAck = (message) => {
     if (message.ack === 0) {
-      return <ClockCountdown fontSize="small" />;
+      return <Clock size={18} color="grey" />;
     }
     if (message.ack === 1) {
       return <Check size={18} color="grey" />;
     }
     if (message.ack === 2) {
-      return <Checks size={18} color="grey" />;
+      return <CheckCheck size={18} color="grey" />;
     }
     if (message.ack === 3 || message.ack === 4) {
-      return <Checks size={18} color="#00a86b" />;
+      return <CheckCheck size={18} color="#00a86b" />;
     }
   };
 
@@ -371,7 +353,7 @@ const MessagesList = ({ ticketId, isGroup }) => {
     }
   };
 
-  const renderMessageDivider = (message, index) => {
+  /*   const renderMessageDivider = (message, index) => {
     if (index < messagesList.length && index > 0) {
       let messageUser = messagesList[index].fromMe;
       let previousMessageUser = messagesList[index - 1].fromMe;
@@ -382,27 +364,21 @@ const MessagesList = ({ ticketId, isGroup }) => {
         );
       }
     }
-  };
+  }; */
 
   const renderQuotedMessage = (message) => {
     return (
-      <Box
-        display={"flex"}
-        flexDirection={"column"}
-        px={message.quotedMsg.mediaType === "chat" ? 1 : ""}
-        py={message.quotedMsg.mediaType === "chat" ? 0.5 : ""}
-        borderLeft={
-          message.quotedMsg.mediaType === "chat" ? "4px solid #FF2661" : ""
-        }
-        bgcolor={
-          message.fromMe
-            ? theme.palette.background.neutral
-            : theme.palette.background.default
-        }
-        borderRadius={0.5}
+      <div
+        className={cn(
+          "flex flex-col w-full rounded-lg bg-background mb-2",
+          message.quotedMsg.mediaType === "chat"
+            ? "px-1 py-2  border-l-4 border-primary"
+            : "py-1",
+          message.fromMe ? "bg-muted" : "bg-background"
+        )}
       >
         {!message.quotedMsg?.fromMe && (
-          <p style={{ fontSize: "12px", fontWeight: 600 }}>
+          <p className="text-xs font-normal">
             <MarkdownWrapper>
               {message.quotedMsg?.contact?.name}
             </MarkdownWrapper>
@@ -417,19 +393,17 @@ const MessagesList = ({ ticketId, isGroup }) => {
           </audio> */
           <AudioComp audio={message.quotedMsg.mediaUrl} />
         ) : message.quotedMsg.mediaType === "video" ? (
-          <video src={message.quotedMsg.mediaUrl} controls />
+          <video
+            className="h-auto w-56 rounded-lg"
+            src={message.quotedMsg.mediaUrl}
+            controls
+          />
         ) : (
-          <p
-            style={{
-              whiteSpace: "pre-wrap",
-              paddingLeft: 1,
-              paddingRight: 2,
-            }}
-          >
+          <p className="pl-1 pr-2 whitespace-pre-wrap text-[14.2px]">
             <MarkdownWrapper>{message.quotedMsg?.body}</MarkdownWrapper>
           </p>
         )}
-      </Box>
+      </div>
     );
   };
 
@@ -444,95 +418,49 @@ const MessagesList = ({ ticketId, isGroup }) => {
   const renderMessages = () => {
     if (messagesList.length > 0) {
       const viewMessagesList = messagesList.map((message, index) => {
+        const file_name = message.mediaUrl
+          ? removerHashDoNomeDoArquivo(message.mediaUrl.split("/").pop())
+          : null;
+
         if (message.mediaType === null) {
           return (
-            <div
-              style={{
-                display: "flex",
-                width: "100%",
-                alignItems: "center",
-                justifyContent: "center",
-                paddingY: 1,
-              }}
+            <p
+              className={
+                "flex w-full justify-center items-center bg-muted border rounded-lg px-2 py-1 text-chart1 text-sm"
+              }
               key={message.id}
             >
-              <div
-                style={{
-                  padding: "5px 10px 5px 10px",
-                  borderRadius: "5px",
-                  border: `1px solid ${theme.palette.background.paper}`,
-                  backgroundColor: theme.palette.background.neutral,
-                  margin: "3px",
-                }}
-              >
-                <span
-                  style={{
-                    color: theme.palette.info.main,
-                    fontSize: "12px",
-                  }}
-                >
-                  <MarkdownWrapper>{message.body}</MarkdownWrapper>
-                </span>
-              </div>
-            </div>
+              <MarkdownWrapper>{message.body}</MarkdownWrapper>
+            </p>
           );
         } else
           return (
-            <Box
-              sx={{ opacity: message.isDeleted ? 0.5 : 1 }}
-              pb={0.7}
+            <div
+              className={cn(
+                "flex flex-col",
+                message.isDeleted ? "opacity-50" : "opacity-100",
+                !message.fromMe ? "items-start" : "items-end"
+              )}
               key={message.id}
-              display={"flex"}
-              flexDirection={"column"}
-              alignItems={!message.fromMe ? "start" : "end"}
             >
+              {/* Horario do dia */}
+              <span className="text-primary font-sm font-medium flex w-full justify-center items-center">
+                {renderDailyTimestamps(message, index)}
+              </span>
+
+              {/* Mensagem  */}
               <div
-                style={{
-                  display: "flex",
-                  width: "100%",
-                  alignContent: "center",
-                  justifyContent: "center",
-                }}
-              >
-                <span
-                  style={{ color: theme.palette.primary.main, fontWeight: 700 }}
-                >
-                  {renderDailyTimestamps(message, index)}
-                </span>
-              </div>
-
-              {/* {renderMessageDivider(message, index)} */}
-
-              <Stack
                 key={message.id}
-                alignItems={"start"}
-                justifyContent={"center"}
-                bgcolor={
-                  !message.fromMe ? theme.palette.background.neutral : ""
-                }
-                sx={{
-                  borderRadius: message.fromMe
-                    ? "11px 11px 0px 11px"
-                    : "11px 11px 11px 0px", // superior esquerdo, superior direito, inferior direito, inferior esquerdo
-                }}
-                border={1}
-                padding={message.mediaType === "chat" ? 0.7 : 0}
-                borderColor={theme.palette.background.paper}
-                direction={"column"}
-                position={"relative"}
-                width={"fit-content"}
-                maxWidth={{ xs: "100%", md: "512px" }}
-                minHeight={40}
-                overflow={"hidden"}
+                className={cn(
+                  "group flex flex-col relative rounded-xl text-base overflow-hidden justify-center items-start min-h-9 text-foreground w-fit",
+                  message.fromMe
+                    ? "bg-primary-foreground dark:border dark:bg-background rounded-br-none"
+                    : "bg-muted rounded-bl-none",
+                  message.mediaType === "chat" ? "p-2" : ""
+                )}
               >
                 {isGroup && (
-                  <p
-                    style={{
-                      color: theme.palette.primary.main,
-                      fontSize: 12,
-                      fontWeight: 700,
-                    }}
-                  >
+                  <p className="text-primary font-medium text-xs">
                     {message.contact?.name}
                   </p>
                 )}
@@ -542,16 +470,10 @@ const MessagesList = ({ ticketId, isGroup }) => {
                   checkMessageMedia(message)}
 
                 {message.isDeleted && (
-                  <div
-                    style={{
-                      fontStyle: "italic",
-                      display: "flex",
-                      alignItems: "center",
-                      gap: 0.5,
-                    }}
-                  >
-                    <Trash fontSize="small" /> <span>Mensagem apagada</span>
-                  </div>
+                  <span className="italic flex items-center gap-2">
+                    <Trash fontSize="small" className="pr-1" />{" "}
+                    <span>Mensagem apagada</span>
+                  </span>
                 )}
                 {message.quotedMsg && renderQuotedMessage(message)}
 
@@ -561,53 +483,43 @@ const MessagesList = ({ ticketId, isGroup }) => {
                     message.body.trim().endsWith(".webp"))) ||
                 message.mediaType === "vcard" ? null : message.mediaType ===
                   "application" ? (
-                  removerHashDoNomeDoArquivo(message.body)
+                  <div>
+                    <span className="text-sm text-muted-foreground pl-1 pr-1 whitespace-pre-wrap leading-5">
+                      {file_name}
+                    </span>
+                    {file_name !== message.body ? (
+                      <div className="pl-1 pr-1 whitespace-pre-wrap leading-5 text-[14.2px]">
+                        <MarkdownWrapper>{message.body}</MarkdownWrapper>
+                      </div>
+                    ) : (
+                      ""
+                    )}
+                  </div>
                 ) : (
-                  <p
-                    style={{
-                      whiteSpace: "pre-wrap",
-                      paddingLeft: 1,
-                      paddingRight: 2,
-                    }}
-                  >
+                  <p className="pl-1 pr-1 whitespace-pre-wrap leading-5 text-[14.2px]">
                     <MarkdownWrapper>{message.body}</MarkdownWrapper>
                   </p>
                 )}
                 {!message.isDeleted && (
-                  <div
+                  <ChevronDown
                     onClick={(e) => handleOpenMessageOptionsMenu(e, message)}
-                    style={{
-                      position: "absolute",
-                      right: 0,
-                      top: 0,
-                      backgroundColor: "rgba(240, 240, 240, 0.5)",
-                      borderRadius: "0px 11px 0px 11px",
-                      display: "flex",
-                      padding: "2px",
-                    }}
-                  >
-                    <CaretDown id="messageActionsButton" />
-                  </div>
+                    className={cn(
+                      "opacity-0 group-hover:opacity-100 h-6 w-6 rounded-se-lg rounded-bl-lg p-0.5 absolute right-0 top-0 transition-opacity ease-in-out  duration-300",
+                      message.fromMe ? "bg-background" : "bg-muted"
+                    )}
+                    id="messageActionsButton"
+                  />
                 )}
-              </Stack>
-              <div
-                style={{
-                  display: "flex",
-                  gap: "10px",
-                  justifyContent: "center",
-                  alignItems: "center",
-                }}
-              >
-                <span
-                  // sx={{ position: "absolute", right: 5, bottom: 1 }}
+              </div>
 
-                  style={{ color: "grey", fontSize: "12px" }}
-                >
+              {/* Hora e confirmacao de entrega */}
+              <div className="flex gap-3 justify-center items-center">
+                <span className="text-muted-foreground text-xs">
                   {format(parseISO(message.createdAt), "HH:mm")}
                 </span>
                 {message.fromMe && renderMessageAck(message)}
               </div>
-            </Box>
+            </div>
           );
       });
       return viewMessagesList;
@@ -615,7 +527,7 @@ const MessagesList = ({ ticketId, isGroup }) => {
       return <div>Diga olá ao seu novo contato!</div>;
     }
   };
-  const theme = useTheme();
+
   return (
     <>
       <MessageOptionsMenu
@@ -625,13 +537,8 @@ const MessagesList = ({ ticketId, isGroup }) => {
         handleClose={handleCloseMessageOptionsMenu}
       />
 
-      <Stack
-        p={0.5}
-        height={"100%"}
-        direction="column"
-        width={"100%"}
-        overflow={"auto"}
-        position={"relative"}
+      <div
+        className="h-full w-full px-1 flex gap-2 flex-col overflow-auto relative sm:px-1 lg:px-9 xl:px-12 2xl:max-w-5xl"
         onScroll={handleScroll}
         ref={stackRef}
       >
@@ -650,10 +557,10 @@ const MessagesList = ({ ticketId, isGroup }) => {
               transform: "translate(-50%, -50%)",
             }}
           >
-            <CircularProgress />
+            <LoaderCircle className="mr-2 h-4 w-4 animate-spin" />
           </div>
         )}
-      </Stack>
+      </div>
     </>
   );
 };

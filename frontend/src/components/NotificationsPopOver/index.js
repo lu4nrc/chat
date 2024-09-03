@@ -9,7 +9,6 @@ import alertSound from "../../assets/sound.mp3";
 import { AuthContext } from "../../context/Auth/AuthContext";
 import useTickets from "../../hooks/useTickets";
 import { i18n } from "../../translate/i18n";
-import { StyledBadge } from "../TicketListItem";
 
 const NotificationsPopOver = ({ icon }) => {
   const navigate = useNavigate();
@@ -142,11 +141,7 @@ const NotificationsPopOver = ({ icon }) => {
     soundAlertRef.current();
   };
 
-  return (
-    <StyledBadge badgeContent={notifications.length} color="primary">
-      {icon}
-    </StyledBadge>
-  );
+  return { icon };
 };
 
 export default NotificationsPopOver;

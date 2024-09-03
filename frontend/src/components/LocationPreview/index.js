@@ -1,9 +1,6 @@
 import React, { useEffect } from "react";
 import toastError from "../../errors/toastError";
-
-import Typography from "@mui/material/Typography";
-import Button from "@mui/material/Button";
-import Divider from "@mui/material/Divider";
+import { Button } from "../ui/button";
 
 const LocationPreview = ({ image, link, description }) => {
   useEffect(() => {}, [image, link, description]);
@@ -34,7 +31,7 @@ const LocationPreview = ({ image, link, description }) => {
           </div>
           {description && (
             <div style={{ display: "flex", flexWrap: "wrap" }}>
-              <Typography
+              <p
                 style={{
                   marginTop: "12px",
                   marginLeft: "15px",
@@ -50,18 +47,12 @@ const LocationPreview = ({ image, link, description }) => {
                     __html: description.replace("\\n", "<br />"),
                   }}
                 ></div>
-              </Typography>
+              </p>
             </div>
           )}
           <div style={{ display: "block", content: "", clear: "both" }}></div>
           <div>
-            <Divider />
-            <Button
-              fullWidth
-              color="primary"
-              onClick={handleLocation}
-              disabled={!link}
-            >
+            <Button  onClick={handleLocation} disabled={!link}>
               Visualizar
             </Button>
           </div>

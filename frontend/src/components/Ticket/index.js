@@ -4,14 +4,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import { toast } from "react-toastify";
 import openSocket from "../../services/socket-io";
 
-import {
-  Avatar,
-  Box,
-  IconButton,
-  Stack,
-  Typography,
-  useTheme,
-} from "@mui/material";
+import { Box, IconButton, Stack, Typography, useTheme } from "@mui/material";
 
 import MessageInput from "../MessageInput/";
 
@@ -22,7 +15,8 @@ import api from "../../services/api";
 import ContactDrawer from "../ContactDrawer";
 import MessagesList from "../MessagesList";
 import TicketActionButtons from "../TicketActionButtons";
-import { ArrowLeft } from "@phosphor-icons/react";
+
+import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
 
 const Ticket = () => {
   const { ticketId } = useParams();
@@ -100,108 +94,84 @@ const Ticket = () => {
 
   return (
     <ReplyMessageProvider>
-      <div className="grid grid-rows-[auto_1fr_auto] h-screen">
-        <Box
-          width={"100%"}
-          height="fit-content"
-          padding={0.5}
-          display={"flex"}
-          justifyContent={"space-between"}
-          flexDirection={"row"}
-          alignItems={"center"}
-          borderBottom={2}
-          borderColor={theme.palette.divider}
-        >
-          {/* Header */}
-
-          <Stack flexDirection={"row"} gap={1} onClick={handleDrawerOpen}>
-            <Stack
-              display={"flex"}
-              flexDirection={"row"}
-              alignItems={"center"}
-              gap={1}
-            >
-              <IconButton
-                sx={{
-                  display: { xs: "inherit", md: "none" },
-                  width: "32px",
-                  height: "32px",
-                }}
-                onClick={(e) => console.log()}
-              >
-                <ArrowLeft size={24} />
-              </IconButton>
-
+      <div className="grid grid-rows-[auto_1fr_auto] h-screen justify-items-center">
+        
+      {/*   <div className="bg-muted p-2 w-full">
+          <div className="flex justify-between">
+            <div className="flex  justify-center items-center gap-2">
               <Avatar
-                sx={{ width: 56, height: 56, cursor: "pointer" }}
-                src={contact.profilePicUrl}
+                className="h-14 w-14"
+                onClick={handleDrawerOpen}
                 alt="contact_image"
-              />
-              <Box
-                display={"flex"}
-                flexDirection={"column"}
-                justifyContent={"center"}
               >
-                <Typography variant="subtitle1">{contact.name}</Typography>
+                <AvatarImage src={contact.profilePicUrl} alt="@contact" />
+                <AvatarFallback>HC</AvatarFallback>
+              </Avatar>
+
+              <div>
+                <p className="text-lg text-foreground font-medium">
+                  {contact.name}
+                </p>
                 {ticket.user?.name && (
-                  <Typography variant="caption" color={"gray"}>
+                  <p className="text-sm font-medium text-muted-foreground">
                     Atribuído a: {ticket.user?.name}
-                  </Typography>
+                  </p>
                 )}
-                <Stack
-                  sx={{ cursor: "pointer" }}
-                  direction={"row"}
-                  spacing={1}
-                  flexWrap={"wrap"}
-                >
-                  {loading
-                    ? null
-                    : contact.tagslist?.map((e, i) => {
-                        return (
-                          <Box key={i} sx={{ marginBottom: 10 }}>
-                            <Chip
-                              label={e.name}
-                              sx={{
-                                height: 20,
-                                background: ` ${
-                                  e.typetag === "user"
-                                    ? theme.palette.primary.main
-                                    : e.typetag === "enterprise"
-                                    ? "#193044"
-                                    : e.typetag === "custom"
-                                    ? "#F0F4F8"
-                                    : "#F0F4F8"
-                                }`,
-                                color: ` ${
-                                  e.typetag === "user"
-                                    ? "#fff"
-                                    : e.typetag === "enterprise"
-                                    ? "#fff"
-                                    : "#444"
-                                }`,
-                              }}
-                            />
-                          </Box>
-                        );
-                      })}
-                </Stack>
-              </Box>
-            </Stack>
+              </div>
+            </div>
+            <TicketActionButtons ticket={ticket} />
+          </div>
+         
+
+          <Stack
+            sx={{ cursor: "pointer" }}
+            direction={"row"}
+            spacing={1}
+            flexWrap={"wrap"}
+          >
+            {loading
+              ? null
+              : contact.tagslist?.map((e, i) => {
+                  return (
+                    <Box key={i} sx={{ marginBottom: 10 }}>
+                      <Chip
+                        label={e.name}
+                        sx={{
+                          height: 20,
+                          background: ` ${
+                            e.typetag === "user"
+                              ? theme.palette.primary.main
+                              : e.typetag === "enterprise"
+                              ? "#193044"
+                              : e.typetag === "custom"
+                              ? "#F0F4F8"
+                              : "#F0F4F8"
+                          }`,
+                          color: ` ${
+                            e.typetag === "user"
+                              ? "#fff"
+                              : e.typetag === "enterprise"
+                              ? "#fff"
+                              : "#444"
+                          }`,
+                        }}
+                      />
+                    </Box>
+                  );
+                })}
           </Stack>
+        </div> */}
 
-          <TicketActionButtons ticket={ticket} />
-        </Box>
+        {/* <MessagesList ticketId={ticketId} isGroup={ticket.isGroup} /> */}
 
-        <MessagesList ticketId={ticketId} isGroup={ticket.isGroup} />
+        {/* <MessageInput ticketStatus={ticket.status} /> */}
 
-        <MessageInput ticketStatus={ticket.status} />
-
-        <ContactDrawer
+  {/*       <ContactDrawer
           open={drawerOpen}
           handleDrawerClose={handleDrawerClose}
           contact={contact}
           loading={loading}
-        />
+        /> */}
       </div>
     </ReplyMessageProvider>
   );

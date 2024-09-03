@@ -21,7 +21,7 @@ const Dashboard = () => {
     <>
       <div className=" grid flex-1 items-start gap-4 p-4 sm:px-6 sm:py-2 md:gap-4">
         <div className="flex items-center gap-2">
-          <h1 className="text-2xl font-semibold leading-none tracking-tight">
+          <h1 className="text-2xl font-semibold leading-none tracking-tight text-foreground">
             Dashboard
           </h1>
           <Badge className="ml-auto sm:ml-0">Beta</Badge>

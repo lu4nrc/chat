@@ -19,7 +19,7 @@ import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 
 import "dayjs/locale/pt-br";
 import ErrorPage from "../pages/error";
-import NewPainel from "../components/NewPainel";
+/* import NewPainel from "../components/NewPainel"; */
 import Search from "../pages/Search";
 import PanelPage from "../pages/Panel";
 
@@ -89,7 +89,7 @@ function Router() {
         },
         {
           path: "/Panel",
-          element: <NewPainel />,
+          element: {/* <NewPainel /> */},
         },
         {
           path: "/404",

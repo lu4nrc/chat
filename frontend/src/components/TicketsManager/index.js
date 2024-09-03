@@ -1,76 +1,25 @@
 import React, { useContext, useEffect, useRef, useState } from "react";
 
-import Badge from "@mui/material/Badge";
-import Tab from "@mui/material/Tab";
-import Tabs from "@mui/material/Tabs";
-import Typography from "@mui/material/Typography";
-
 import NewTicketModal from "../NewTicketModal";
-import TabPanel from "../TabPanel";
+
 import TicketsList from "../TicketsList";
 
 import { AuthContext } from "../../context/Auth/AuthContext";
 import TicketsQueueSelect from "../TicketsQueueSelect";
+
+import { Button } from "../ui/button";
 import {
-  Box,
-  Button,
-  InputAdornment,
-  Stack,
-  TextField,
-  useTheme,
-} from "@mui/material";
-import { Chat, ChatsCircle, MagnifyingGlass } from "@phosphor-icons/react";
-import { Switch, styled } from "@mui/material";
-const AntSwitch = styled(Switch)(({ theme }) => ({
-  width: 42,
-  height: 17,
-  padding: 0,
-  display: "flex",
-  "&:active": {
-    "& .MuiSwitch-thumb": {
-      width: 15,
-    },
-    "& .MuiSwitch-switchBase.Mui-checked": {
-      transform: "translateX(20px)",
-    },
-  },
-  "& .MuiSwitch-switchBase": {
-    padding: 2,
-    "&.Mui-checked": {
-      transform: "translateX(25px)",
-      color: "#fff",
-      "& + .MuiSwitch-track": {
-        opacity: 1,
-        backgroundColor:
-          theme.palette.mode === "dark"
-            ? theme.palette.primary.main
-            : theme.palette.primary.main,
-      },
-    },
-  },
-  "& .MuiSwitch-thumb": {
-    boxShadow: "0 2px 4px 0 rgb(0 35 11 / 20%)",
-    width: 12,
-    height: 12,
-    borderRadius: 8,
-    transition: theme.transitions.create(["width"], {
-      duration: 200,
-    }),
-  },
-  "& .MuiSwitch-track": {
-    borderRadius: 20 / 2,
-    opacity: 1,
-    backgroundColor:
-      theme.palette.mode === "dark"
-        ? "rgba(255,255,255,.35)"
-        : "rgba(0,0,0,.25)",
-    boxSizing: "border-box",
-  },
-}));
+  LoaderCircle,
+  MessageCirclePlus,
+  MessageSquarePlus,
+  Plus,
+} from "lucide-react";
+import { Input } from "../ui/input";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "../ui/tabs";
+import { Switch } from "../ui/switch";
+import { Tooltip, TooltipContent, TooltipTrigger } from "../ui/tooltip";
+
 const TicketsManager = () => {
-  const theme = useTheme();
-  const [tab] = useState("open");
-  const [tabOpen, setTabOpen] = useState("open");
   const [newTicketModalOpen, setNewTicketModalOpen] = useState(false);
   const [showAllTickets, setShowAllTickets] = useState(false);
   const searchInputRef = useRef();
@@ -84,7 +33,7 @@ const TicketsManager = () => {
 
   useEffect(() => {
     if (user.profile.toUpperCase() === "ADMIN") {
-      setShowAllTickets(true);
+      setShowAllTickets(false);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
@@ -93,101 +42,85 @@ const TicketsManager = () => {
     setFilter(event.target.value);
   };
 
-  /*   useEffect(() => {
-    if (tab === "search") {
-      searchInputRef.current.focus();
-    }
-  }, [tab]); */
-
-  const handleChangeTabOpen = (e, newValue) => {
-    setTabOpen(newValue);
-  };
-
-  const applyPanelStyle = (status) => {
-    if (tabOpen !== status) {
-      return { display: "none" };
-    }
-  };
-
   return (
-    <>
+    <div className="border-r h-screen flex flex-col gap-1  pt-1 min-w-0">
       <NewTicketModal
         modalOpen={newTicketModalOpen}
         onClose={(e) => setNewTicketModalOpen(false)}
       />
-      <Stack
-        height={"100%"}
-        width={360}
-        border={2}
-        padding={1}
-        gap={2}
-        borderColor={theme.palette.divider}
-        bgcolor={theme.palette.background.default}
-        sx={{
-          width: { xs: "100vw", sm: 360 },
-        }}
-      >
-        <Button
-          variant="contained"
-          onClick={() => setNewTicketModalOpen(true)}
-          size="medium"
-        >
-          Iniciar novo atendimento
-          <ChatsCircle style={{ paddingLeft: "3px" }} size={24} />
-        </Button>
-        <Stack flexDirection={"row"} gap={2}>
-          <TextField
-            value={filter}
-            fullWidth
-            size="small"
-            onChange={handleInputChangeFilter}
-            InputProps={{
-              startAdornment: (
-                <InputAdornment position="start">
-                  <MagnifyingGlass size={22} />
-                </InputAdornment>
-              ),
-            }}
-          />
-          {user.profile === "admin" && (
-            <Stack alignItems={"center"}>
-              <Typography variant="caption">Todos</Typography>
-              <AntSwitch
-                size="small"
-                checked={showAllTickets}
-                onChange={() => setShowAllTickets((prevState) => !prevState)}
-                name="showAllTickets"
-                color="primary"
-              />
-            </Stack>
-          )}
-          <TicketsQueueSelect
-            selectedQueueIds={selectedQueueIds}
-            userQueues={user?.queues}
-            onChange={(values) => setSelectedQueueIds(values)}
-            s
-          />
-        </Stack>
 
-        <TabPanel value={tab} name="open">
-          <Tabs
-            value={tabOpen}
-            onChange={handleChangeTabOpen}
-            indicatorColor="primary"
-            textColor="primary"
-            variant="fullWidth"
-            scrollButtons={false}
-          >
-            <Tab
-              label={<Badge badgeContent={openCount}>Atendendo</Badge>}
-              value={"open"}
-            />
-            <Tab
-              label={<Badge badgeContent={pendingCount}>Aguardando</Badge>}
-              value={"pending"}
-            />
-          </Tabs>
+      <div className="flex justify-between items-center px-1 ">
+        <h1 className="text-2xl font-semibold leading-none tracking-tight text-foreground">
+          Chats
+        </h1>
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <div
+              onClick={() => setNewTicketModalOpen(true)}
+              className="flex h-9 w-9 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:text-foreground md:h-9 md:w-9 aria-[current=page]:bg-primary aria-[current=page]:text-white   "
+            >
+              <MessageSquarePlus className="h-6 w-6" />
 
+              <span className="sr-only">Dashboard</span>
+            </div>
+          </TooltipTrigger>
+          <TooltipContent side="right">Nova conversa</TooltipContent>
+        </Tooltip>
+      </div>
+      <div className="flex gap-1 px-1">
+        <Input
+          onChange={handleInputChangeFilter}
+          value={filter}
+          placeholder="Pesquisar.."
+        />
+        <Tooltip>
+          <TooltipTrigger asChild>
+            {user.profile === "admin" && (
+              <div className="flex items-center space-x-2">
+                <Switch
+                  checked={showAllTickets}
+                  onCheckedChange={() =>
+                    setShowAllTickets((prevState) => !prevState)
+                  }
+                  id="showAllTickets"
+                />
+              </div>
+            )}
+          </TooltipTrigger>
+          <TooltipContent side="right">Mostrar todos</TooltipContent>
+        </Tooltip>
+        <TicketsQueueSelect
+          selectedQueueIds={selectedQueueIds}
+          userQueues={user?.queues}
+          onChange={(values) => setSelectedQueueIds(values)}
+        />
+      </div>
+
+      <Tabs defaultValue="open">
+        <TabsList className="grid grid-cols-2 mx-1">
+          <TabsTrigger value="open">
+            Em atendimento
+            <span className="pl-1 text-primary font-normal">
+              {openCount ? (
+                openCount
+              ) : (
+                <LoaderCircle className="mr-2 h-4 w-4 animate-spin" />
+              )}
+            </span>
+          </TabsTrigger>
+          <TabsTrigger value="pending">
+            Pendentes
+            <span className="pl-1 text-primary font-normal">
+              {pendingCount ? (
+                pendingCount
+              ) : (
+                <LoaderCircle className="mr-2 h-4 w-4 animate-spin" />
+              )}
+            </span>
+          </TabsTrigger>
+        </TabsList>
+
+        <TabsContent value="open">
           <TicketsList
             filter={filter}
             setFilter={setFilter}
@@ -195,19 +128,20 @@ const TicketsManager = () => {
             showAll={showAllTickets}
             selectedQueueIds={selectedQueueIds}
             updateCount={(val) => setOpenCount(val)}
-            style={applyPanelStyle("open")}
           />
+        </TabsContent>
+
+        <TabsContent value="pending">
           <TicketsList
             filter={filter}
             setFilter={setFilter}
             status="pending"
             selectedQueueIds={selectedQueueIds}
             updateCount={(val) => setPendingCount(val)}
-            style={applyPanelStyle("pending")}
           />
-        </TabPanel>
-      </Stack>
-    </>
+        </TabsContent>
+      </Tabs>
+    </div>
   );
 };
 

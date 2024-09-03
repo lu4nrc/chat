@@ -1,14 +1,16 @@
 import React, { useContext, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
-import { Check } from "@mui/icons-material";
-import { Divider, IconButton, Stack, Box } from "@mui/material";
-import { ArrowCounterClockwise, CaretDown } from "@phosphor-icons/react";
+import { Divider, IconButton, Stack } from "@mui/material";
+import { CaretDown } from "@phosphor-icons/react";
 import { AuthContext } from "../../context/Auth/AuthContext";
 import toastError from "../../errors/toastError";
 import api from "../../services/api";
-import ButtonWithSpinner from "../ButtonWithSpinner";
+
 import TicketOptionsMenu from "../TicketOptionsMenu";
+import { Tooltip, TooltipContent, TooltipTrigger } from "../ui/tooltip";
+import { Check, EllipsisVertical, LoaderCircle, RotateCcw } from "lucide-react";
+import { Button } from "../ui/button";
 
 const TicketActionButtons = ({ ticket }) => {
   const navigate = useNavigate();
@@ -46,53 +48,49 @@ const TicketActionButtons = ({ ticket }) => {
   };
 
   return (
-    <div /* className={classes.actionButtons} */>
+    <div>
       {ticket.status === "open" && (
         <>
-          <Stack direction={"row"} alignItems={"center"} spacing={2}>
-            {/* <Box sx={{ display: { xs: "none", md: "block" } }}> */}
-              <IconButton
-                onClick={() => handleUpdateTicketStatus("pending", null)}
-              >
-                <ArrowCounterClockwise />
-              </IconButton>
-              <IconButton
-                onClick={() => handleUpdateTicketStatus("closed", user?.id)}
-              >
-                <Check />
-              </IconButton>
-            {/* </Box> */}
-            <Divider orientation="vertical" flexItem />
-            <IconButton onClick={handleOpenTicketOptionsMenu}>
-              <CaretDown />
-            </IconButton>
-          </Stack>
-          {/*           <ButtonWithSpinner
-            loading={loading}
-            startIcon={<Replay />}
-            size="small"
-            onClick={() => handleUpdateTicketStatus("pending", null)}
-          >
-            <div>{i18n.t("messagesList.header.buttons.return")}</div>
-          </ButtonWithSpinner>
-          <ButtonWithSpinner
-            loading={loading}
-            startIcon={<Check />}
-            size="small"
-            variant="contained"
-            color="primary"
-            onClick={() => handleUpdateTicketStatus("closed", user?.id)}
-          >
-            <div >
-              {i18n.t("messagesList.header.buttons.resolve")}
-            </div>
-          </ButtonWithSpinner>
-          <IconButton
-            onClick={handleOpenTicketOptionsMenu}
-           
-          >
-            <MoreVert />
-          </IconButton> */}
+          <div className="flex gap-2">
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <div
+                  onClick={() => handleUpdateTicketStatus("pending", null)}
+                  className="flex h-9 w-9 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:text-foreground md:h-9 md:w-9 aria-[current=page]:bg-primary aria-[current=page]:text-white   "
+                >
+                  <RotateCcw className="h-6 w-6" />
+                </div>
+              </TooltipTrigger>
+              <TooltipContent side="right">
+                Retornar para pendentes
+              </TooltipContent>
+            </Tooltip>
+
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <div
+                  onClick={() => handleUpdateTicketStatus("closed", user?.id)}
+                  className="flex h-9 w-9 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:text-foreground md:h-9 md:w-9 aria-[current=page]:bg-primary aria-[current=page]:text-white   "
+                >
+                  <Check className="h-6 w-6" />
+                </div>
+              </TooltipTrigger>
+              <TooltipContent side="right">Encerrar atendimento</TooltipContent>
+            </Tooltip>
+
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <div
+                  onClick={handleOpenTicketOptionsMenu}
+                  className="flex h-9 w-9 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:text-foreground md:h-9 md:w-9 aria-[current=page]:bg-primary aria-[current=page]:text-white   "
+                >
+                  <EllipsisVertical lassName="h-6 w-6" />
+                </div>
+              </TooltipTrigger>
+              <TooltipContent side="right">Opções</TooltipContent>
+            </Tooltip>
+          </div>
+
           <TicketOptionsMenu
             ticket={ticket}
             anchorEl={anchorEl}
@@ -102,12 +100,14 @@ const TicketActionButtons = ({ ticket }) => {
         </>
       )}
       {ticket.status === "pending" && (
-        <ButtonWithSpinner
-          loading={loading}
+        <Button
+          size="sm"
+          disabled={loading}
           onClick={() => handleUpdateTicketStatus("open", user?.id)}
         >
-          <div>Iniciar Atendimento</div>
-        </ButtonWithSpinner>
+          {loading && <LoaderCircle className="mr-2 h-4 w-4 animate-spin" />}
+          Iniciar atendimento
+        </Button>
       )}
     </div>
   );

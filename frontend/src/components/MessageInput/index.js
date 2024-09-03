@@ -9,32 +9,11 @@ import React, { useContext, useEffect, useRef, useState } from "react";
 import { useParams } from "react-router-dom";
 
 import CheckCircleOutlineIcon from "@mui/icons-material/CheckCircleOutline";
-import ClearIcon from "@mui/icons-material/Clear";
+
 import HighlightOffIcon from "@mui/icons-material/HighlightOff";
 import MoodIcon from "@mui/icons-material/Mood";
-import {
-  Box,
-  FormControlLabel,
-  Hidden,
-  Menu,
-  MenuItem,
-  Stack,
-  Switch,
-  TextField,
-  Typography,
-  styled,
-  useTheme,
-} from "@mui/material";
+import { Menu, MenuItem, Stack, Hidden } from "@mui/material";
 
-import { MoreVert } from "@mui/icons-material";
-import {
-  Microphone,
-  PaperPlaneRight,
-  PaperPlaneTilt,
-  Paperclip,
-  Smiley,
-  XCircle,
-} from "@phosphor-icons/react";
 import { AuthContext } from "../../context/Auth/AuthContext";
 import { ReplyMessageContext } from "../../context/ReplyingMessage/ReplyingMessageContext";
 import toastError from "../../errors/toastError";
@@ -42,10 +21,24 @@ import useLocalStorage from "../../hooks/useLocalStorage";
 import api from "../../services/api";
 import { i18n } from "../../translate/i18n";
 import RecordingTimer from "./RecordingTimer";
+import { Textarea } from "../ui/textarea";
+import {
+  EllipsisVertical,
+  LoaderCircle,
+  Mic,
+  Paperclip,
+  Send,
+  Smile,
+  X,
+} from "lucide-react";
+import { useTheme } from "../theme/theme-provider";
+import { Button } from "../ui/button";
+import { Tooltip, TooltipContent, TooltipTrigger } from "../ui/tooltip";
+import { Switch } from "../ui/switch";
 
 const Mp3Recorder = new MicRecorder({ bitRate: 128 });
 
-const AntSwitch = styled(Switch)(({ theme }) => ({
+/* const AntSwitch = styled(Switch)(({ theme }) => ({
   width: 45,
   height: 20,
   padding: 0,
@@ -90,10 +83,10 @@ const AntSwitch = styled(Switch)(({ theme }) => ({
         : "rgba(0,0,0,.25)",
     boxSizing: "border-box",
   },
-}));
+})); */
 
 const MessageInput = ({ ticketStatus }) => {
-  const theme = useTheme();
+  const { theme } = useTheme();
   const { ticketId } = useParams();
   const [anchorEl, setAnchorEl] = useState(null);
   const [anchorElAnswers, setAnchorElAnswers] = useState(null);
@@ -104,7 +97,7 @@ const MessageInput = ({ ticketStatus }) => {
   const [recording, setRecording] = useState(false);
   const [quickAnswers, setQuickAnswer] = useState([]);
   const [typeBar, setTypeBar] = useState(false);
-  const inputRef = useRef();
+  const textareaRef = useRef();
   const { setReplyingMessage, replyingMessage } =
     useContext(ReplyMessageContext);
   const { user } = useContext(AuthContext);
@@ -112,7 +105,7 @@ const MessageInput = ({ ticketStatus }) => {
   const [signMessage, setSignMessage] = useLocalStorage("signOption", true);
 
   useEffect(() => {
-    inputRef.current.focus();
+    textareaRef.current.focus();
   }, [replyingMessage]);
 
   const handleClosesAnswers = () => {
@@ -121,7 +114,7 @@ const MessageInput = ({ ticketStatus }) => {
   };
 
   useEffect(() => {
-    inputRef.current.focus();
+    textareaRef.current.focus();
     return () => {
       setInputMessage("");
       setShowEmoji(false);
@@ -194,6 +187,8 @@ const MessageInput = ({ ticketStatus }) => {
         : inputMessage.trim(),
       quotedMsg: replyingMessage,
     };
+
+    console.log(message);
     try {
       await api.post(`/messages/${ticketId}`, message);
     } catch (err) {
@@ -284,108 +279,74 @@ const MessageInput = ({ ticketStatus }) => {
 
   const renderReplyingMessage = (message) => {
     return (
-      <Stack
-        px={1}
-        border={1}
-        borderRadius={0.5}
-        alignItems={"center"}
-        justifyContent="space-between"
-        direction={"row"}
-      >
-        <Stack direction={"column"} spacing={0.5}>
+      <div className=" flex items-center justify-between">
+        <div className="flex w-full border-l-4 border-primary flex-col bg-background rounded-lg p-2">
           {!message.fromMe && (
-            <Typography variant="body2">{message.contact?.name}</Typography>
+            <p className="text-sm font-medium text-foreground">
+              {message.contact?.name}
+            </p>
           )}
-          <Typography variant="body2" color={theme.palette.text.secondary}>
+          <p className="text-sm font-normal text-muted-foreground">
             {message.body}
-          </Typography>
-        </Stack>
-
-        <IconButton
-          aria-label="showRecorder"
-          component="span"
+          </p>
+        </div>
+        <X
+          className="text-foreground"
           disabled={loading || ticketStatus !== "open"}
           onClick={() => setReplyingMessage(null)}
-        >
-          <ClearIcon />
-        </IconButton>
-      </Stack>
+        />
+      </div>
     );
   };
 
   if (medias.length > 0)
     return (
-      <Stack
-        direction={"row"}
-        alignItems={"center"}
-        justifyContent={"space-between"}
-        px={2}
-        py={2}
-      >
+      <div className="flex items-center bg-muted justify-between px-2 py-4 w-full">
         {loading ? (
           <div>
-            <CircularProgress />
+            <LoaderCircle className="mr-2 h-4 w-4 animate-spin text-primary" />
           </div>
         ) : (
-          <Typography>{medias[0]?.name}</Typography>
+          <p className="text-sm text-foreground">{medias[0]?.name}</p>
         )}
-        <Stack direction={"row"} spacing={1}>
-          <IconButton
+        <div className="flex gap-2 pr-5">
+          <X
             aria-label="cancel-upload"
-            component="span"
             onClick={(e) => setMedias([])}
-          >
-            <XCircle size={24} />
-          </IconButton>
-          <IconButton
-            aria-label="send-upload"
-            component="span"
-            onClick={handleUploadMedia}
-            disabled={loading}
-          >
-            <PaperPlaneRight size={24} />
-          </IconButton>
-        </Stack>
-      </Stack>
+            className="w-5 h-5 text-foreground"
+          />
+          <div disabled={loading} onClick={handleUploadMedia}>
+            <Send size={24} className="w-5 h-5 text-primary" />
+          </div>
+        </div>
+      </div>
     );
   else {
     return (
-      <Stack
-        px={2}
-        py={2}
-        borderTop={2}
-        borderColor={theme.palette.divider}
-        spacing={0.5}
-      >
+      <div className="flex flex-col gap-3 bg-muted pt-2 py-3 px-2 w-full">
         {replyingMessage && renderReplyingMessage(replyingMessage)}
-        <Stack
-          spacing={1}
-          direction={"row"}
-          justifyContent={"space-between"}
-          alignItems="center"
-        >
-          <Stack direction={"row"}>
-            <Hidden only={["sm", "xs"]}>
+        <div className="flex items-center justify-between gap-2">
+          <div className="flex gap-1 ">
+            <div className=" hidden sm:flex gap-1">
               <ClickAwayListener onClickAway={() => setShowEmoji(false)}>
-                <Box sx={{ position: "relative" }}>
-                  <IconButton
-                    aria-label="emojiPicker"
-                    component="span"
+                <div className="relative">
+                  <Smile
+                    className="text-muted-foreground"
                     disabled={loading || recording || ticketStatus !== "open"}
                     onClick={() => setShowEmoji((prevState) => !prevState)}
-                  >
-                    <Smiley size={24} />
-                  </IconButton>
+                  />
+
                   {showEmoji ? (
-                    <Stack sx={{ position: "absolute", bottom: 72 }} zIndex={1}>
+                    <div className="absolute bottom-16 z-10">
                       <Picker
+                        theme={theme}
                         data={data}
                         perLine={16}
                         onEmojiSelect={handleAddEmoji}
                       />
-                    </Stack>
+                    </div>
                   ) : null}
-                </Box>
+                </div>
               </ClickAwayListener>
 
               <input
@@ -398,36 +359,29 @@ const MessageInput = ({ ticketStatus }) => {
                 onChange={handleChangeMedias}
               />
               <label htmlFor="upload-button">
-                <IconButton
-                  aria-label="upload"
-                  component="span"
+                <Paperclip
+                  className="text-muted-foreground"
                   disabled={loading || recording || ticketStatus !== "open"}
-                >
-                  <Paperclip size={24} />
-                </IconButton>
-              </label>
-
-              <Stack marginLeft={1}>
-                <Typography variant="caption">Assinar</Typography>
-                <AntSwitch
-                  size="small"
-                  checked={signMessage}
-                  onChange={(e) => {
-                    setSignMessage(e.target.checked);
-                  }}
-                  name="showAllTickets"
-                  color="primary"
                 />
-              </Stack>
-            </Hidden>
-            <Hidden only={["md", "lg", "xl"]}>
-              <IconButton
-                aria-controls="simple-menu"
-                aria-haspopup="true"
-                onClick={handleOpenMenuClick}
-              >
-                <MoreVert></MoreVert>
-              </IconButton>
+              </label>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <div className="flex items-center space-x-2">
+                    <Switch
+                      checked={signMessage}
+                      onCheckedChange={() =>
+                        setSignMessage((prevState) => !prevState)
+                      }
+                      id="Assinar"
+                    />
+                  </div>
+                </TooltipTrigger>
+                <TooltipContent side="right">Assinar</TooltipContent>
+              </Tooltip>
+            </div>
+            <div className="block sm:hidden">
+              <EllipsisVertical onClick={handleOpenMenuClick} />
+
               <Menu
                 id="simple-menu"
                 keepMounted
@@ -465,39 +419,34 @@ const MessageInput = ({ ticketStatus }) => {
                   </label>
                 </Stack>
                 <MenuItem onClick={handleMenuItemClick}>
-                  <FormControlLabel
-                    style={{ marginRight: 7, color: "grey" }}
-                    label={i18n.t("messagesInput.signMessage")}
-                    labelPlacement="start"
-                    control={
-                      <Switch
-                        size="small"
-                        checked={signMessage}
-                        onChange={(e) => {
-                          setSignMessage(e.target.checked);
-                        }}
-                        name="showAllTickets"
-                        color="primary"
-                      />
-                    }
-                  />
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <div className="flex items-center space-x-2">
+                        <Switch
+                          checked={signMessage}
+                          onCheckedChange={() =>
+                            setSignMessage((prevState) => !prevState)
+                          }
+                          id="Assinar"
+                        />
+                      </div>
+                    </TooltipTrigger>
+                    <TooltipContent side="right">Assinar</TooltipContent>
+                  </Tooltip>
                 </MenuItem>
               </Menu>
-            </Hidden>
-          </Stack>
-          <TextField
-            multiline
-            fullWidth
-            inputRef={(input) => {
-              input && input.focus();
-              input && (inputRef.current = input);
+            </div>
+          </div>
+
+          <Textarea
+            className={"min-h-[42px] h-[42px] max-h-[80px]"}
+            ref={(input) => {
+              textareaRef.current = input;
+              if (input) {
+                input.focus();
+              }
             }}
             placeholder="Mensagem..."
-            /*           placeholder={
-              ticketStatus === "open"
-                ? i18n.t("messagesInput.placeholderOpen")
-                : i18n.t("messagesInput.placeholderClosed")
-            } */
             value={inputMessage}
             onChange={handleChangeInput}
             disabled={recording || loading || ticketStatus !== "open"}
@@ -539,19 +488,16 @@ const MessageInput = ({ ticketStatus }) => {
                 })}
               </Menu>
             </Stack>
-          ) : (
-            <div></div>
-          )}
+          ) : null}
           {inputMessage ? (
-            <IconButton
+            <Button
               aria-label="sendMessage"
-              component="span"
+              size="icon"
               onClick={handleSendMessage}
               disabled={loading}
-              style={{ backgroundColor: theme.palette.primary.main }}
             >
-              <PaperPlaneTilt color="#fff" />
-            </IconButton>
+              <Send />
+            </Button>
           ) : recording ? (
             <Stack direction={"row"} alignItems={"center"}>
               <IconButton
@@ -581,18 +527,16 @@ const MessageInput = ({ ticketStatus }) => {
               </IconButton>
             </Stack>
           ) : (
-            <IconButton
+            <Button
               aria-label="showRecorder"
-              component="span"
               disabled={loading || ticketStatus !== "open"}
               onClick={handleStartRecording}
-              style={{ backgroundColor: theme.palette.primary.main }}
             >
-              <Microphone size={24} color="#fff" />
-            </IconButton>
+              <Mic size={24} color="#fff" />
+            </Button>
           )}
-        </Stack>
-      </Stack>
+        </div>
+      </div>
     );
   }
 };

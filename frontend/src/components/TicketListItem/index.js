@@ -1,59 +1,27 @@
 import React, { useContext, useRef, useState } from "react";
 
-import { format, isSameDay, parseISO } from "date-fns";
+import {
+  format,
+  isBefore,
+  isSameDay,
+  parseISO,
+  startOfDay,
+  subDays,
+} from "date-fns";
 import { useNavigate, useParams } from "react-router-dom";
 import MarkdownWrapper from "../MarkdownWrapper";
 import api from "../../services/api";
-import ButtonWithSpinner from "../ButtonWithSpinner";
 
-import {
-  Avatar,
-  Badge,
-  Box,
-  Card,
-  CardHeader,
-  Popover,
-  Stack,
-  Tooltip,
-  Typography,
-  styled,
-  useTheme,
-} from "@mui/material";
-import { Clock } from "@phosphor-icons/react";
 import { AuthContext } from "../../context/Auth/AuthContext";
 import toastError from "../../errors/toastError";
+import { Button } from "../ui/button";
+import { Clock, LoaderCircle, Smile } from "lucide-react";
 
-export const StyledBadge = styled(Badge)(({ theme }) => ({
-  "& .MuiBadge-badge": {
-    backgroundColor: "#44b700",
-    color: "#fff",
-    boxShadow: `0 0 0 2px ${theme.palette.background.paper}`,
-    "&::after": {
-      position: "absolute",
-      top: 0,
-      left: 0,
-      width: "100%",
-      height: "100%",
-      borderRadius: "50%",
-      animation: "ripple 1.2s infinite ease-in-out",
-      border: "1px solid #44b700",
-      content: '""',
-    },
-  },
-  "@keyframes ripple": {
-    "0%": {
-      transform: "scale(.8)",
-      opacity: 1,
-    },
-    "100%": {
-      transform: "scale(1.7)",
-      opacity: 0,
-    },
-  },
-}));
+import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
+import { Tooltip, TooltipContent, TooltipTrigger } from "../ui/tooltip";
+import { cn } from "@/lib/utils";
 
 const TicketListItem = ({ ticket, setFilter }) => {
-  const theme = useTheme();
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
   const { ticketId } = useParams();
@@ -61,23 +29,25 @@ const TicketListItem = ({ ticket, setFilter }) => {
   const { user } = useContext(AuthContext);
   const [currentTicket, setCurrentTicket] = useState(ticket);
   const openPoppover = false;
+  const queueColor = currentTicket.queue?.color || null;
 
   const handleAcepptTicket = async (id) => {
+    if (loading) return; 
     setLoading(true);
     try {
-      var ticketUpdated = await api.put(`/tickets/${id}`, {
+      const ticketUpdated = await api.put(`/tickets/${id}`, {
         status: "open",
         userId: user?.id,
       });
       setCurrentTicket(ticketUpdated.data);
+      navigate(`/tickets/${id}`);
     } catch (err) {
-      setLoading(false);
       toastError(err);
+    } finally {
+      if (isMounted.current) {
+        setLoading(false);
+      }
     }
-    if (isMounted.current) {
-      setLoading(false);
-    }
-    navigate(`/tickets/${id}`);
   };
 
   const spyMessages = (id) => {
@@ -111,224 +81,184 @@ const TicketListItem = ({ ticket, setFilter }) => {
   const open = Boolean(anchorEl);
   const id = openPoppover ? "simple-popover" : undefined;
 
+  function displayDate(date) {
+    const parsedDate = parseISO(date);
+    const today = new Date();
+    /* const oneDayAgo = subDays(today, 1); */
+
+    const isSame = isSameDay(parsedDate, today);
+    /*     const isBeforeToday = isBefore(parsedDate, startOfDay(today));
+    const isWithinOneDay = isBefore(parsedDate, startOfDay(oneDayAgo)) && !isBefore(parsedDate, startOfDay(today));
+   */
+    if (isSame) {
+      return format(parsedDate, "HH:mm");
+    }
+    /*     if (isBeforeToday && isWithinOneDay) {
+      return "ontem";
+    } */
+    return format(parsedDate, "dd/MM/yyyy");
+  }
+
   return (
-    <React.Fragment key={currentTicket.id}>
-      <Stack
-        alignItems={"center"}
-        borderRadius={1}
-        direction={"row"}
-        px={1}
-        py={0.5}
-        marginBottom={0.3}
-        bgcolor={theme.palette.background.neutral}
-        onClick={(e) => {
-          if (currentTicket.status === "pending") spyMessages(ticket.id);
-          handleSelectTicket(ticket.id);
-        }}
-        selected={ticketId && +ticketId === currentTicket.id}
-      >
-        <Tooltip
-          arrow
-          placement="right"
-          title={`${currentTicket?.queue?.name ?? "Sem fila"} | ${
-            currentTicket?.whatsappId
-              ? currentTicket?.whatsapp?.name ?? "Sem conexão"
-              : "Sem conexão"
-          }`}
-        >
-          {ticket.unreadMessages ? (
-            <StyledBadge
-              badgeContent={ticket.unreadMessages}
-              anchorOrigin={{ vertical: "top", horizontal: "right" }}
-            >
-              <Avatar
-                src={currentTicket?.contact?.profilePicUrl}
-                style={{
-                  border: `3px solid${currentTicket.queue?.color || "#7C7C7C"}`,
-                  height: 50,
-                  width: 50,
-                }}
-              />
-            </StyledBadge>
-          ) : (
-            <Avatar
+    <div
+      className="flex pl-1 items-center gap-1 hover:bg-muted"
+      key={currentTicket.id}
+      onClick={(e) => {
+        if (currentTicket.status === "pending") spyMessages(ticket.id);
+        handleSelectTicket(ticket.id);
+      }}
+      // selected={ticketId && +ticketId === currentTicket.id}
+    >
+      <Tooltip>
+        <TooltipTrigger asChild>
+          <Avatar
+            className="h-14 w-14"
+            style={queueColor ? { border: `2px solid ${queueColor}` } : ""}
+          >
+            <AvatarImage
+              className={("border-2 border-background rounded-full")}
               src={currentTicket?.contact?.profilePicUrl}
-              style={{
-                border: `3px solid${currentTicket?.queue?.color || "#7C7C7C"}`,
-                height: 50,
-                width: 50,
-              }}
+              alt="@contact"
             />
+            <AvatarFallback>
+              <Smile className="text-muted-foreground" />
+            </AvatarFallback>
+          </Avatar>
+        </TooltipTrigger>
+        <TooltipContent side="right">{`${
+          currentTicket?.queue?.name ?? "Sem fila"
+        } | ${
+          currentTicket?.whatsappId
+            ? currentTicket?.whatsapp?.name ?? "Sem conexão"
+            : "Sem conexão"
+        }`}</TooltipContent>
+      </Tooltip>
+
+      <div className="flex flex-col w-full  md:w-[370px] justify-center  min-w-0 border-b py-4 pr-1 ">
+        <div className="flex gap-1 justify-between">
+          <p className="font-medium leading-3 text-base truncate text-foreground">
+            {currentTicket.contact.name}
+          </p>
+          {ticket.lastMessage && (
+            <span className="text-xs text-primary font-medium">
+              {displayDate(currentTicket.updatedAt)}
+            </span>
           )}
-        </Tooltip>
+        </div>
+        <div className="flex gap-1 items-center justify-between">
+          <p className=" text-base text-muted-foreground font-medium truncate">
+            <MarkdownWrapper>
+              {currentTicket.lastMessage ? `${ticket.lastMessage}` : ""}
+            </MarkdownWrapper>
+          </p>
+          {/* //! Resolver relogio de tempo de atendimento  */}
+          <div className="flex gap-1 items-center ">
+            {/*   <div>
+              <Clock className="hidden w-6 h-6 rounded-lg text-muted-foreground transition-colors hover:text-foreground" />
 
-        {/* ========================= */}
-
-        <Stack
-          marginLeft={2}
-          flexDirection={"row"}
-          justifyContent={"space-between"}
-          width={"100%"}
-          overflow={"hidden"}
-          textOverflow={"ellipsis"}
-        >
-          <Stack width={"100%"}>
-            <Box
-              sx={{
-                display: "flex",
-                width: "100%",
-                justifyContent: "space-between",
-              }}
-            >
-              <Typography noWrap overflow={"hidden"} variant="body2">
-                {currentTicket.contact.name}
-              </Typography>
-              {ticket.lastMessage && (
-                <Box>
-                  {isSameDay(parseISO(currentTicket.updatedAt), new Date()) ? (
-                    <Typography variant="body2">
-                      {format(parseISO(currentTicket.updatedAt), "HH:mm")}
-                    </Typography>
-                  ) : (
-                    <Typography variant="body2">
-                      {format(parseISO(currentTicket.updatedAt), "dd/MM/yyyy")}
-                    </Typography>
-                  )}
-                </Box>
-              )}
-            </Box>
-            <Box
-              sx={{
-                display: "flex",
-                width: "100%",
-                justifyContent: "space-between",
-              }}
-            >
-              <Typography
-                noWrap
-                overflow={"hidden"}
-                variant="body2"
-                color="textSecondary"
-                maxHeight={"20px"}
+              <Popover
+                id={id}
+                elevation={0}
+                open={open}
+                anchorEl={anchorEl}
+                onClose={handleClose}
+                anchorOrigin={{
+                  vertical: "bottom",
+                  horizontal: "right",
+                }}
+                transformOrigin={{
+                  vertical: "bottom",
+                  horizontal: "left",
+                }}
               >
-                <MarkdownWrapper>
-                  {currentTicket.lastMessage ? `${ticket.lastMessage}` : ""}
-                </MarkdownWrapper>
-              </Typography>
-              <Stack alignItems={"end"}>
-                {/*           {ticket.status === "closed" && (
-            <Stack>
-              <Typography variant="body2" color="grey">
-                {currentTicket.userId ? "Encerrado" : "Notificação"}
-              </Typography>
-            </Stack>
-          )} */}
+                <div className="flex p-1">
+                  {currentTicket.status === "pending" ? (
+                    <>
+                      <p className="text-sm">
+                        Tempo de espera:{" "}
+                        {open
+                          ? DiffInHours(currentTicket.initialDate, null)
+                          : null}
+                      </p>
+                    </>
+                  ) : null}
+                  {currentTicket.status === "open" ? (
+                    <>
+                      <p className="text-sm">
+                        Tempo de espera:{" "}
+                        {open
+                          ? DiffInHours(
+                              currentTicket.initialDate,
+                              currentTicket.acceptDate
+                            )
+                          : null}
+                      </p>
+                      <p className="text-sm">
+                        Tempo de atendimento:{" "}
+                        {open
+                          ? DiffInHours(currentTicket.acceptDate, null)
+                          : null}
+                      </p>
+                    </>
+                  ) : null}
 
-                <Stack>
-                  <Clock
-                    aria-describedby={id}
-                    onClick={handleClick}
-                    color={"#7C7C7C"}
-                    size={24}
-                  />
-
-                  <Popover
-                    id={id}
-                    elevation={0}
-                    open={open}
-                    anchorEl={anchorEl}
-                    onClose={handleClose}
-                    anchorOrigin={{
-                      vertical: "bottom",
-                      horizontal: "right",
-                    }}
-                    transformOrigin={{
-                      vertical: "bottom",
-                      horizontal: "left",
-                    }}
-                  >
-                    <Stack p={1}>
-                      {currentTicket.status === "pending" ? (
-                        <>
-                          <Typography variant="span">
-                            Tempo de espera:{" "}
-                            {open
-                              ? DiffInHours(currentTicket.initialDate, null)
-                              : null}
-                          </Typography>
-                        </>
-                      ) : null}
-                      {currentTicket.status === "open" ? (
-                        <>
-                          <Typography variant="span">
-                            Tempo de espera:{" "}
-                            {open
-                              ? DiffInHours(
-                                  currentTicket.initialDate,
-                                  currentTicket.acceptDate
-                                )
-                              : null}
-                          </Typography>
-                          <Typography variant="span">
-                            Tempo de atendimento:{" "}
-                            {open
-                              ? DiffInHours(currentTicket.acceptDate, null)
-                              : null}
-                          </Typography>
-                        </>
-                      ) : null}
-
-                      {currentTicket.status === "closed" ? (
-                        <>
-                          <Typography variant="body2">
-                            Tempo de espera:{" "}
-                            {open
-                              ? DiffInHours(
-                                  currentTicket.initialDate,
-                                  currentTicket.acceptDate
-                                )
-                              : null}
-                          </Typography>
-                          <Typography variant="body2">
-                            Tempo de atendimento:{" "}
-                            {open
-                              ? DiffInHours(
-                                  currentTicket.acceptDate,
-                                  currentTicket.finishDate
-                                )
-                              : null}
-                          </Typography>
-                          <Typography variant="body2">
-                            Tempo de total:{" "}
-                            {open
-                              ? DiffInHours(
-                                  currentTicket.initialDate,
-                                  currentTicket.finishDate
-                                )
-                              : null}
-                          </Typography>
-                        </>
-                      ) : null}
-                    </Stack>
-                  </Popover>
-                </Stack>
-              </Stack>
-            </Box>
+                  {currentTicket.status === "closed" ? (
+                    <>
+                      <p className="text-sm font-medium">
+                        Tempo de espera:{" "}
+                        {open
+                          ? DiffInHours(
+                              currentTicket.initialDate,
+                              currentTicket.acceptDate
+                            )
+                          : null}
+                      </p>
+                      <p className="text-sm font-medium">
+                        Tempo de atendimento:{" "}
+                        {open
+                          ? DiffInHours(
+                              currentTicket.acceptDate,
+                              currentTicket.finishDate
+                            )
+                          : null}
+                      </p>
+                      <p className="text-sm font-medium">
+                        Tempo de total:{" "}
+                        {open
+                          ? DiffInHours(
+                              currentTicket.initialDate,
+                              currentTicket.finishDate
+                            )
+                          : null}
+                      </p>
+                    </>
+                  ) : null}
+                </div>
+              </Popover>
+            </div> */}
+            {ticket.unreadMessages ? (
+              <div className="shrink-0 grow-0 rounded-full bg-primary h-6 w-6 flex justify-center items-center text-xs text-white">
+                {ticket.unreadMessages}
+              </div>
+            ) : null}
 
             {currentTicket.status === "pending" && (
-              <ButtonWithSpinner
-                variant="contained"
-                size="small"
-                loading={loading}
+              <Button
+                size="sm"
+                className="h-6"
+                disabled={loading}
                 onClick={(_) => handleAcepptTicket(currentTicket.id)}
               >
-                Aceitar atendimento
-              </ButtonWithSpinner>
+                {loading && (
+                  <LoaderCircle className="mr-2 h-4 w-4 animate-spin text-primary" />
+                )}
+                Iniciar atendimento
+              </Button>
             )}
-          </Stack>
-        </Stack>
-      </Stack>
-    </React.Fragment>
+          </div>
+        </div>
+      </div>
+    </div>
   );
 };
 

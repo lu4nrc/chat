@@ -3,38 +3,32 @@ import { useParams } from "react-router-dom";
 
 import Ticket from "../../components/Ticket/";
 import TicketsManager from "../../components/TicketsManager/";
-
-import { Box, Grid, Stack, Typography, useTheme } from "@mui/material";
+import chat from "../../assets/chat.svg";
 
 const Chat = () => {
-  const theme = useTheme();
   const { ticketId } = useParams();
 
   return (
-    <Grid container height={"100vh"}>
-      <Grid item xs={12} sm="auto">
-        <TicketsManager />
-      </Grid>
-      <Grid item xs={12} sm>
-        {ticketId ? (
-          <>
-              <Ticket /> 
-          </>
-        ) : (
-          <Box
-            display="flex"
-            justifyContent="center"
-            alignItems="center"
-            height={"100%"}
-          >
-            <Typography variant="h4" fontWeight={"light"} align="center">
-              Pronto para um atendimento incrível?<br></br>{" "}
-              <strong>Escolha um para começar!</strong>{" "}
-            </Typography>
-          </Box>
-        )}
-      </Grid>
-    </Grid>
+    <div className="grid md:grid-cols-[320px_1fr] lg:grid-cols-[420px_1fr]">
+      <TicketsManager />
+
+      {ticketId ? (
+        <Ticket />
+      ) : (
+        <div className="hidden md:flex flex-col items-center justify-center h-full bg-muted">
+          <img
+            className="h-[300px]  md:h-[420px]"
+            src={chat}
+            alt="Descrição da imagem"
+          />
+          <span className=" text-foreground text-2xl text-center">
+            Pronto para um atendimento incrível?
+            <br />
+            <strong>Escolha um para começar!</strong>
+          </span>
+        </div>
+      )}
+    </div>
   );
 };
 

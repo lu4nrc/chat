@@ -1,16 +1,9 @@
-import React, {
-  useCallback,
-  useContext,
-  useEffect,
-  useReducer,
-  useState,
-} from "react";
+import React, { useContext, useEffect, useReducer, useState } from "react";
 import openSocket from "../../services/socket-io";
 
 import TicketListItem from "../TicketListItem";
 import TicketsListSkeleton from "../TicketsListSkeleton";
 
-import { List, Typography } from "@mui/material";
 import { AuthContext } from "../../context/Auth/AuthContext";
 import useTickets from "../../hooks/useTickets";
 
@@ -103,7 +96,7 @@ const TicketsList = (props) => {
   const [ticketsList, dispatch] = useReducer(reducer, []);
   const { user } = useContext(AuthContext);
 
-  const [filter, setFilter] = useState()
+  const [filter, setFilter] = useState();
 
   useEffect(() => {
     dispatch({ type: "RESET" });
@@ -222,23 +215,16 @@ const TicketsList = (props) => {
   });
 
   return (
-    <List
-      sx={
-        style ?? {
-          width: "100%",
-          height: "calc(100vh - 180px)",
-          overflow: "auto",
-          paddingTop: "12px",
-        }
-      }
+    <div
+      className="overflow-auto h-[calc(100vh-145px)]"
       onScroll={handleScroll}
     >
       {mensagensFiltradas.length === 0 && !loading ? (
-        <Typography textAlign={"center"}>
+        <h3 className="text-center p-4">
           Parece que finalizamos todos os atendimentos 😅
           <br />
           <strong>Não há mensagens para mostrar no momento.</strong>
-        </Typography>
+        </h3>
       ) : (
         mensagensFiltradas.map((ticket) => (
           <TicketListItem
@@ -249,7 +235,7 @@ const TicketsList = (props) => {
         ))
       )}
       {loading && <TicketsListSkeleton />}
-    </List>
+    </div>
   );
 };
 

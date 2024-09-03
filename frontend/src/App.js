@@ -1,9 +1,10 @@
 import React from "react";
-import ThemeProvider from "./theme";
-import ThemeSettings from "./components/settings";
+/* import ThemeProvider from "./theme"; */
+import ThemeProvider from "./components/theme/theme-provider";
+/* import ThemeSettings from "./components/settings"; */
 import Router from "./routes";
 import SettingsProvider from "./context/SettingsContext";
-import { CssBaseline, styled } from "@mui/material";
+import { styled } from "@mui/material";
 import { AuthProvider } from "./context/Auth/AuthContext";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
@@ -30,23 +31,23 @@ const GlobalStyles = styled("div")({
   },
 });
 
+/* https://shadcnui-expansions.typeart.cc/docs/infinite-scroll */
+
 const App = () => {
   return (
-
-      <AuthProvider>
-        <SettingsProvider>
-          <CssBaseline />
-          <ToastContainer />
-          <GlobalStyles>
-            <ThemeProvider>
-              <ThemeSettings>
-                <Router />
-              </ThemeSettings>
-            </ThemeProvider>
-          </GlobalStyles>
-        </SettingsProvider>
-      </AuthProvider>
- 
+    <AuthProvider>
+      <SettingsProvider>
+        <ToastContainer />
+        {/* <GlobalStyles> */}
+          {/* <ThemeProvider> */}
+          <ThemeProvider defaultTheme="dark" storageKey="vite-ui-theme">
+           {/*  <ThemeSettings> */}
+              <Router />
+            {/* </ThemeSettings> */}
+          </ThemeProvider>
+        {/* </GlobalStyles> */}
+      </SettingsProvider>
+    </AuthProvider>
   );
 };
 

@@ -29,26 +29,27 @@ const ModalImageCors = ({ imageUrl }) => {
   }, [imageUrl]);
 
   return (
-<Box
-  sx={{
-    maxWidth: 200,
-    maxHeight: 250,
-    overflow: "hidden",
-    borderRadius: "8px"
-  }}
->
-  <ModalImage
-    style={{
-      objectFit: "cover",
-      objectPosition: "center",
-    }}
-    smallSrcSet={fetching ? imageUrl : blobUrl}
-    medium={fetching ? imageUrl : blobUrl}
-    large={fetching ? imageUrl : blobUrl}
-    alt="image"
-    loading="eager"
-  />
-</Box>
+    <div
+      className="max-w-[200px] max-h-[250px] overflow-hidden border rounded-lg"
+      sx={{
+        maxWidth: 200,
+        maxHeight: 250,
+        overflow: "hidden",
+        borderRadius: "8px",
+      }}
+    >
+      <ModalImage
+        style={{
+          objectFit: "cover",
+          objectPosition: "center",
+        }}
+        smallSrcSet={fetching ? imageUrl : blobUrl}
+        medium={fetching ? imageUrl : blobUrl}
+        large={fetching ? imageUrl : blobUrl}
+        alt="image"
+        loading="eager"
+      />
+    </div>
   );
 };
 
