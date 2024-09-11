@@ -6,14 +6,13 @@ import { toast } from "react-toastify";
 import { i18n } from "../../translate/i18n";
 import api from "../../services/api";
 import toastError from "../../errors/toastError";
-import useSettings from "../useSettings";
+
 var interval = null;
 const useAuth = () => {
   const navigate = useNavigate();
   const [isAuth, setIsAuth] = useState(false);
   const [loading, setLoading] = useState(true);
   const [user, setUser] = useState({});
-  const { onResetSetting } = useSettings();
   api.interceptors.request.use(
     (config) => {
       const token = localStorage.getItem("token");
@@ -49,7 +48,6 @@ const useAuth = () => {
         api.defaults.headers.Authorization = undefined;
         setIsAuth(false);
         setUser({});
-        onResetSetting();
       }
       return Promise.reject(error);
     }
@@ -81,7 +79,7 @@ const useAuth = () => {
         setUser(data.user);
       }
     });
-   
+
     return () => {
       socket.disconnect();
     };

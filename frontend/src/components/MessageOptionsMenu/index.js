@@ -1,16 +1,21 @@
-import Menu from "@mui/material/Menu";
-import MenuItem from "@mui/material/MenuItem";
 import React, { useContext, useState } from "react";
+import { cn } from "@/lib/utils";
+
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 import { ReplyMessageContext } from "../../context/ReplyingMessage/ReplyingMessageContext";
 import toastError from "../../errors/toastError";
 import api from "../../services/api";
-import { i18n } from "../../translate/i18n";
-import ConfirmationModal from "../ConfirmationModal";
+import { ChevronDown, MessageSquareReply, Trash } from "lucide-react";
 
-const MessageOptionsMenu = ({ message, menuOpen, handleClose, anchorEl }) => {
+const MessageOptionsMenu = ({ message }) => {
+  const [open, setOpen] = useState(false);
   const { setReplyingMessage } = useContext(ReplyMessageContext);
-  const [confirmationOpen, setConfirmationOpen] = useState(false);
 
   const handleDeleteMessage = async () => {
     try {
@@ -22,47 +27,33 @@ const MessageOptionsMenu = ({ message, menuOpen, handleClose, anchorEl }) => {
 
   const hanldeReplyMessage = () => {
     setReplyingMessage(message);
-    handleClose();
-  };
-
-  const handleOpenConfirmationModal = () => {
-    setConfirmationOpen(true);
-    handleClose();
+    setOpen(false);
   };
 
   return (
-    <>
-      <ConfirmationModal
-        title={i18n.t("messageOptionsMenu.confirmationModal.title")}
-        open={confirmationOpen}
-        onClose={() => setConfirmationOpen(false)}
-        onConfirm={handleDeleteMessage}
-      >
-        {i18n.t("messageOptionsMenu.confirmationModal.message")}
-      </ConfirmationModal>
-      <Menu
-        anchorEl={anchorEl}
-        anchorOrigin={{
-          vertical: "bottom",
-          horizontal: "right",
-        }}
-        transformOrigin={{
-          vertical: "top",
-          horizontal: "right",
-        }}
-        open={menuOpen}
-        onClose={handleClose}
-      >
-        {message.fromMe && (
-          <MenuItem onClick={handleOpenConfirmationModal}>
-            {i18n.t("messageOptionsMenu.delete")}
-          </MenuItem>
+    <DropdownMenu open={open} onOpenChange={setOpen} id="messageActionsButton">
+      <DropdownMenuTrigger
+        className={cn(
+          "opacity-0 group-hover:opacity-100 h-6 w-6 rounded-se-lg rounded-bl-lg p-0.5 absolute right-0 top-0 transition-opacity ease-in-out  duration-300",
+          message.fromMe ? "bg-background" : "bg-muted"
         )}
-        <MenuItem onClick={hanldeReplyMessage}>
-          {i18n.t("messageOptionsMenu.reply")}
-        </MenuItem>
-      </Menu>
-    </>
+      >
+        <ChevronDown onClick={() => setOpen(true)} />
+      </DropdownMenuTrigger>
+      <DropdownMenuContent>
+        {message.fromMe && (
+          <DropdownMenuItem
+            onClick={handleDeleteMessage}
+            className="flex gap-2"
+          >
+            <Trash className="text-red-500 h-4 w-4" /> Apagar
+          </DropdownMenuItem>
+        )}
+        <DropdownMenuItem onClick={hanldeReplyMessage} className="flex gap-2">
+          <MessageSquareReply className="h-4 w-4" /> Responder
+        </DropdownMenuItem>
+      </DropdownMenuContent>
+    </DropdownMenu>
   );
 };
 

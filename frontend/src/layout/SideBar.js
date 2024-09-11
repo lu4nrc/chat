@@ -53,24 +53,20 @@ const SideBar = (props) => {
 
   return (
     <nav className="flex flex-col items-center border-r  gap-4 px-2 sm:py-5 bg-muted">
-      <Can
-        role={user.profile}
-        perform="drawer-admin-items:view"
-        yes={() => (
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <NavLink
-                to="/"
-                className="flex h-9 w-9 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:text-foreground md:h-9 md:w-9 aria-[current=page]:bg-primary aria-[current=page]:text-white   "
-              >
-                <Gauge className="h-6 w-6" />
-                <span className="sr-only">Dashboard</span>
-              </NavLink>
-            </TooltipTrigger>
-            <TooltipContent side="right">Dashboard</TooltipContent>
-          </Tooltip>
-        )}
-      />
+      {user.profile === "admin" && (
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <NavLink
+              to="/"
+              className="flex h-9 w-9 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:text-foreground md:h-9 md:w-9 aria-[current=page]:bg-primary aria-[current=page]:text-white   "
+            >
+              <Gauge className="h-6 w-6" />
+              <span className="sr-only">Dashboard</span>
+            </NavLink>
+          </TooltipTrigger>
+          <TooltipContent side="right">Dashboard</TooltipContent>
+        </Tooltip>
+      )}
 
       <Tooltip>
         <TooltipTrigger asChild>
@@ -129,7 +125,7 @@ const SideBar = (props) => {
         perform="drawer-admin-items:view"
         yes={() => (
           <>
-            <Tooltip>
+           {/* <Tooltip>
               <TooltipTrigger asChild>
                 <NavLink
                   to="/panel"
@@ -140,7 +136,7 @@ const SideBar = (props) => {
                 </NavLink>
               </TooltipTrigger>
               <TooltipContent side="right">Painel</TooltipContent>
-            </Tooltip>
+            </Tooltip>  */}
             <Tooltip>
               <TooltipTrigger asChild>
                 <NavLink
@@ -173,7 +169,7 @@ const SideBar = (props) => {
         )}
       />
 
-      <ModeToggle />
+     {/*  <ModeToggle /> */}
 
       <Tooltip>
         <TooltipTrigger asChild>

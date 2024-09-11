@@ -5,7 +5,8 @@ import {
   endOfDay,
   subDays,
   differenceInMinutes,
-  format
+  format,
+  isEqual
 } from "date-fns";
 import User from "../../models/User";
 import Contact from "../../models/Contact";
@@ -55,8 +56,15 @@ const ListSevenDays = async (): Promise<Response> => {
 
   const grouped = tickets.reduce(
     (acc: any, current: any) => {
-      const { status, userId, queueId, createdAt, acceptDate, updatedAt } =
-        current;
+      const {
+        status,
+        userId,
+        queueId,
+        createdAt,
+        acceptDate,
+        updatedAt,
+        isOutbound
+      } = current;
 
       //? Group by Today
       const formattedCreatedAt = format(createdAt, "yyyy-MM-dd");
@@ -73,6 +81,13 @@ const ListSevenDays = async (): Promise<Response> => {
           total: 1
           // tickets: [current]
         });
+      }
+
+      //?Grouped by ativoPassivo
+      if (isOutbound) {
+        acc.outin.outbound++;
+      } else {
+        acc.outin.inbound++;
       }
 
       //?Grouped by Status
@@ -173,6 +188,7 @@ const ListSevenDays = async (): Promise<Response> => {
       return acc;
     },
     {
+      outin: { outbound: 0, inbound: 0 },
       status: { total: 0, open: 0, pending: 0, closed: 0 },
       today: [],
       media: {
@@ -186,6 +202,8 @@ const ListSevenDays = async (): Promise<Response> => {
       contactId: {}
     }
   );
+
+ // console.log(grouped.outin);
 
   const sortedHours = grouped.today.sort(
     (a, b) => new Date(a.date) - new Date(b.date)

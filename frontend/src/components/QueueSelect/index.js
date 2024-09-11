@@ -1,86 +1,46 @@
 import React, { useEffect, useState } from "react";
 
-import { Stack, Typography } from "@mui/material";
-import Chip from "@mui/material/Chip";
-import MenuItem from "@mui/material/MenuItem";
-import Select from "@mui/material/Select";
 import { toast } from "react-toastify";
 import api from "../../services/api";
-
-/* const useStyles = styled((theme) => ({
-  chips: {
-    display: "flex",
-    flexWrap: "wrap",
-  },
-  chip: {
-    margin: 2,
-  },
-})); */
+import MultipleSelector from "../ui/multiple-selector";
+import { Label } from "../ui/label";
 
 const QueueSelect = ({ selectedQueueIds, onChange }) => {
-  /* const classes = useStyles(); */
-  const [queues, setQueues] = useState([]);
+  const [queues, setQueues] = useState(null);
+  const [queuesSelected, setQueuesSelected] = useState(selectedQueueIds);
 
   useEffect(() => {
     (async () => {
       try {
         const { data } = await api.get("/queue");
         setQueues(data);
+
+        setQueuesSelected(queuesSelected);
       } catch (err) {
         toast.error("Error fetching queues");
       }
     })();
   }, []);
 
-  const handleChange = (e) => {
-    onChange(e.target.value);
-  };
-
   return (
-    <div style={{ marginTop: 6 }}>
-      <Stack>
-      <Typography  variant="subtitle2">Departamentos</Typography>
-        <Select
-          multiple
-          size="small"
-          value={selectedQueueIds}
-          onChange={handleChange}
-          MenuProps={{
-            anchorOrigin: {
-              vertical: "bottom",
-              horizontal: "left",
-            },
-            transformOrigin: {
-              vertical: "top",
-              horizontal: "left",
-            },
-            /* getContentAnchorEl: null, */ /* Verificar error */
-          }}
-          renderValue={(selected) => (
-            <div /* className={classes.chips} */>
-              {selected?.length > 0 &&
-                selected.map((id) => {
-                  const queue = queues.find((q) => q.id === id);
-                  return queue ? (
-                    <Chip
-                      key={id}
-                      sx={{ backgroundColor: queue.color }}
-                      variant="outlined"
-                      label={queue.name}
-                      /* className={classes.chip} */
-                    />
-                  ) : null;
-                })}
-            </div>
-          )}
-        >
-          {queues.map((queue) => (
-            <MenuItem key={queue.id} value={queue.id}>
-              {queue.name}
-            </MenuItem>
-          ))}
-        </Select>
-      </Stack>
+    <div>
+      <div className="grid gap-1">
+        <Label>Departamentos</Label>
+
+        {queues && (
+          <MultipleSelector
+            defaultOptions={queues}
+            value={queuesSelected}
+            onChange={onChange}
+            placeholder="Selecionar departamentos ou filas.."
+            emptyIndicator={
+              <p className="text-center text-sm leading-10 text-gray-600 dark:text-gray-400">
+                Departamento ou fila não encontrado.
+              </p>
+            }
+          />
+        )}
+      </div>
     </div>
   );
 };

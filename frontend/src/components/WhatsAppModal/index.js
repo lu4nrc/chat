@@ -1,36 +1,45 @@
-import { Field, Form, Formik } from "formik";
 import React, { useEffect, useState } from "react";
-import { toast } from "react-toastify";
-import * as Yup from "yup";
-
+import { Button } from "../ui/button";
 import {
-  Button,
-  CircularProgress,
   Dialog,
-  DialogActions,
+  DialogClose,
   DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
   DialogTitle,
-  FormControlLabel,
-  Stack,
-  Switch,
-  TextField,
-  Typography,
-} from "@mui/material";
-
-import toastError from "../../errors/toastError";
-import api from "../../services/api";
+  DialogTrigger,
+} from "../ui/dialog";
+import { Input } from "../ui/input";
+import { Label } from "../ui/label";
 import { i18n } from "../../translate/i18n";
-import QueueSelect from "../QueueSelect";
 
+import * as Yup from "yup";
+import { Formik, Form, Field, ErrorMessage } from "formik";
+import { toast } from "react-toastify";
+import api from "../../services/api";
+import toastError from "../../errors/toastError";
+import QueueSelect from "../QueueSelect";
+import { Switch } from "../ui/switch";
+import { Textarea } from "../ui/textarea";
+import { Edit } from "lucide-react";
+
+const longText = `
+Desmarque esta opção para definir um horário de expediente para os atendimentos.
+Quando um usuário escolher ser direcionado a um atendente, o sistema irá
+verificar o horário e o dia, se estiver fora do expediente, envia um aviso
+ao usuário e não direciona ao atendente escolhido.
+`;
 
 const SessionSchema = Yup.object().shape({
   name: Yup.string()
-    .min(2, "Nome muito curto!")
-    .max(50, "Nome muito longo!")
+    .min(2, "Muito curto!")
+    .max(25, "Muito longo!")
     .required("Obrigatório"),
 });
 
-const WhatsAppModal = ({ open, onClose, whatsAppId }) => {
+const WhatsAppModal = ({ whatsAppId, isEdit }) => {
+  const [open, setOpen] = useState(false);
 
   const initialState = {
     name: "",
@@ -48,9 +57,7 @@ const WhatsAppModal = ({ open, onClose, whatsAppId }) => {
       try {
         const { data } = await api.get(`whatsapp/${whatsAppId}`);
         setWhatsApp(data);
-
-        const whatsQueueIds = data.queues?.map((queue) => queue.id);
-        setSelectedQueueIds(whatsQueueIds);
+        setSelectedQueueIds(data.queues);
       } catch (err) {
         toastError(err);
       }
@@ -59,7 +66,8 @@ const WhatsAppModal = ({ open, onClose, whatsAppId }) => {
   }, [whatsAppId]);
 
   const handleSaveWhatsApp = async (values) => {
-    const whatsappData = { ...values, queueIds: selectedQueueIds };
+    const ids = selectedQueueIds.map((department) => department.id);
+    const whatsappData = { ...values, queueIds: ids };
 
     try {
       if (whatsAppId) {
@@ -73,29 +81,31 @@ const WhatsAppModal = ({ open, onClose, whatsAppId }) => {
           color: "#64A57B",
         },
       });
-      handleClose();
+      setOpen(false);
     } catch (err) {
       toastError(err);
     }
   };
 
-  const handleClose = () => {
-    onClose();
-    setWhatsApp(initialState);
-  };
-
   return (
-    <Stack>
-      <Dialog
-        open={open}
-        onClose={handleClose}
-        maxWidth="sm"
-        fullWidth
-        scroll="paper"
-      >
-        <DialogTitle>
-          {whatsAppId ? "Editar conexão" : i18n.t("whatsappModal.title.add")}
-        </DialogTitle>
+    <Dialog open={open} onOpenChange={setOpen}>
+      <DialogTrigger asChild>
+        {isEdit ? (
+          <Edit />
+        ) : (
+          <Button>{i18n.t("connections.buttons.add")}</Button>
+        )}
+      </DialogTrigger>
+      <DialogContent className="sm:max-w-[612px]">
+        <DialogHeader>
+          <DialogTitle>
+            {whatsAppId
+              ? i18n.t("whatsappModal.title.edit")
+              : i18n.t("whatsappModal.title.add")}
+          </DialogTitle>
+          <DialogDescription>Informações</DialogDescription>
+        </DialogHeader>
+
         <Formik
           initialValues={whatsApp}
           enableReinitialize={true}
@@ -108,117 +118,105 @@ const WhatsAppModal = ({ open, onClose, whatsAppId }) => {
           }}
         >
           {({ values, touched, errors, isSubmitting }) => (
-            <Form>
-              <DialogContent dividers>
-                <Stack spacing={1}>
-                  <Stack spacing={0.5} direction={"row"}>
-                    <Stack spacing={0.5}>
-                      <Typography variant="subtitle2">
-                        Nome de identificação
-                      </Typography>
-                      <Field
-                        as={TextField}
-                        autoFocus
-                        size="small"
-                        name="name"
-                        error={touched.name && Boolean(errors.name)}
-                        helperText={touched.name && errors.name}
-                        variant="outlined"
-                        margin="dense"
-                      />
-                    </Stack>
-                    <FormControlLabel
-                      control={
-                        <Field
-                          as={Switch}
-                          color="primary"
-                          name="isDefault"
-                          checked={values.isDefault}
-                        />
-                      }
-                      label="Definir como Padrão"
-                    />
-                  </Stack>
-                  <Stack spacing={0.5}>
-                    <Typography variant="subtitle2">
-                      Mensagem de saudação
-                    </Typography>
-                    <Field
-                      as={TextField}
-                      type="greetingMessage"
-                      multiline
-                      rows={3}
-                      fullWidth
-                      name="greetingMessage"
-                      error={
-                        touched.greetingMessage &&
-                        Boolean(errors.greetingMessage)
-                      }
-                      helperText={
-                        touched.greetingMessage && errors.greetingMessage
-                      }
-                      variant="outlined"
-                      margin="dense"
-                    />
-                  </Stack>
-                  <Stack spacing={0.5}>
-                    <Typography variant="subtitle2">
-                      Mensagem de finalização
-                    </Typography>
-                    <Field
-                      as={TextField}
-                      type="farewellMessage"
-                      placeholder={i18n.t(
-                        "whatsappModal.form.farewellMessageLabel"
-                      )}
-                      multiline
-                      rows={3}
-                      fullWidth
-                      name="farewellMessage"
-                      error={
-                        touched.farewellMessage &&
-                        Boolean(errors.farewellMessage)
-                      }
-                      helperText={
-                        touched.farewellMessage && errors.farewellMessage
-                      }
-                      variant="outlined"
-                      margin="dense"
-                    />
-                  </Stack>
-
-                  <QueueSelect
-                    selectedQueueIds={selectedQueueIds}
-                    onChange={(selectedIds) => setSelectedQueueIds(selectedIds)}
+            <Form className="grid gap-2">
+              <div className="flex gap-2">
+                <div className="grid w-full items-center gap-1.5">
+                  <Label htmlFor="name">
+                    {i18n.t("whatsappModal.form.name")}
+                  </Label>
+                  <Field
+                    as={Input}
+                    name="name"
+                    error={touched.name && Boolean(errors.name)}
+                    helperText={touched.name && errors.name}
                   />
-                </Stack>
-              </DialogContent>
-              <DialogActions>
-                <Button
-                  onClick={handleClose}
-                  disabled={isSubmitting}
-                  variant="text"
-                >
-                  {i18n.t("whatsappModal.buttons.cancel")}
-                </Button>
-                <Button
-                  type="submit"
-                  color="primary"
-                  disabled={isSubmitting}
-                  variant="contained"
-                >
+                  <ErrorMessage name="name">
+                    {(msg) => <div className="text-xs text-red-500">{msg}</div>}
+                  </ErrorMessage>
+                </div>
+
+                <div className="flex justify-center items-center gap-1.5">
+                  <Label htmlFor="isDefault">
+                    {i18n.t("whatsappModal.form.default")}
+                  </Label>
+                  <Field name="isDefault">
+                    {({ field, form }) => (
+                      <Switch
+                        checked={field.value}
+                        onCheckedChange={(checked) =>
+                          form.setFieldValue("isDefault", checked)
+                        }
+                      />
+                    )}
+                  </Field>
+                </div>
+              </div>
+              <div className="grid w-full items-center gap-1.5">
+                <Label htmlFor="greetingMessage">
+                  {i18n.t("queueModal.form.greetingMessage")}
+                </Label>
+                <Field
+                  as={Textarea}
+                  type="greetingMessage"
+                  rows={2}
+                  name="greetingMessage"
+                  error={
+                    touched.greetingMessage && Boolean(errors.greetingMessage)
+                  }
+                  helperText={touched.greetingMessage && errors.greetingMessage}
+                />
+                <ErrorMessage name="greetingMessage">
+                  {(msg) => <div className="text-xs text-red-500">{msg}</div>}
+                </ErrorMessage>
+              </div>
+              <div className="grid w-full items-center gap-1.5">
+                <Label htmlFor="farewellMessage">
+                  {i18n.t("whatsappModal.form.farewellMessage")}
+                </Label>
+                <Field
+                  as={Textarea}
+                  type="farewellMessage"
+                  rows={2}
+                  name="farewellMessage"
+                  error={
+                    touched.farewellMessage && Boolean(errors.farewellMessage)
+                  }
+                  helperText={touched.farewellMessage && errors.farewellMessage}
+                />
+                <ErrorMessage name="farewellMessage">
+                  {(msg) => <div className="text-xs text-red-500">{msg}</div>}
+                </ErrorMessage>
+              </div>
+
+              <QueueSelect
+                selectedQueueIds={selectedQueueIds}
+                onChange={setSelectedQueueIds}
+              />
+
+              <div className="flex gap-2">
+                <DialogClose asChild>
+                  <Button
+                    disabled={isSubmitting}
+                    type="button"
+                    variant="secondary"
+                  >
+                    {i18n.t("whatsappModal.buttons.cancel")}
+                  </Button>
+                </DialogClose>
+
+                <Button type="submit" disabled={isSubmitting}>
                   {whatsAppId
                     ? i18n.t("whatsappModal.buttons.okEdit")
                     : i18n.t("whatsappModal.buttons.okAdd")}
-                  {isSubmitting && <CircularProgress size={24} />}
+                  {isSubmitting && <span>Loading..</span>}
                 </Button>
-              </DialogActions>
+              </div>
             </Form>
           )}
         </Formik>
-      </Dialog>
-    </Stack>
+      </DialogContent>
+    </Dialog>
   );
 };
 
-export default React.memo(WhatsAppModal);
+export default WhatsAppModal;

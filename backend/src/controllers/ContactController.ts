@@ -47,7 +47,6 @@ interface ContactData {
 
 export const index = async (req: Request, res: Response): Promise<Response> => {
   const { searchParam, pageNumber } = req.query as IndexQuery;
-
   const { contacts, count, hasMore } = await ListContactsService({
     searchParam,
     pageNumber

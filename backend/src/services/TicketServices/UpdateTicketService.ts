@@ -66,7 +66,8 @@ const UpdateTicketService = async ({
 
 
   if (oldStatus === "pending" && status === "open") {
-    await ticket.update({
+  
+   await ticket.update({
       status,
       queueId,
       userId,
@@ -74,7 +75,7 @@ const UpdateTicketService = async ({
       initialDate: await CheckOpeningHours(ticket.initialDate, new Date()),
       acceptDate: new Date(),
       finishDate: new Date(),
-    });
+    }); 
   } else if (oldStatus === "open" && status === "closed") {
     await ticket.update({
       status,

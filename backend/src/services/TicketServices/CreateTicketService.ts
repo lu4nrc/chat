@@ -10,13 +10,15 @@ interface Request {
   status: string;
   userId: number;
   queueId?: number;
+  isOutbound?: boolean;
 }
 
 const CreateTicketService = async ({
   contactId,
   status,
   userId,
-  queueId
+  queueId,
+  isOutbound
 }: Request): Promise<Ticket> => {
   const defaultWhatsapp = await GetDefaultWhatsApp(userId);
 
@@ -37,11 +39,11 @@ const CreateTicketService = async ({
     userId,
     queueId,
     durationDate: durationDate,
-    initialDate: new Date(),
-    acceptDate: new Date(),
-    finishDate: new Date(),
+    initialDate: durationDate,
+    acceptDate: durationDate,
+    finishDate: durationDate,
+    isOutbound
   });
-
 
   const ticket = await Ticket.findByPk(id, { include: ["contact"] });
 

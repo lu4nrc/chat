@@ -32,11 +32,18 @@ class Ticket extends Model<Ticket> {
   unreadMessages: number;
 
   @Column
+  rating: number;
+
+  @Column
   lastMessage: string;
 
   @Default(false)
   @Column
   isGroup: boolean;
+
+  @Default(false)
+  @Column
+  isOutbound: boolean;
 
   @CreatedAt
   createdAt: Date;

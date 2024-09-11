@@ -146,7 +146,7 @@ const TicketListItem = ({ ticket, setFilter }) => {
           )}
         </div>
         <div className="flex gap-1 items-center justify-between">
-          <p className=" text-base text-muted-foreground font-medium truncate">
+          <p className=" text-sm text-muted-foreground font-medium truncate">
             <MarkdownWrapper>
               {currentTicket.lastMessage ? `${ticket.lastMessage}` : ""}
             </MarkdownWrapper>

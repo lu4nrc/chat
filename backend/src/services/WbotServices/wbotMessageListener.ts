@@ -176,7 +176,7 @@ const prepareLocation = (msg: WbotMessage): WbotMessage => {
 
   msg.body = "data:image/png;base64," + msg.body + "|" + gmapsUrl;
 
-  // temporaryly disable ts checks because of type definition bug for Location object
+  // desativar temporariamente as verificações de ts devido ao bug de definição de tipo para o objeto Locationt
   // @ts-ignore
   msg.body +=
     "|" +
@@ -262,6 +262,7 @@ const isValidMsg = (msg: WbotMessage): boolean => {
   return false;
 };
 
+//!Tudo começa aqui!!
 const handleMessage = async (
   msg: WbotMessage,
   wbot: Session
@@ -274,13 +275,16 @@ const handleMessage = async (
     let msgContact: WbotContact;
     let groupContact: Contact | undefined;
 
+    /* fromMe deMin */
     if (msg.fromMe) {
-      // messages sent automatically by wbot have a special character in front of it
-      // if so, this message was already been stored in database;
+      if (msg.body.startsWith("> \u200B")) return;
+
+      // mensagens enviadas automaticamente pelo wbot possuem um caractere especial na frente delas
+      // se sim, esta mensagem já foi armazenada no banco de dados;
       if (/\u200e/.test(msg.body[0])) return;
 
-      // media messages sent from me from cell phone, first comes with "hasMedia = false" and type = "image/ptt/etc"
-      // in this case, return and let this message be handled by "media_uploaded" event, when it will have "hasMedia = true"
+      // mensagens de mídia enviadas por mim pelo celular, primeiro vem com "hasMedia = false" e type = "image/ptt/etc"
+      // neste caso, retorne e deixe esta mensagem ser tratada pelo evento "media_uploaded", quando terá "hasMedia = true"
 
       if (
         !msg.hasMedia &&
@@ -322,12 +326,24 @@ const handleMessage = async (
     )
       return;
 
+    const isRating = /^[1-5]$/.test(msg.body);
+    const rating = isRating ? parseInt(msg.body, 10) : null;
+
     const ticket = await FindOrCreateTicketService(
       contact,
       wbot.id!,
       unreadMessages,
-      groupContact
+      groupContact,
+      false,
+      rating
     );
+
+    if (isRating) {
+      msg.reply(
+        "> \u200B Mensagem automática \n Obrigado por avaliar nosso atendimento."
+      );
+      ticket.update({ status: "closed" });
+    }
 
     if (msg.hasMedia) {
       await verifyMediaMessage(msg, ticket, contact);
@@ -470,7 +486,8 @@ const handleMsgAck = async (msg: WbotMessage, ack: MessageAck) => {
   }
 };
 
-const wbotMessageListener = (wbot: Session): void => {
+//?Versão Antiga
+/* const wbotMessageListener = (wbot: Session): void => {
   const substrings = [
     "remove_schedule",
     "reminder",
@@ -479,14 +496,11 @@ const wbotMessageListener = (wbot: Session): void => {
     "api"
   ];
 
-  wbot.on("message_create", async msg => {
-    console.log({
-      locale: "wbotMessageListener.ts",
-      type: msg.type,
-      message: msg.body,
-      from: msg.from
-    });
 
+  wbot.on("message_create", async msg => {
+
+
+  
     handleMessage(msg, wbot);
 
     if (substrings.some(v => msg?.wbotType === v)) {
@@ -519,6 +533,20 @@ const wbotMessageListener = (wbot: Session): void => {
       return;
     } else {
     }
+  });
+
+  wbot.on("message_ack", async (msg, ack) => {
+    handleMsgAck(msg, ack);
+  });
+}; */
+
+const wbotMessageListener = (wbot: Session): void => {
+  wbot.on("message_create", async msg => {
+    handleMessage(msg, wbot);
+  });
+
+  wbot.on("media_uploaded", async msg => {
+    handleMessage(msg, wbot);
   });
 
   wbot.on("message_ack", async (msg, ack) => {

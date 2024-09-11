@@ -452,7 +452,7 @@ const MessagesList = ({ ticketId, isGroup }) => {
               <div
                 key={message.id}
                 className={cn(
-                  "group flex flex-col relative rounded-xl text-base overflow-hidden justify-center items-start min-h-9 text-foreground w-fit",
+                  "group w-fit md:max-w-[90%] flex flex-col relative rounded-xl text-base overflow-hidden justify-center items-start min-h-9 text-foreground ",
                   message.fromMe
                     ? "bg-primary-foreground dark:border dark:bg-background rounded-br-none"
                     : "bg-muted rounded-bl-none",
@@ -500,16 +500,7 @@ const MessagesList = ({ ticketId, isGroup }) => {
                     <MarkdownWrapper>{message.body}</MarkdownWrapper>
                   </p>
                 )}
-                {!message.isDeleted && (
-                  <ChevronDown
-                    onClick={(e) => handleOpenMessageOptionsMenu(e, message)}
-                    className={cn(
-                      "opacity-0 group-hover:opacity-100 h-6 w-6 rounded-se-lg rounded-bl-lg p-0.5 absolute right-0 top-0 transition-opacity ease-in-out  duration-300",
-                      message.fromMe ? "bg-background" : "bg-muted"
-                    )}
-                    id="messageActionsButton"
-                  />
-                )}
+                {!message.isDeleted && <MessageOptionsMenu message={message} />}
               </div>
 
               {/* Hora e confirmacao de entrega */}
@@ -529,39 +520,30 @@ const MessagesList = ({ ticketId, isGroup }) => {
   };
 
   return (
-    <>
-      <MessageOptionsMenu
-        message={selectedMessage}
-        anchorEl={anchorEl}
-        menuOpen={messageOptionsMenuOpen}
-        handleClose={handleCloseMessageOptionsMenu}
-      />
-
-      <div
-        className="h-full w-full px-1 flex gap-2 flex-col overflow-auto relative sm:px-1 lg:px-9 xl:px-12 2xl:max-w-5xl"
-        onScroll={handleScroll}
-        ref={stackRef}
-      >
-        {messagesList.length > 0 ? renderMessages() : []}
-        {loading && (
-          <div
-            style={{
-              position: "absolute",
-              zIndex: 2,
-              display: "flex",
-              flexDirection: "column",
-              alignItems: "center",
-              justifyContent: "center",
-              top: "50%",
-              left: "50%",
-              transform: "translate(-50%, -50%)",
-            }}
-          >
-            <LoaderCircle className="mr-2 h-4 w-4 animate-spin" />
-          </div>
-        )}
-      </div>
-    </>
+    <div
+      className="h-full w-full px-1 flex gap-2 flex-col overflow-auto relative sm:px-1 lg:px-9 xl:px-12"
+      onScroll={handleScroll}
+      ref={stackRef}
+    >
+      {messagesList.length > 0 ? renderMessages() : []}
+      {loading && (
+        <div
+          style={{
+            position: "absolute",
+            zIndex: 2,
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "center",
+            justifyContent: "center",
+            top: "50%",
+            left: "50%",
+            transform: "translate(-50%, -50%)",
+          }}
+        >
+          <LoaderCircle className="mr-2 h-4 w-4 animate-spin" />
+        </div>
+      )}
+    </div>
   );
 };
 

@@ -1,8 +1,6 @@
 import React, { useContext, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
-import { Divider, IconButton, Stack } from "@mui/material";
-import { CaretDown } from "@phosphor-icons/react";
 import { AuthContext } from "../../context/Auth/AuthContext";
 import toastError from "../../errors/toastError";
 import api from "../../services/api";
@@ -69,8 +67,10 @@ const TicketActionButtons = ({ ticket }) => {
             <Tooltip>
               <TooltipTrigger asChild>
                 <div
-                  onClick={() => handleUpdateTicketStatus("closed", user?.id)}
-                  className="flex h-9 w-9 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:text-foreground md:h-9 md:w-9 aria-[current=page]:bg-primary aria-[current=page]:text-white   "
+                  onClick={() =>
+                    handleUpdateTicketStatus("waitingRating", user?.id)
+                  }
+                  className="flex h-9 w-9 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:text-foreground"
                 >
                   <Check className="h-6 w-6" />
                 </div>
@@ -78,25 +78,10 @@ const TicketActionButtons = ({ ticket }) => {
               <TooltipContent side="right">Encerrar atendimento</TooltipContent>
             </Tooltip>
 
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <div
-                  onClick={handleOpenTicketOptionsMenu}
-                  className="flex h-9 w-9 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:text-foreground md:h-9 md:w-9 aria-[current=page]:bg-primary aria-[current=page]:text-white   "
-                >
-                  <EllipsisVertical lassName="h-6 w-6" />
-                </div>
-              </TooltipTrigger>
-              <TooltipContent side="right">Opções</TooltipContent>
-            </Tooltip>
+            <div className="flex h-9 w-9 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:text-foreground md:h-9 md:w-9 aria-[current=page]:bg-primary aria-[current=page]:text-white   ">
+              <TicketOptionsMenu ticket={ticket} />
+            </div>
           </div>
-
-          <TicketOptionsMenu
-            ticket={ticket}
-            anchorEl={anchorEl}
-            menuOpen={ticketOptionsMenuOpen}
-            handleClose={handleCloseTicketOptionsMenu}
-          />
         </>
       )}
       {ticket.status === "pending" && (

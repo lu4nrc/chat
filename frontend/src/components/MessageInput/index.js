@@ -180,6 +180,7 @@ const MessageInput = ({ ticketStatus }) => {
 
     const message = {
       read: 1,
+      //MediaType: "bot",
       fromMe: true,
       mediaUrl: "",
       body: signMessage

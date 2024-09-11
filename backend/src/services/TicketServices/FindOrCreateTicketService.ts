@@ -1,5 +1,3 @@
-
-
 import { Op } from "sequelize";
 import Contact from "../../models/Contact";
 import Ticket from "../../models/Ticket";
@@ -12,12 +10,12 @@ const FindOrCreateTicketService = async (
   unreadMessages: number,
   groupContact?: Contact,
   isScheduled?: boolean,
-
+  rating?: number | null
 ): Promise<Ticket> => {
   let ticket = await Ticket.findOne({
     where: {
       status: {
-        [Op.or]: ["open", "pending"]
+        [Op.or]: ["open", "pending", "waitingRating"]
       },
       contactId: groupContact ? groupContact.id : contact.id,
       whatsappId: whatsappId
@@ -28,15 +26,18 @@ const FindOrCreateTicketService = async (
     await ticket.update({ unreadMessages });
   }
 
-
-
-
   if (ticket?.status === "pending") {
     await ticket.update({ unreadMessages });
   }
 
+  if (rating && ticket?.status === "waitingRating") {
+    await ticket.update({ rating });
+  }
 
-
+  if (!rating && ticket?.status === "waitingRating") {
+    await ticket.update({ status: "closed" });
+    ticket = null;
+  }
 
   // if (!ticket && groupContact) {
 
@@ -88,10 +89,11 @@ const FindOrCreateTicketService = async (
       status: isScheduled ? "closed" : "pending",
       isGroup: !!groupContact,
       unreadMessages,
-      whatsappId, durationDate: durationDate,
+      whatsappId,
+      durationDate: durationDate,
       initialDate: new Date(),
       acceptDate: new Date(),
-      finishDate: new Date(),
+      finishDate: new Date()
     });
   }
 

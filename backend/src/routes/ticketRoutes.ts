@@ -14,7 +14,7 @@ ticketRoutes.get("/tickets/custom", isAuth, TicketController.fullfilter);
 ticketRoutes.get("/tickets/today", isAuth, TicketController.todayFilter);
 
 //new route to get general metrics tickets
-ticketRoutes.get("/tickets/general", isAuth, TicketController.generalFilter);
+/* ticketRoutes.get("/tickets/general", isAuth, TicketController.generalFilter); */
 
 ticketRoutes.get("/tickets/search", isAuth, TicketController.searchFilter);
 

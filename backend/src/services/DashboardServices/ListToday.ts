@@ -5,7 +5,8 @@ import {
   endOfDay,
   subDays,
   differenceInMinutes,
-  format
+  format,
+  isEqual
 } from "date-fns";
 import User from "../../models/User";
 import Contact from "../../models/Contact";
@@ -60,6 +61,7 @@ const ListToday = async (): Promise<Response> => {
         contactId,
         createdAt,
         acceptDate,
+        isOutbound,
         updatedAt
       } = current;
 
@@ -81,6 +83,13 @@ const ListToday = async (): Promise<Response> => {
           pending: status === "pending" ? 1 : 0,
           closed: status === "closed" ? 1 : 0
         });
+      }
+
+      //?Grouped by ativoPassivo
+      if (isOutbound) {
+        acc.outin.outbound++;
+      } else {
+        acc.outin.inbound++;
       }
 
       //?Grouped by Status
@@ -118,7 +127,7 @@ const ListToday = async (): Promise<Response> => {
           user.total++;
           if (status === "closed") {
             user.m_time += m_time;
-            user.tickets.push(current)
+            user.tickets.push(current);
             user.m_time_avg = Math.round(user.m_time / user.closed);
           }
         } else {
@@ -137,7 +146,7 @@ const ListToday = async (): Promise<Response> => {
       }
       //?Grouped by Queue
       const queueName = current.queue ? current.queue.name : "Sem departamento";
-      const queueIdKey = queueId || -1; // Usando -1 como chave para "Sem departamento"
+      const queueIdKey = queueId || -1;
       let queue = acc.queues.find(queue => queue.id === queueIdKey);
 
       const mq_time =
@@ -147,7 +156,7 @@ const ListToday = async (): Promise<Response> => {
         queue[status]++;
         queue.total++;
         if (status === "closed") {
-         // queue.tickets.push(current);
+          // queue.tickets.push(current);
           queue.mq_time += mq_time;
           queue.mq_time_avg = Math.round(queue.mq_time / queue.closed);
         }
@@ -161,8 +170,8 @@ const ListToday = async (): Promise<Response> => {
           pending: status === "pending" ? 1 : 0,
           closed: status === "closed" ? 1 : 0,
           mq_time: status === "closed" ? mq_time : 0,
-          mq_time_avg: status === "closed" ? mq_time : 0,
-        //  tickets: []
+          mq_time_avg: status === "closed" ? mq_time : 0
+          //  tickets: []
         });
       }
 
@@ -181,6 +190,7 @@ const ListToday = async (): Promise<Response> => {
       return acc;
     },
     {
+      outin: { outbound: 0, inbound: 0 },
       status: { total: 0, open: 0, pending: 0, closed: 0 },
       today: [],
       media: {

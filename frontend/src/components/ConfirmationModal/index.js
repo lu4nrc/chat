@@ -1,40 +1,41 @@
-import Button from "@mui/material/Button";
-import Dialog from "@mui/material/Dialog";
-import DialogActions from "@mui/material/DialogActions";
-import DialogContent from "@mui/material/DialogContent";
-import DialogTitle from "@mui/material/DialogTitle";
-import Typography from "@mui/material/Typography";
-import React from "react";
+import React, { useState } from "react";
+import {
+  Dialog,
+  DialogClose,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "../ui/dialog";
+import { Button } from "../ui/button";
 
+const ConfirmationModal = ({ title, message, onConfirm, btn_title }) => {
+  const [open, setOpen] = useState(false);
 
-const ConfirmationModal = ({ title, children, open, onClose, onConfirm }) => {
+  function handleConfirm() {
+    onConfirm();
+    setOpen(false);
+  }
+
   return (
-    <Dialog
-      open={open}
-      onClose={() => onClose(false)}
-      aria-labelledby="confirm-dialog"
-    >
-      <DialogTitle id="confirm-dialog">{title}</DialogTitle>
-      <DialogContent dividers>
-        <Typography>{children}</Typography>
+    <Dialog open={open} onOpenChange={setOpen}>
+      <DialogTrigger asChild>
+        <Button variant="ghost">{btn_title}</Button>
+      </DialogTrigger>
+      <DialogContent className="sm:max-w-md">
+        <DialogHeader>
+          <DialogTitle>{title}</DialogTitle>
+          <DialogDescription>{message}</DialogDescription>
+        </DialogHeader>
+        <div className="flex items-center space-x-2"></div>
+        <DialogFooter className="sm:justify-start">
+          <DialogClose asChild>
+            <Button onClick={handleConfirm}>Confirmar</Button>
+          </DialogClose>
+        </DialogFooter>
       </DialogContent>
-       <DialogActions>
-        <Button
-          variant="outlined"
-          onClick={() => onClose(false)}
-        >
-         Cancelar
-        </Button>
-        <Button
-          variant="contained"
-          onClick={() => {
-            onClose(false);
-            onConfirm();
-          }}
-        >
-          Confirmar
-        </Button>
-      </DialogActions>
     </Dialog>
   );
 };

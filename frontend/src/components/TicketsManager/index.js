@@ -19,6 +19,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "../ui/tabs";
 import { Switch } from "../ui/switch";
 import { Tooltip, TooltipContent, TooltipTrigger } from "../ui/tooltip";
 
+
 const TicketsManager = () => {
   const [newTicketModalOpen, setNewTicketModalOpen] = useState(false);
   const [showAllTickets, setShowAllTickets] = useState(false);
@@ -32,7 +33,7 @@ const TicketsManager = () => {
   const [selectedQueueIds, setSelectedQueueIds] = useState(userQueueIds || []);
 
   useEffect(() => {
-    if (user.profile.toUpperCase() === "ADMIN") {
+    if (user.profile === "admin") {
       setShowAllTickets(false);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -44,10 +45,8 @@ const TicketsManager = () => {
 
   return (
     <div className="border-r h-screen flex flex-col gap-1  pt-1 min-w-0">
-      <NewTicketModal
-        modalOpen={newTicketModalOpen}
-        onClose={(e) => setNewTicketModalOpen(false)}
-      />
+    
+      
 
       <div className="flex justify-between items-center px-1 ">
         <h1 className="text-2xl font-semibold leading-none tracking-tight text-foreground">
@@ -59,7 +58,11 @@ const TicketsManager = () => {
               onClick={() => setNewTicketModalOpen(true)}
               className="flex h-9 w-9 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:text-foreground md:h-9 md:w-9 aria-[current=page]:bg-primary aria-[current=page]:text-white   "
             >
-              <MessageSquarePlus className="h-6 w-6" />
+                <NewTicketModal
+        modalOpen={newTicketModalOpen}
+        onClose={(e) => setNewTicketModalOpen(false)}
+      />
+              
 
               <span className="sr-only">Dashboard</span>
             </div>
@@ -87,7 +90,7 @@ const TicketsManager = () => {
               </div>
             )}
           </TooltipTrigger>
-          <TooltipContent side="right">Mostrar todos</TooltipContent>
+          <TooltipContent side="right">{showAllTickets ? "Somente os meus" : "Mostrar todos"}</TooltipContent>
         </Tooltip>
         <TicketsQueueSelect
           selectedQueueIds={selectedQueueIds}

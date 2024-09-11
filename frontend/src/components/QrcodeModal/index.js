@@ -1,10 +1,19 @@
-import QRCode from "qrcode.react";
 import React, { useEffect, useState } from "react";
-import toastError from "../../errors/toastError";
+import QRCode from "qrcode.react";
 import openSocket from "../../services/socket-io";
+import toastError from "../../errors/toastError";
 
-import { Dialog, DialogContent, Stack, Typography } from "@mui/material";
+import { i18n } from "../../translate/i18n";
 import api from "../../services/api";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "../ui/dialog";
+import { Button } from "../ui/button";
 
 const QrcodeModal = ({ open, onClose, whatsAppId }) => {
   const [qrCode, setQrCode] = useState("");
@@ -33,7 +42,7 @@ const QrcodeModal = ({ open, onClose, whatsAppId }) => {
       }
 
       if (data.action === "update" && data.session.qrcode === "") {
-        onClose();
+        onClose(false);
       }
     });
 
@@ -43,42 +52,44 @@ const QrcodeModal = ({ open, onClose, whatsAppId }) => {
   }, [whatsAppId, onClose]);
 
   return (
-    <Dialog open={open} onClose={onClose} maxWidth="lg" scroll="paper">
-      <DialogContent>
-        <Stack
-          spacing={3}
-          justifyContent={"center"}
-          alignItems={"center"}
-          maxWidth={720}
-        >
+    <Dialog>
+      <DialogTrigger asChild>
+        <Button variant="outline">Qr Code</Button>
+      </DialogTrigger>
+      <DialogContent className="sm:max-w-[720px]">
+        <DialogHeader>
+          <DialogTitle>{i18n.t("qrCode.message")}</DialogTitle>
+          <DialogDescription>
+            Abra o WhatsApp, Use seu celular principal para
+            escanear o QR code exibido na tela do computador.
+          </DialogDescription>
+        </DialogHeader>
+        <div className="flex gap-2">
+          <div className="flex flex-col gap-2 justify-center">
+            <span className="text-sm">
+              Abra o WhatsApp no seu celular Android principal e, em seguida,
+              toque em Mais opções more options icon Dispositivos conectados.
+            </span>
+            <span className="text-sm">
+              Toque em <b>Conectar dispositivo</b>
+            </span>
+            <span className="text-sm">
+              Desbloqueie seu celular Android: Se a autenticação biométrica
+              estiver ativada, siga as instruções exibidas na tela. Se a
+              autenticação biométrica não estiver ativada, será necessário
+              informar o <b>PIN</b> usado para desbloquear o celular.
+            </span>
+            <span className="text-sm">
+              Aponte seu celular Android para a tela do dispositivo que você
+              deseja conectar para escanear o <b>QR code</b>.
+            </span>
+          </div>
           {qrCode ? (
             <QRCode value={qrCode} size={256} />
           ) : (
-            <span>Aguardando QrCode</span>
+            <span>Waiting for QR Code</span>
           )}
-          <Stack spacing={1}>
-            <Typography variant="body2" color="text">
-              <strong>Escaneie o código QR:</strong> Agora, abra o WhatsApp no
-              seu smartphone e toque no ícone de três pontos no canto superior
-              direito (no Android) ou no ícone "Configurações" na parte inferior
-              da tela (no iPhone). Em seguida, selecione a opção "WhatsApp Web"
-              ou "WhatsApp Web/Desktop".
-            </Typography>
-            <Typography variant="body2" color="text">
-              <strong>Use o scanner de código QR do WhatsApp:</strong>O
-              aplicativo WhatsApp abrirá a câmera. Aponte a câmera do seu
-              celular para o código QR na tela do seu computador para
-              escaneá-lo.
-            </Typography>
-            <Typography variant="body2" color="text">
-              <strong>Aguarde a conexão:</strong> Após escanear o código QR com
-              sucesso, o <strong>HellowChat</strong> deve se conectar
-              automaticamente ao seu WhatsApp no smartphone. Você verá todas as
-              suas conversas e poderá começar a enviar mensagens diretamente da
-              plataforma.
-            </Typography>
-          </Stack>
-        </Stack>
+        </div>
       </DialogContent>
     </Dialog>
   );

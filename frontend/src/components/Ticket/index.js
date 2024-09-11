@@ -4,11 +4,8 @@ import { useNavigate, useParams } from "react-router-dom";
 import { toast } from "react-toastify";
 import openSocket from "../../services/socket-io";
 
-import { Box, IconButton, Stack, Typography, useTheme } from "@mui/material";
-
 import MessageInput from "../MessageInput/";
 
-import Chip from "@mui/material/Chip";
 import { ReplyMessageProvider } from "../../context/ReplyingMessage/ReplyingMessageContext";
 import toastError from "../../errors/toastError";
 import api from "../../services/api";
@@ -16,12 +13,12 @@ import ContactDrawer from "../ContactDrawer";
 import MessagesList from "../MessagesList";
 import TicketActionButtons from "../TicketActionButtons";
 
-import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
+import { Badge } from "../ui/badge";
+import { cn } from "@/lib/utils";
 
 const Ticket = () => {
   const { ticketId } = useParams();
   const navigate = useNavigate();
-  const theme = useTheme();
 
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [loading, setLoading] = useState(true);
@@ -95,21 +92,18 @@ const Ticket = () => {
   return (
     <ReplyMessageProvider>
       <div className="grid grid-rows-[auto_1fr_auto] h-screen justify-items-center">
-        
-      {/*   <div className="bg-muted p-2 w-full">
-          <div className="flex justify-between">
-            <div className="flex  justify-center items-center gap-2">
-              <Avatar
-                className="h-14 w-14"
-                onClick={handleDrawerOpen}
-                alt="contact_image"
-              >
-                <AvatarImage src={contact.profilePicUrl} alt="@contact" />
-                <AvatarFallback>HC</AvatarFallback>
-              </Avatar>
-
-              <div>
-                <p className="text-lg text-foreground font-medium">
+        <div className="bg-muted p-1  w-full">
+          <div className="flex gap-1 items-center">
+            <ContactDrawer
+              open={drawerOpen}
+              handleDrawerClose={handleDrawerClose}
+              contact={contact}
+              loading={loading}
+              photo={contact.profilePicUrl}
+            />
+            <div className="flex-1 flex  justify-between items-center">
+              <div className="flex flex-col">
+                <p className="text-lg text-foreground font-medium  leading-4">
                   {contact.name}
                 </p>
                 {ticket.user?.name && (
@@ -118,60 +112,35 @@ const Ticket = () => {
                   </p>
                 )}
               </div>
+              <TicketActionButtons ticket={ticket} />
             </div>
-            <TicketActionButtons ticket={ticket} />
           </div>
-         
-
-          <Stack
-            sx={{ cursor: "pointer" }}
-            direction={"row"}
-            spacing={1}
-            flexWrap={"wrap"}
-          >
+          <div className="cursor-pointer flex gap-1 flex-wrap">
             {loading
               ? null
               : contact.tagslist?.map((e, i) => {
                   return (
-                    <Box key={i} sx={{ marginBottom: 10 }}>
-                      <Chip
-                        label={e.name}
-                        sx={{
-                          height: 20,
-                          background: ` ${
-                            e.typetag === "user"
-                              ? theme.palette.primary.main
-                              : e.typetag === "enterprise"
-                              ? "#193044"
-                              : e.typetag === "custom"
-                              ? "#F0F4F8"
-                              : "#F0F4F8"
-                          }`,
-                          color: ` ${
-                            e.typetag === "user"
-                              ? "#fff"
-                              : e.typetag === "enterprise"
-                              ? "#fff"
-                              : "#444"
-                          }`,
-                        }}
-                      />
-                    </Box>
+                    <div key={i}>
+                      <Badge
+                        className={cn(
+                          e.typetag === "user"
+                            ? "bg-primary"
+                            : e.typetag === "enterprise"
+                            ? "bg-slate-900"
+                            : "bg-slate-400"
+                        )}
+                      >
+                        {e.name}
+                      </Badge>
+                    </div>
                   );
                 })}
-          </Stack>
-        </div> */}
+          </div>
+        </div>
 
-        {/* <MessagesList ticketId={ticketId} isGroup={ticket.isGroup} /> */}
+        <MessagesList ticketId={ticketId} isGroup={ticket.isGroup} />
 
-        {/* <MessageInput ticketStatus={ticket.status} /> */}
-
-  {/*       <ContactDrawer
-          open={drawerOpen}
-          handleDrawerClose={handleDrawerClose}
-          contact={contact}
-          loading={loading}
-        /> */}
+        <MessageInput ticketStatus={ticket.status} />
       </div>
     </ReplyMessageProvider>
   );

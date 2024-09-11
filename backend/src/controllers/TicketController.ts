@@ -10,7 +10,7 @@ import UpdateTicketService from "../services/TicketServices/UpdateTicketService"
 import SendWhatsAppMessage from "../services/WbotServices/SendWhatsAppMessage";
 import ShowWhatsAppService from "../services/WhatsappService/ShowWhatsAppService";
 import formatBody from "../helpers/Mustache";
-import ListTicketsServiceGeneral from "../services/TicketServices/ListTicketsServiceGeneral";
+
 import ListTicketsServiceToday from "../services/TicketServices/ListTicketsServiceToday";
 import TicketsSearchService from "../services/TicketServices/TicketsSearchService";
 
@@ -39,6 +39,7 @@ interface TicketData {
   status: string;
   queueId: number;
   userId: number;
+  isOutbound: boolean;
 }
 
 export const index = async (req: Request, res: Response): Promise<Response> => {
@@ -75,9 +76,9 @@ export const index = async (req: Request, res: Response): Promise<Response> => {
 };
 
 export const store = async (req: Request, res: Response): Promise<Response> => {
-  const { contactId, status, userId }: TicketData = req.body;
+  const { contactId, status, userId, isOutbound }: TicketData = req.body;
 
-  const ticket = await CreateTicketService({ contactId, status, userId });
+  const ticket = await CreateTicketService({ contactId, status, userId, isOutbound });
 
   const io = getIO();
   io.to(ticket.status).emit("ticket", {
@@ -109,7 +110,7 @@ export const update = async (
   });
 
   const ticketUpdated = await ShowTicketService(ticket.id);
-  if (ticket.status === "closed") {
+  if (ticket.status === "waitingRating") {
     const whatsapp = await ShowWhatsAppService(ticket.whatsappId);
 
     const { farewellMessage } = whatsapp;
@@ -159,7 +160,7 @@ export const fullfilter = async (
   return res.status(200).json({ tickets });
 };
 
-export const generalFilter = async (
+/* export const generalFilter = async (
   req: Request,
   res: Response
 ): Promise<Response> => {
@@ -189,7 +190,7 @@ export const generalFilter = async (
     qtatendimento,
     qtfinalizado
   });
-};
+}; */
 
 export const todayFilter = async (
   req: Request,

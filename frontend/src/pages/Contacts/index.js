@@ -3,44 +3,23 @@ import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import openSocket from "../../services/socket-io";
 
-import SearchIcon from "@mui/icons-material/Search";
-import Avatar from "@mui/material/Avatar";
-import Table from "@mui/material/Table";
-import TableBody from "@mui/material/TableBody";
-import TableCell from "@mui/material/TableCell";
-import TableHead from "@mui/material/TableHead";
-import TableRow from "@mui/material/TableRow";
-
-import IconButton from "@mui/material/IconButton";
-
-import ConfirmationModal from "../../components/ConfirmationModal/";
-import ContactModal from "../../components/ContactModal";
-import TableRowSkeleton from "../../components/TableRowSkeleton";
 import api from "../../services/api";
 
-import { Can } from "../../components/Can";
 import { AuthContext } from "../../context/Auth/AuthContext";
 import toastError from "../../errors/toastError";
 import { i18n } from "../../translate/i18n";
 
-import {
-  InputAdornment,
-  Stack,
-  TableContainer,
-  TextField,
-  Typography,
-  styled,
-} from "@mui/material";
-import {
-  AddressBook,
-  PencilSimple,
-  Trash,
-  UserCirclePlus,
-  WhatsappLogo,
-} from "@phosphor-icons/react";
-import ButtomCustom from "../../components/Shared/Buttons/ButtomCustom";
 import formatarNumeroTelefone from "../../utils/numberFormat";
-
+import { Card, CardHeader } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import InfiniteScroll from "@/components/ui/InfiniteScroll";
+import { Loader2, MessageSquarePlus, Pen, Smile, Trash } from "lucide-react";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { Button } from "@/components/ui/button";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { CardContent } from "@mui/material";
+import { Input } from "@/components/ui/input";
+import { Can } from "@/components/Can";
 
 const reducer = (state, action) => {
   if (action.type === "LOAD_CONTACTS") {
@@ -86,50 +65,44 @@ const reducer = (state, action) => {
   }
 };
 
-const StyledInput = styled(TextField)(({ theme }) => ({
-  "& .MuiInputBase-root": {},
-}));
-
 const Contacts = () => {
-  /*   const classes = useStyles(); */
   const navigate = useNavigate();
 
   const { user } = useContext(AuthContext);
 
-  const [loading, setLoading] = useState(false);
-  const [pageNumber, setPageNumber] = useState(1);
-  const [searchParam, setSearchParam] = useState("");
-  const [contacts, dispatch] = useReducer(reducer, []);
   const [selectedContactId, setSelectedContactId] = useState(null);
   const [contactModalOpen, setContactModalOpen] = useState(false);
   const [deletingContact, setDeletingContact] = useState(null);
   const [confirmOpen, setConfirmOpen] = useState(false);
-  const [hasMore, setHasMore] = useState(false);
+
+  const [pageNumber, setPageNumber] = useState(1);
+  const [loading, setLoading] = useState(false);
+  const [hasMore, setHasMore] = useState(true);
+  const [contacts, dispatch] = useReducer(reducer, []);
+
+  const [searchParam, setSearchParam] = useState("");
 
   useEffect(() => {
     dispatch({ type: "RESET" });
     setPageNumber(1);
   }, [searchParam]);
 
-  useEffect(() => {
+  const next = async () => {
     setLoading(true);
-    const delayDebounceFn = setTimeout(() => {
-      const fetchContacts = async () => {
-        try {
-          const { data } = await api.get("/contacts/", {
-            params: { searchParam, pageNumber },
-          });
-          dispatch({ type: "LOAD_CONTACTS", payload: data.contacts });
-          setHasMore(data.hasMore);
-          setLoading(false);
-        } catch (err) {
-          toastError(err);
-        }
-      };
-      fetchContacts();
-    }, 500);
-    return () => clearTimeout(delayDebounceFn);
-  }, [searchParam, pageNumber]);
+
+    setTimeout(async () => {
+      const { data } = await api.get("/contacts/", {
+        params: { searchParam, pageNumber },
+      });
+
+      dispatch({ type: "LOAD_CONTACTS", payload: data.contacts });
+      setPageNumber((prev) => prev + 1);
+
+      setHasMore(data.hasMore);
+
+      setLoading(false);
+    }, 800);
+  };
 
   useEffect(() => {
     const socket = openSocket();
@@ -149,20 +122,6 @@ const Contacts = () => {
     };
   }, []);
 
-  const handleSearch = (event) => {
-    setSearchParam(event.target.value.toLowerCase());
-  };
-
-  const handleOpenContactModal = () => {
-    setSelectedContactId(null);
-    setContactModalOpen(true);
-  };
-
-  const handleCloseContactModal = () => {
-    setSelectedContactId(null);
-    setContactModalOpen(false);
-  };
-
   const handleSaveTicket = async (contactId) => {
     if (!contactId) return;
     setLoading(true);
@@ -177,6 +136,20 @@ const Contacts = () => {
       toastError(err);
     }
     setLoading(false);
+  };
+
+  const handleSearch = (event) => {
+    setSearchParam(event.target.value.toLowerCase());
+  };
+
+  const handleOpenContactModal = () => {
+    setSelectedContactId(null);
+    setContactModalOpen(true);
+  };
+
+  const handleCloseContactModal = () => {
+    setSelectedContactId(null);
+    setContactModalOpen(false);
   };
 
   const hadleEditContact = (contactId) => {
@@ -210,148 +183,108 @@ const Contacts = () => {
     }
   };
 
-  const loadMore = () => {
-    setPageNumber((prevState) => prevState + 1);
-  };
-
-  const handleScroll = (e) => {
-    if (!hasMore || loading) return;
-    const { scrollTop, scrollHeight, clientHeight } = e.currentTarget;
-    if (scrollHeight - (scrollTop + 100) < clientHeight) {
-      loadMore();
-    }
-  };
   return (
-    <Stack p={2} spacing={2}>
-      <Stack spacing={2}>
-        <Typography variant="h5">Contatos</Typography>
-        <Stack
-          direction={"row"}
-          alignItems={"center"}
-          justifyContent={"space-between"}
-          spacing={3}
-        >
-          <StyledInput
-            size="small"
-            placeholder="Pesquisar..."
-            type="search"
-            value={searchParam}
-            onChange={handleSearch}
-            InputProps={{
-              startAdornment: (
-                <InputAdornment position="start">
-                  <SearchIcon style={{ color: "grey" }} />
-                </InputAdornment>
-              ),
-            }}
-          />
+    <div className="h-full flex flex-col gap-2 p-4 sm:px-6 sm:py-2 md:gap-4">
+      <div className="flex items-center gap-2">
+        <h1 className="text-2xl font-semibold leading-none tracking-tight text-foreground">
+          Contatos
+        </h1>
+        <Badge className="ml-auto sm:ml-0">Beta</Badge>
+      </div>
 
-          <Stack direction={"row"} spacing={2}>
-            <ButtomCustom
-              startIcon={<AddressBook />}
-              fn={(e) => setConfirmOpen(true)}
-            >
-              Importar contatos
-            </ButtomCustom>
-            <ButtomCustom
-              startIcon={<UserCirclePlus />}
-              fn={handleOpenContactModal}
-            >
-              Adicionar contato
-            </ButtomCustom>
-          </Stack>
-        </Stack>
-      </Stack>
-      <Stack sx={{ width: "100%", overflow: "hidden" }}>
-        <TableContainer
-          onScroll={handleScroll}
-          sx={{ maxHeight: `calc(100vh - 160px)` }}
-        >
-          <Table stickyHeader size="small">
-            <TableHead>
-              <TableRow>
-                <TableCell padding="checkbox" />
-                <TableCell>Nome</TableCell>
-                <TableCell align="center">WhatsApp</TableCell>
-                <TableCell align="center">Email</TableCell>
-                <TableCell align="center">Ações</TableCell>
-              </TableRow>
-            </TableHead>
+      <div className="flex gap-2">
+        <Input
+          placeholder="Pesquisar contato.."
+          value={searchParam}
+          onChange={handleSearch}
+        />
+        <div className="flex gap-1">
+          <Button>Importar contatos</Button>
+          <Button>Novo contato</Button>
+        </div>
+      </div>
 
-            <TableBody>
+      <div className="border overflow-hidden rounded-lg">
+        <div className="flex w-full bg-muted flex-col gap-2 border-b border-muted">
+          <div className="grid grid-cols-[1fr_1fr_180px] text-muted-foreground">
+            <h4 className=" py-2 pl-2 text-sm font-medium leading-none">
+              Nome
+            </h4>
+            <h4 className=" py-2  text-sm font-medium leading-none">
+              Telefone
+            </h4>
+            <h4 className=" py-2 text-sm font-medium text-center leading-none">
+              Opções
+            </h4>
+          </div>
+        </div>
+        <ScrollArea className="h-[calc(100vh-150px)] w-full">
+          <div className=" w-full  overflow-y-auto">
+            <div className="flex w-full flex-col items-center">
               {contacts.map((contact) => (
-                <TableRow key={contact.id}>
-                  <TableCell>
-                    {<Avatar src={contact.profilePicUrl} />}
-                  </TableCell>
-                  <TableCell>{contact.name}</TableCell>
-                  <TableCell align="center">{contact.number.length > 14
-                                ? "Grupo"
-                                : formatarNumeroTelefone(contact.number)}</TableCell>
-                  <TableCell align="center">{contact.email}</TableCell>
-                  <TableCell align="center">
-                    <IconButton
-                      size="small"
+                <div className="grid grid-cols-[1fr_1fr_180px] w-full border-b py-1  items-center">
+                  <div className="pl-1 flex gap-1 items-center">
+                    <Avatar className="h-12 w-12">
+                      <AvatarImage src={contact.profilePicUrl} alt="@contato" />
+                      <AvatarFallback>
+                        <Smile className="text-muted-foreground" />
+                      </AvatarFallback>
+                    </Avatar>
+                    <div className="flex flex-col justify-center gap-1">
+                      <p className="font-bold text-muted-foreground">
+                        {contact.id} - {contact.name}
+                      </p>
+                      <span className="text-sm text-muted-foreground">
+                        {contact.email}
+                      </span>
+                    </div>
+                  </div>
+
+                  <span className=" text-sm text-muted-foreground ">
+                    {contact.number}
+                  </span>
+
+                  <div className=" flex gap-1 justify-between items-center">
+                    <Button
+                      variant="ghost"
                       onClick={() => handleSaveTicket(contact.id)}
                     >
-                      <WhatsappLogo size={24} />
-                    </IconButton>
-                    <IconButton
-                      size="small"
+                      <MessageSquarePlus className="h-4 w-4" />
+                    </Button>
+                    <Button
+                      variant="ghost"
                       onClick={() => hadleEditContact(contact.id)}
                     >
-                      <PencilSimple size={24} />
-                    </IconButton>
-                    <Can
-                      role={user.profile}
-                      perform="contacts-page:deleteContact"
-                      yes={() => (
-                        <IconButton
-                          size="small"
-                          onClick={(e) => {
-                            setConfirmOpen(true);
-                            setDeletingContact(contact);
-                          }}
-                        >
-                          <Trash size={24} />
-                        </IconButton>
-                      )}
-                    />
-                  </TableCell>
-                </TableRow>
+                      <Pen className="h-4 w-4" />
+                    </Button>
+
+                    {user.profile === "admin" && (
+                      <Button
+                        variant="ghost"
+                        onClick={() => hadleEditContact(contact.id)}
+                      >
+                        <Trash className="h-4 w-4" />
+                      </Button>
+                    )}
+                  </div>
+                </div>
               ))}
-              {loading && <TableRowSkeleton avatar columns={3} />}
-            </TableBody>
-          </Table>
-        </TableContainer>
-      </Stack>
-      <ContactModal
-        open={contactModalOpen}
-        onClose={handleCloseContactModal}
-        aria-labelledby="form-dialog-title"
-        contactId={selectedContactId}
-      ></ContactModal>
-      <ConfirmationModal
-        title={
-          deletingContact
-            ? `${i18n.t("contacts.confirmationModal.deleteTitle")} ${
-                deletingContact.name
-              }?`
-            : "Importar contatos"
-        }
-        open={confirmOpen}
-        onClose={setConfirmOpen}
-        onConfirm={(e) =>
-          deletingContact
-            ? handleDeleteContact(deletingContact.id)
-            : handleimportContact()
-        }
-      >
-        {deletingContact
-          ? "Tem certeza que deseja deletar este contato? Todos os chamados relacionados serão perdidos."
-          : "Deseja importar todos os contatos do telefone?"}
-      </ConfirmationModal>
-    </Stack>
+
+              <InfiniteScroll
+                hasMore={hasMore}
+                isLoading={loading}
+                next={next}
+                threshold={1}
+              >
+                {hasMore && (
+                  <Loader2 className="my-4 h-8 w-8 text-primary animate-spin" />
+                )}
+              </InfiniteScroll>
+            </div>
+          </div>
+        </ScrollArea>
+      </div>
+    </div>
   );
 };
 

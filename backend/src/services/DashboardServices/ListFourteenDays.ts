@@ -54,8 +54,6 @@ const ListSevenDays = async (): Promise<Response> => {
     attributes: { exclude: ["lastMessage", "whatsappId", "unreadMessages"] }
   });
 
-  console.log(tickets);
-
   const grouped = tickets.reduce(
     (acc: any, current: any) => {
       const {
