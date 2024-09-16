@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useContext } from "react";
+import React, { useContext } from "react";
 
 import { Outlet } from "react-router-dom";
 
@@ -7,13 +7,10 @@ import { AuthContext } from "../context/Auth/AuthContext";
 
 import BackdropLoading from "../components/BackdropLoading";
 
-
 const LoggedInLayout = () => {
   const { loading, user } = useContext(AuthContext);
 
-
-  const [OnlineUsers, setOnlineUsers] = useState();
-
+  // const [OnlineUsers, setOnlineUsers] = useState();
 
   if (loading) {
     return <BackdropLoading />;
@@ -24,7 +21,7 @@ const LoggedInLayout = () => {
       <SideBar />
 
       <main>
-        <Outlet context={[user, OnlineUsers]} />
+        <Outlet context={[user]} />
       </main>
     </div>
   );

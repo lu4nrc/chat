@@ -8,17 +8,11 @@ import { AuthContext } from "../../context/Auth/AuthContext";
 import TicketsQueueSelect from "../TicketsQueueSelect";
 
 import { Button } from "../ui/button";
-import {
-  LoaderCircle,
-  MessageCirclePlus,
-  MessageSquarePlus,
-  Plus,
-} from "lucide-react";
+import { LoaderCircle } from "lucide-react";
 import { Input } from "../ui/input";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "../ui/tabs";
 import { Switch } from "../ui/switch";
 import { Tooltip, TooltipContent, TooltipTrigger } from "../ui/tooltip";
-
 
 const TicketsManager = () => {
   const [newTicketModalOpen, setNewTicketModalOpen] = useState(false);
@@ -31,6 +25,8 @@ const TicketsManager = () => {
   const [pendingCount, setPendingCount] = useState(0);
   const userQueueIds = user?.queues?.map((q) => q.id);
   const [selectedQueueIds, setSelectedQueueIds] = useState(userQueueIds || []);
+
+  const [activeTab, setActiveTab] = useState("open");
 
   useEffect(() => {
     if (user.profile === "admin") {
@@ -45,9 +41,6 @@ const TicketsManager = () => {
 
   return (
     <div className="border-r h-screen flex flex-col gap-1  pt-1 min-w-0">
-    
-      
-
       <div className="flex justify-between items-center px-1 ">
         <h1 className="text-2xl font-semibold leading-none tracking-tight text-foreground">
           Chats
@@ -58,11 +51,10 @@ const TicketsManager = () => {
               onClick={() => setNewTicketModalOpen(true)}
               className="flex h-9 w-9 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:text-foreground md:h-9 md:w-9 aria-[current=page]:bg-primary aria-[current=page]:text-white   "
             >
-                <NewTicketModal
-        modalOpen={newTicketModalOpen}
-        onClose={(e) => setNewTicketModalOpen(false)}
-      />
-              
+              <NewTicketModal
+                modalOpen={newTicketModalOpen}
+                onClose={(e) => setNewTicketModalOpen(false)}
+              />
 
               <span className="sr-only">Dashboard</span>
             </div>
@@ -90,7 +82,9 @@ const TicketsManager = () => {
               </div>
             )}
           </TooltipTrigger>
-          <TooltipContent side="right">{showAllTickets ? "Somente os meus" : "Mostrar todos"}</TooltipContent>
+          <TooltipContent side="right">
+            {showAllTickets ? "Somente os meus" : "Mostrar todos"}
+          </TooltipContent>
         </Tooltip>
         <TicketsQueueSelect
           selectedQueueIds={selectedQueueIds}
@@ -99,51 +93,51 @@ const TicketsManager = () => {
         />
       </div>
 
-      <Tabs defaultValue="open">
-        <TabsList className="grid grid-cols-2 mx-1">
-          <TabsTrigger value="open">
+      <div>
+        <div className="grid grid-cols-2 m-1 gap-2 bg-muted rounded-full overflow-hidden">
+          <Button
+            variant={activeTab === "open" ? "" : "ghost"}
+            onClick={() => setActiveTab("open")}
+          >
             Em atendimento
-            <span className="pl-1 text-primary font-normal">
-              {openCount ? (
-                openCount
-              ) : (
-                <LoaderCircle className="mr-2 h-4 w-4 animate-spin" />
-              )}
-            </span>
-          </TabsTrigger>
-          <TabsTrigger value="pending">
+            {openCount ? (
+              <span className="ml-2">{openCount}</span>
+            ) : (
+              <LoaderCircle className="mr-2 h-4 w-4 animate-spin" />
+            )}
+          </Button>
+          <Button
+            variant={activeTab === "pending" ? "" : "ghost"}
+            onClick={() => setActiveTab("pending")}
+          >
             Pendentes
-            <span className="pl-1 text-primary font-normal">
-              {pendingCount ? (
-                pendingCount
-              ) : (
-                <LoaderCircle className="mr-2 h-4 w-4 animate-spin" />
-              )}
-            </span>
-          </TabsTrigger>
-        </TabsList>
+            {pendingCount ? (
+              <span className="ml-2">{pendingCount}</span>
+            ) : (
+              <LoaderCircle className="mr-2 h-4 w-4 animate-spin" />
+            )}
+          </Button>
+        </div>
 
-        <TabsContent value="open">
-          <TicketsList
-            filter={filter}
-            setFilter={setFilter}
-            status="open"
-            showAll={showAllTickets}
-            selectedQueueIds={selectedQueueIds}
-            updateCount={(val) => setOpenCount(val)}
-          />
-        </TabsContent>
+        <TicketsList
+          filter={filter}
+          setFilter={setFilter}
+          status="open"
+          showAll={showAllTickets}
+          selectedQueueIds={selectedQueueIds}
+          updateCount={(val) => setOpenCount(val)}
+          activeTab={activeTab}
+        />
 
-        <TabsContent value="pending">
-          <TicketsList
-            filter={filter}
-            setFilter={setFilter}
-            status="pending"
-            selectedQueueIds={selectedQueueIds}
-            updateCount={(val) => setPendingCount(val)}
-          />
-        </TabsContent>
-      </Tabs>
+        <TicketsList
+          filter={filter}
+          setFilter={setFilter}
+          status="pending"
+          selectedQueueIds={selectedQueueIds}
+          updateCount={(val) => setPendingCount(val)}
+          activeTab={activeTab}
+        />
+      </div>
     </div>
   );
 };

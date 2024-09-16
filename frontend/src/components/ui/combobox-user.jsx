@@ -14,22 +14,22 @@ import {
   CommandList,
 } from "@/components/ui/command";
 import api from "@/services/api";
-import { Avatar, AvatarFallback, AvatarImage } from "./avatar";
+import ModalProfileCors from "../ModalProfileCors";
 
-export default function ComboboxWithSearch({ setContactId }) {
+export default function ComboboxUser({ setUser }) {
   const [open, setOpen] = useState(false);
   const [selected, setSelected] = useState();
   const [searchParam, setSearchParam] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [data, setData] = useState([]);
 
-  const handleSetActive = useCallback((contact) => {
-    setSelected(contact);
-    setContactId(contact.id);
+  const handleSetActive = useCallback((user) => {
+    setSelected(user);
+    setUser(user);
     setOpen(false);
   }, []);
 
-  const displayName = selected ? selected.name : "Selecionar contato";
+  const displayName = selected ? selected.name : "Selecionar usuário";
 
   useEffect(() => {
     if (searchParam.length < 3) {
@@ -38,19 +38,21 @@ export default function ComboboxWithSearch({ setContactId }) {
     }
     setIsLoading(true);
     const delayDebounceFn = setTimeout(() => {
-      const fetchContacts = async () => {
+      const fetchUsers = async () => {
         try {
-          const { data } = await api.get("contacts", {
+          const { data } = await api.get("/users/", {
             params: { searchParam },
           });
-          setData(data.contacts);
+
+          setData(data.users);
+
           setIsLoading(false);
         } catch (err) {
           setIsLoading(false);
         }
       };
 
-      fetchContacts();
+      fetchUsers();
     }, 500);
     return () => clearTimeout(delayDebounceFn);
   }, [searchParam]);
@@ -100,10 +102,10 @@ function SearchResults({ data, selectedResult, onSelectResult, isLoading }) {
         <div className="p-4 text-sm">Contato não encontrado</div>
       )}
 
-      {data.map(({ id, name, number, profilePicUrl }) => (
+      {data.map(({ id, name, imageUrl, queues }) => (
         <CommandItem
           key={id}
-          onSelect={() => onSelectResult({ id, name, number })}
+          onSelect={() => onSelectResult({ id, name, queues, imageUrl })}
           value={name}
           className="flex gap-1"
         >
@@ -113,17 +115,9 @@ function SearchResults({ data, selectedResult, onSelectResult, isLoading }) {
               selectedResult?.id === id ? "opacity-100" : "opacity-0"
             )}
           />
-          <div className="flex gap-1">
-            <Avatar className="h-10 w-10">
-              <AvatarImage src={profilePicUrl} alt="@contact" />
-              <AvatarFallback>
-                <Smile className="text-muted-foreground" />
-              </AvatarFallback>
-            </Avatar>
-            <div className="flex flex-col">
-              <p className="font-medium">{name}</p>
-              <span className="text-xs">{number}</span>
-            </div>
+          <div className="flex gap-1 items-center">
+            <ModalProfileCors imageUrl={imageUrl} />
+            <p className="font-medium">{name}</p>
           </div>
         </CommandItem>
       ))}

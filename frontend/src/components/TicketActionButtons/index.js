@@ -14,7 +14,7 @@ const TicketActionButtons = ({ ticket }) => {
   const navigate = useNavigate();
   const [anchorEl, setAnchorEl] = useState(null);
   const [loading, setLoading] = useState(false);
-  const ticketOptionsMenuOpen = Boolean(anchorEl);
+
   const { user } = useContext(AuthContext);
 
   const handleOpenTicketOptionsMenu = (e) => {

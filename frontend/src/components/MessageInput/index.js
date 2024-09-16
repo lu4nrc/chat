@@ -189,7 +189,6 @@ const MessageInput = ({ ticketStatus }) => {
       quotedMsg: replyingMessage,
     };
 
-    console.log(message);
     try {
       await api.post(`/messages/${ticketId}`, message);
     } catch (err) {

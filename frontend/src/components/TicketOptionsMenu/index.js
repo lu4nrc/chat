@@ -53,7 +53,7 @@ const TicketOptionsMenu = ({ ticket }) => {
         <DropdownMenuTrigger>
           <EllipsisVertical onClick={() => setOpen(true)} />
         </DropdownMenuTrigger>
-        <DropdownMenuContent>
+        <DropdownMenuContent className="flex flex-col">
           {user.profile === "admin" && (
             <ConfirmationModal
               btn_title="Apagar atendimento"
@@ -65,21 +65,12 @@ const TicketOptionsMenu = ({ ticket }) => {
             />
           )}
 
-          <DropdownMenuItem
-            onClick={handleOpenTransferModal}
-            className="flex gap-2"
-          >
-            Transferir atendimento
-          </DropdownMenuItem>
+          <TransferTicketModal
+            ticketid={ticket.id}
+            ticketWhatsappId={ticket.whatsappId}
+          />
         </DropdownMenuContent>
       </DropdownMenu>
-
-      <TransferTicketModal
-        modalOpen={transferTicketModalOpen}
-        onClose={handleCloseTransferTicketModal}
-        ticketid={ticket.id}
-        ticketWhatsappId={ticket.whatsappId}
-      />
     </>
   );
 };

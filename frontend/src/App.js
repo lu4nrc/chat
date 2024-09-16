@@ -1,7 +1,5 @@
 import React from "react";
-/* import ThemeProvider from "./theme"; */
 import ThemeProvider from "./components/theme/theme-provider";
-/* import ThemeSettings from "./components/settings"; */
 import Router from "./routes";
 
 import { AuthProvider } from "./context/Auth/AuthContext";

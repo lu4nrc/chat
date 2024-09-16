@@ -1,10 +1,11 @@
 import React, { useEffect, useState } from "react";
-
 import ModalImage from "react-modal-image";
 import api from "../../services/api";
+import { Smile } from "lucide-react";
+import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
+import { cn } from "@/lib/utils";
 
-const ModalImageCors = ({ imageUrl }) => {
-
+const ModalProfileCors = ({ imageUrl, size = "small" }) => {
   const [fetching, setFetching] = useState(true);
   const [blobUrl, setBlobUrl] = useState("");
 
@@ -12,7 +13,7 @@ const ModalImageCors = ({ imageUrl }) => {
     if (!imageUrl) return;
     const fetchImage = async () => {
       try {
-        const { data, headers } = await api.get(imageUrl, {
+        const { data, headers } = await api.get(`/public/uploads/${imageUrl}`, {
           responseType: "blob",
         });
         const url = window.URL.createObjectURL(
@@ -28,29 +29,20 @@ const ModalImageCors = ({ imageUrl }) => {
     fetchImage();
   }, [imageUrl]);
 
+  const avatarSizes = {
+    small: "h-10 w-10",
+    medium: "h-16 w-16",
+    large: "h-24 w-24",
+  };
+
   return (
-    <div
-      className="max-w-[200px] max-h-[250px] overflow-hidden border rounded-lg"
-      sx={{
-        maxWidth: 200,
-        maxHeight: 250,
-        overflow: "hidden",
-        borderRadius: "8px",
-      }}
-    >
-      <ModalImage
-        style={{
-          objectFit: "cover",
-          objectPosition: "center",
-        }}
-        smallSrcSet={fetching ? imageUrl : blobUrl}
-        medium={fetching ? imageUrl : blobUrl}
-        large={fetching ? imageUrl : blobUrl}
-        alt="image"
-        loading="eager"
-      />
-    </div>
+    <Avatar className={cn(avatarSizes[size])}>
+      <AvatarImage src={fetching ? imageUrl : blobUrl} alt="@contact" />
+      <AvatarFallback>
+        <Smile className="text-muted-foreground" />
+      </AvatarFallback>
+    </Avatar>
   );
 };
 
-export default ModalImageCors;
+export default ModalProfileCors;

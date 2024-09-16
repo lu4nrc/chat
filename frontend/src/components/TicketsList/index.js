@@ -89,14 +89,21 @@ const reducer = (state, action) => {
 };
 
 const TicketsList = (props) => {
-  const { status, searchParam, showAll, selectedQueueIds, updateCount, style } =
-    props;
+  const {
+    status,
+    searchParam,
+    showAll,
+    selectedQueueIds,
+    updateCount,
+    activeTab,
+    filter,
+    setFilter
+  } = props;
 
   const [pageNumber, setPageNumber] = useState(1);
   const [ticketsList, dispatch] = useReducer(reducer, []);
   const { user } = useContext(AuthContext);
 
-  const [filter, setFilter] = useState();
 
   useEffect(() => {
     dispatch({ type: "RESET" });
@@ -213,6 +220,8 @@ const TicketsList = (props) => {
     }
     return mensagem.contact.name.toLowerCase().includes(filter.toLowerCase());
   });
+
+  if (activeTab !== status) return null;
 
   return (
     <div

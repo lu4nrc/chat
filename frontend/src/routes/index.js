@@ -23,8 +23,6 @@ import ErrorPage from "../pages/error";
 import Search from "../pages/Search";
 import PanelPage from "../pages/Panel";
 
-// import SettingsDrawer from "../components/settings/drawer";
-
 function Router() {
   const { isAuth } = useAuthContext();
 
@@ -39,7 +37,6 @@ function Router() {
         <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale="pt-br">
           <WhatsAppsProvider>
             <LoggedInLayout />
-            {/* <SettingsDrawer /> */}
           </WhatsAppsProvider>
         </LocalizationProvider>
       ) : (
@@ -89,7 +86,7 @@ function Router() {
         },
         {
           path: "/Panel",
-          element: {/* <NewPainel /> */},
+          element: <PanelPage />,
         },
         {
           path: "/404",

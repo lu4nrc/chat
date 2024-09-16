@@ -120,38 +120,36 @@ const SideBar = (props) => {
         </TooltipTrigger>
         <TooltipContent side="right">Pesquisar</TooltipContent>
       </Tooltip>
-      <Can
-        role={user.profile}
-        perform="drawer-admin-items:view"
-        yes={() => (
-          <>
-           {/* <Tooltip>
-              <TooltipTrigger asChild>
-                <NavLink
-                  to="/panel"
-                  className="flex h-9 w-9 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:text-foreground md:h-9 md:w-9 aria-[current=page]:bg-primary aria-[current=page]:text-white"
-                >
-                  <Monitor className="h-6 w-6" />
-                  <span className="sr-only">Painel</span>
-                </NavLink>
-              </TooltipTrigger>
-              <TooltipContent side="right">Painel</TooltipContent>
-            </Tooltip>  */}
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <NavLink
-                  to="/settings"
-                  className="flex h-9 w-9 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:text-foreground md:h-9 md:w-9 aria-[current=page]:bg-primary aria-[current=page]:text-white"
-                >
-                  <Settings className="h-6 w-6" />
-                  <span className="sr-only">Configurações</span>
-                </NavLink>
-              </TooltipTrigger>
-              <TooltipContent side="right">Configurações</TooltipContent>
-            </Tooltip>
 
-            {/* //TODO: Lista de transmissao */}
-            {/*               <Tooltip>
+      {user.profile === "admin" && (
+        <>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <NavLink
+                to="/panel"
+                className="flex h-9 w-9 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:text-foreground md:h-9 md:w-9 aria-[current=page]:bg-primary aria-[current=page]:text-white"
+              >
+                <Monitor className="h-6 w-6" />
+                <span className="sr-only">Painel</span>
+              </NavLink>
+            </TooltipTrigger>
+            <TooltipContent side="right">Painel</TooltipContent>
+          </Tooltip>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <NavLink
+                to="/settings"
+                className="flex h-9 w-9 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:text-foreground md:h-9 md:w-9 aria-[current=page]:bg-primary aria-[current=page]:text-white"
+              >
+                <Settings className="h-6 w-6" />
+                <span className="sr-only">Configurações</span>
+              </NavLink>
+            </TooltipTrigger>
+            <TooltipContent side="right">Configurações</TooltipContent>
+          </Tooltip>
+
+          {/* //TODO: Lista de transmissao */}
+          {/*               <Tooltip>
                 <TooltipTrigger asChild>
                   <NavLink
                     to="/transmission"
@@ -165,12 +163,10 @@ const SideBar = (props) => {
                   Listas de transmissão
                 </TooltipContent>
               </Tooltip> */}
-          </>
-        )}
-      />
+        </>
+      )}
 
-     {/*  <ModeToggle /> */}
-
+      <ModeToggle />
       <Tooltip>
         <TooltipTrigger asChild>
           <div

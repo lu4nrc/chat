@@ -21,7 +21,7 @@ import ContactModal from "../ContactModal";
 import formatarNumeroTelefone from "../../utils/numberFormat";
 
 import { MessageSquarePlus } from "lucide-react";
-import ComboboxWithSearch from "../ui/combobox-demo";
+import ComboboxContact from "../ui/combobox-Contact";
 
 const NewTicketModal = () => {
   const navigate = useNavigate();
@@ -53,7 +53,6 @@ const NewTicketModal = () => {
     setOpen(false);
   };
 
-
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
@@ -69,7 +68,7 @@ const NewTicketModal = () => {
           </DialogDescription>
         </DialogHeader>
         <div className="flex items-center space-x-2">
-          <ComboboxWithSearch setContactId={setSelectedContact} />
+          <ComboboxContact setContactId={setSelectedContact} />
         </div>
         <DialogFooter>
           <DialogClose asChild>

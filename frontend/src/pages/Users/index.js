@@ -189,9 +189,12 @@ const Users = () => {
             }}
           />
 
-          <ButtomCustom startIcon={<PersonAdd />} fn={handleOpenUserModal}>
-            {i18n.t("users.buttons.add")}
-          </ButtomCustom>
+          <UserModal
+            open={userModalOpen}
+            onClose={handleCloseUserModal}
+            aria-labelledby="form-dialog-title"
+            userId={selectedUser && selectedUser.id}
+          />
         </Stack>
         <Stack sx={{ width: "100%", overflow: "hidden" }}>
           <TableContainer sx={{ maxHeight: `calc(100vh - 160px)` }}>
@@ -251,12 +254,6 @@ const Users = () => {
       >
         {i18n.t("users.confirmationModal.deleteMessage")}
       </ConfirmationModal>
-      <UserModal
-        open={userModalOpen}
-        onClose={handleCloseUserModal}
-        aria-labelledby="form-dialog-title"
-        userId={selectedUser && selectedUser.id}
-      />
     </Stack>
   );
 };

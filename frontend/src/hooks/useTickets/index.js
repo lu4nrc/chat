@@ -34,6 +34,7 @@ const useTickets = ({
                             withUnreadMessages,
                         },
                     })
+                   
                     setTickets(data.tickets)
 
                     let horasFecharAutomaticamente = getHoursCloseTicketsAuto();

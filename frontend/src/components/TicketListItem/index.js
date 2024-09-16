@@ -1,4 +1,4 @@
-import React, { useContext, useRef, useState } from "react";
+import React, { memo, useContext, useRef, useState } from "react";
 
 import {
   format,
@@ -15,13 +15,13 @@ import api from "../../services/api";
 import { AuthContext } from "../../context/Auth/AuthContext";
 import toastError from "../../errors/toastError";
 import { Button } from "../ui/button";
-import { Clock, LoaderCircle, Smile } from "lucide-react";
+import { ChevronRight, Clock, LoaderCircle, Smile } from "lucide-react";
 
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
 import { Tooltip, TooltipContent, TooltipTrigger } from "../ui/tooltip";
 import { cn } from "@/lib/utils";
 
-const TicketListItem = ({ ticket, setFilter }) => {
+const TicketListItem = memo(({ ticket, setFilter }) => {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
   const { ticketId } = useParams();
@@ -30,24 +30,24 @@ const TicketListItem = ({ ticket, setFilter }) => {
   const [currentTicket, setCurrentTicket] = useState(ticket);
   const openPoppover = false;
   const queueColor = currentTicket.queue?.color || null;
+ // console.log("user: ", user);
+  //console.log("ticket: ", ticket);
 
   const handleAcepptTicket = async (id) => {
-    if (loading) return; 
     setLoading(true);
     try {
-      const ticketUpdated = await api.put(`/tickets/${id}`, {
+      await api.put(`/tickets/${id}`, {
         status: "open",
         userId: user?.id,
       });
-      setCurrentTicket(ticketUpdated.data);
-      navigate(`/tickets/${id}`);
     } catch (err) {
+      setLoading(false);
       toastError(err);
-    } finally {
-      if (isMounted.current) {
-        setLoading(false);
-      }
     }
+    if (isMounted.current) {
+      setLoading(false);
+    }
+    navigate(`/tickets/${id}`);
   };
 
   const spyMessages = (id) => {
@@ -101,7 +101,7 @@ const TicketListItem = ({ ticket, setFilter }) => {
 
   return (
     <div
-      className="flex pl-1 items-center gap-1 hover:bg-muted"
+      className="group/item flex pl-1 items-center gap-1 hover:bg-muted"
       key={currentTicket.id}
       onClick={(e) => {
         if (currentTicket.status === "pending") spyMessages(ticket.id);
@@ -116,7 +116,7 @@ const TicketListItem = ({ ticket, setFilter }) => {
             style={queueColor ? { border: `2px solid ${queueColor}` } : ""}
           >
             <AvatarImage
-              className={("border-2 border-background rounded-full")}
+              className={"border-2 border-background rounded-full"}
               src={currentTicket?.contact?.profilePicUrl}
               alt="@contact"
             />
@@ -139,11 +139,18 @@ const TicketListItem = ({ ticket, setFilter }) => {
           <p className="font-medium leading-3 text-base truncate text-foreground">
             {currentTicket.contact.name}
           </p>
-          {ticket.lastMessage && (
-            <span className="text-xs text-primary font-medium">
-              {displayDate(currentTicket.updatedAt)}
-            </span>
-          )}
+          <div className="flex gap-1 justify-center items-center">
+            {ticket.lastMessage && (
+              <span className="text-xs text-primary font-medium">
+                {displayDate(currentTicket.updatedAt)}
+              </span>
+            )}
+            {ticket.unreadMessages ? (
+              <div className="shrink-0 grow-0 rounded-full bg-primary h-6 w-6 flex justify-center items-center text-xs text-white">
+                {ticket.unreadMessages}
+              </div>
+            ) : null}
+          </div>
         </div>
         <div className="flex gap-1 items-center justify-between">
           <p className=" text-sm text-muted-foreground font-medium truncate">
@@ -236,23 +243,21 @@ const TicketListItem = ({ ticket, setFilter }) => {
                 </div>
               </Popover>
             </div> */}
-            {ticket.unreadMessages ? (
-              <div className="shrink-0 grow-0 rounded-full bg-primary h-6 w-6 flex justify-center items-center text-xs text-white">
-                {ticket.unreadMessages}
-              </div>
-            ) : null}
 
             {currentTicket.status === "pending" && (
               <Button
                 size="sm"
-                className="h-6"
+                className="group/edit hidden group-hover/item:flex rounded-full h-7"
                 disabled={loading}
                 onClick={(_) => handleAcepptTicket(currentTicket.id)}
               >
+                Iniciar
                 {loading && (
-                  <LoaderCircle className="mr-2 h-4 w-4 animate-spin text-primary" />
+                  <LoaderCircle className="ml-1 h-4 w-4 animate-spin" />
                 )}
-                Iniciar atendimento
+                {!loading && (
+                  <ChevronRight className="ml-1 h-4 w-4 group-hover/edit:translate-x-0.5" />
+                )}
               </Button>
             )}
           </div>
@@ -260,6 +265,6 @@ const TicketListItem = ({ ticket, setFilter }) => {
       </div>
     </div>
   );
-};
+});
 
 export default TicketListItem;

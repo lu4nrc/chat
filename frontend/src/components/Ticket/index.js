@@ -20,7 +20,7 @@ const Ticket = () => {
   const { ticketId } = useParams();
   const navigate = useNavigate();
 
-  const [drawerOpen, setDrawerOpen] = useState(false);
+
   const [loading, setLoading] = useState(true);
   const [contact, setContact] = useState({});
   const [ticket, setTicket] = useState({});
@@ -80,23 +80,12 @@ const Ticket = () => {
     };
   }, [ticketId, navigate]);
 
-  const handleDrawerOpen = () => {
-    console.log(`clicked`);
-    setDrawerOpen(true);
-  };
-
-  const handleDrawerClose = () => {
-    setDrawerOpen(false);
-  };
-
   return (
     <ReplyMessageProvider>
       <div className="grid grid-rows-[auto_1fr_auto] h-screen justify-items-center">
         <div className="bg-muted p-1  w-full">
           <div className="flex gap-1 items-center">
             <ContactDrawer
-              open={drawerOpen}
-              handleDrawerClose={handleDrawerClose}
               contact={contact}
               loading={loading}
               photo={contact.profilePicUrl}

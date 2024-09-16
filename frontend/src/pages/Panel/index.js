@@ -1,21 +1,208 @@
-import React, { useEffect, useState } from "react";
-import openSocket from "../../services/socket-io";
+import React, { useContext, useEffect, useReducer, useState } from "react";
 
-import { useOutletContext } from "react-router-dom";
-import Test from "@/components/test";
-import { Button } from "@/components/ui/button";
-import {Card, CardContent } from "@/components/ui/card";
+import openSocket from "../../services/socket-io";
+import {
+  differenceInSeconds,
+  formatDistanceToNow,
+  formatDuration,
+  intervalToDuration,
+} from "date-fns";
+import { ptBR } from "date-fns/locale";
+
+import toastError from "../../errors/toastError";
+
+import api from "../../services/api";
+import { Smile } from "lucide-react";
+
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Badge } from "@/components/ui/badge";
+import Lab from "./Lab";
+
+const reducer = (state, action) => {
+  switch (action.type) {
+    case "LOAD_TICKETS":
+      console.log("LOAD_TICKETS");
+      const newTickets = action.payload;
+
+      newTickets.forEach((ticket) => {
+        const ticketIndex = state.findIndex((t) => t.id === ticket.id);
+        if (ticketIndex !== -1) {
+          state[ticketIndex] = ticket;
+          if (ticket.unreadMessages > 0) {
+            state.unshift(state.splice(ticketIndex, 1)[0]);
+          }
+        } else {
+          state.push(ticket);
+        }
+      });
+
+      return [...state];
+
+    case "RESET_UNREAD":
+      console.log("RESET_UNREAD");
+      const ticketId = action.payload;
+
+      const resetTicketIndex = state.findIndex((t) => t.id === ticketId);
+      if (resetTicketIndex !== -1) {
+        state[resetTicketIndex].unreadMessages = 0;
+      }
+
+      return [...state];
+
+    case "UPDATE_TICKET":
+      console.log("UPDATE_TICKET");
+      const updatedTicket = action.payload;
+
+      const updateTicketIndex = state.findIndex(
+        (t) => t.id === updatedTicket.id
+      );
+      if (updateTicketIndex !== -1) {
+        state[updateTicketIndex] = updatedTicket;
+      } else {
+        state.unshift(updatedTicket);
+      }
+
+      return [...state];
+
+    case "UPDATE_TICKET_UNREAD_MESSAGES":
+      console.log("UPDATE_TICKET_UNREAD_MESSAGES");
+      const unreadTicket = action.payload;
+
+      const unreadTicketIndex = state.findIndex(
+        (t) => t.id === unreadTicket.id
+      );
+      if (unreadTicketIndex !== -1) {
+        state[unreadTicketIndex] = unreadTicket;
+        state.unshift(state.splice(unreadTicketIndex, 1)[0]);
+      } else {
+        state.unshift(unreadTicket);
+      }
+
+      return [...state];
+
+    case "UPDATE_TICKET_CONTACT":
+      console.log("UPDATE_TICKET_CONTACT");
+      const contact = action.payload;
+
+      const contactTicketIndex = state.findIndex(
+        (t) => t.contactId === contact.id
+      );
+      if (contactTicketIndex !== -1) {
+        state[contactTicketIndex].contact = contact;
+      }
+
+      return [...state];
+
+    case "DELETE_TICKET":
+      console.log("DELETE_TICKET");
+      const deleteTicketId = action.payload;
+
+      const deleteTicketIndex = state.findIndex((t) => t.id === deleteTicketId);
+      if (deleteTicketIndex !== -1) {
+        state.splice(deleteTicketIndex, 1);
+      }
+
+      return [...state];
+
+    case "RESET":
+      console.log("RESET");
+      return [];
+
+    default:
+      return state;
+  }
+};
 
 const PanelPage = () => {
-  const [name] = useOutletContext();
-  const [data, setData] = useState();
+  const [loading, setLoading] = useState(false);
 
+  const [ticketsList, dispatch] = useReducer(reducer, []);
+
+  const [ByGroup, setByGroup] = useState({
+    byQueue: {},
+    byUser: {},
+    open: [],
+    pending: [],
+  });
+
+  /* Fetch */
+  useEffect(() => {
+    setLoading(true);
+    const delayDebounceFn = setTimeout(() => {
+      const fetchTickets = async () => {
+        try {
+          const { data } = await api.get("/tickets/allOpen", {});
+
+          dispatch({ type: "LOAD_TICKETS", payload: data.tickets });
+
+          setLoading(false);
+        } catch (err) {
+          setLoading(false);
+          toastError(err);
+        }
+      };
+
+      fetchTickets();
+    }, 500);
+    return () => clearTimeout(delayDebounceFn);
+  }, []);
+
+  /* Socket */
   useEffect(() => {
     const socket = openSocket();
 
-    socket.on("onlineUsers", (data) => {
-      console.log(data);
-      setData(data);
+    socket.on("connect", () => {
+      socket.emit("joinTickets", 'open');
+      socket.emit("joinTickets", "pending");
+      socket.emit("joinNotification");
+    });
+
+    socket.on("ticket", (data) => {
+      if (data.action === "updateUnread") {
+        console.log("SOCKET: updateUnread");
+        /*      dispatch({
+          type: "RESET_UNREAD",
+          payload: data.ticketId,
+        });  */
+      }
+
+      if (data.action === "update") {
+        console.log("SOCKET: update");
+        dispatch({
+          type: "UPDATE_TICKET",
+          payload: data.ticket,
+        });
+      }
+
+      /*  if (data.action === "update") {
+        //console.log("update: DELETE_TICKET", data);
+        dispatch({ type: "DELETE_TICKET", payload: data.ticket.id });
+      } */
+
+      if (data.action === "delete") {
+        console.log("SOCKET: delete");
+        dispatch({ type: "DELETE_TICKET", payload: data.ticketId });
+      }
+    });
+
+    socket.on("appMessage", (data) => {
+      if (data.action === "create") {
+        //console.log("create: UPDATE_TICKET_UNREAD_MESSAGES", data);
+        dispatch({
+          type: "UPDATE_TICKET_UNREAD_MESSAGES",
+          payload: data.ticket,
+        });
+      }
+    });
+
+    socket.on("contact", (data) => {
+      if (data.action === "update") {
+        //console.log("update: UPDATE_TICKET_CONTACT", data);
+        dispatch({
+          type: "UPDATE_TICKET_CONTACT",
+          payload: data.contact,
+        });
+      }
     });
 
     return () => {
@@ -23,19 +210,196 @@ const PanelPage = () => {
     };
   }, []);
 
+  /* GroupBy */
+  useEffect(() => {
+    if (!ticketsList || ticketsList.length === 0) return;
+    const group = (tickets) => {
+      return tickets.reduce(
+        (acc, ticket) => {
+          const queueName = ticket.queue ? ticket.queue.name : "não atribuído";
+          const userName = ticket.user ? ticket.user.name : null;
+          const status = ticket.status;
+
+          // Agrupando por queue
+          if (!acc.byQueue[queueName]) {
+            acc.byQueue[queueName] = 0;
+          }
+          acc.byQueue[queueName]++;
+
+          // Agrupando por user
+          if (userName) {
+            if (!acc.byUser[userName]) {
+              acc.byUser[userName] = 0;
+            }
+            acc.byUser[userName]++;
+          }
+
+          // Verificando status e adicionando ao array correto
+          if (status === "open") {
+            acc.open.push(ticket);
+          } else if (status === "pending") {
+            acc.pending.push(ticket);
+          }
+
+          return acc;
+        },
+        { byQueue: {}, byUser: {}, open: [], pending: [] }
+      );
+    };
+
+    const groupedData = group(ticketsList);
+
+    setByGroup(groupedData);
+  }, [ticketsList]);
+
+  if (!ticketsList) {
+    return <div>Loading...</div>;
+  }
   return (
-    <div className=" grid flex-1 items-start gap-4 p-4 sm:px-6 sm:py-2 md:gap-4">
-      <div className="flex items-center gap-2">
-        <h1 className="text-2xl font-semibold leading-none tracking-tight">
-          Painel
-        </h1>
+    <>
+      {/* <Lab /> */}
+      <div className="w-full h-screen flex flex-col p-2">
+        <div className="flex items-center gap-2 pb-2">
+          <h1 className="text-2xl font-semibold leading-none tracking-tight text-foreground">
+            Painel de Acompanhamento
+          </h1>
+          <Badge className="ml-auto sm:ml-0">Beta</Badge>
+        </div>
+        <div className="grid grid-cols-6  gap-2 h-screen">
+          <div className="bg-muted col-span-2 rounded-sm">
+            <ListTicketStatus tickets={ByGroup.pending} status={"pending"} />
+          </div>
+          <div className="bg-muted col-span-2  rounded-sm">
+            <ListTicketStatus tickets={ByGroup.open} status={"open"} />
+          </div>
+          <div className="bg-muted rounded-sm">
+            <div>
+              {Object.entries(ByGroup.byQueue).map(([key, value]) => (
+                <QueueListItem name={key} qtd={value} />
+              ))}
+            </div>
+          </div>
+          <div className="bg-muted rounded-sm">
+            {Object.entries(ByGroup.byUser).map(([key, value]) => (
+              <div key={key} className="flex gap-1 justify-between">
+                <p className="text-sm font-medium">{key}</p>
+                <p className="text-xs text-muted-foreground">{value}</p>
+              </div>
+            ))}
+          </div>
+        </div>
       </div>
-      <div className="grid grid-cols-4">
-        <Card></Card>
-      </div>
-      {/* {data && data.map(el => <div>{el.username}</div>)} */}
-    </div>
+    </>
   );
 };
 
 export default PanelPage;
+
+function ListTicketStatus({ tickets, status }) {
+  const filteredTickets = tickets.filter((el) => el.status === status);
+  const statusName = status === "open" ? "em aberto" : "aguardando";
+  if (filteredTickets.length === 0) {
+    return <p>Nenhum atendimento {statusName}</p>;
+  }
+
+  return (
+    <>
+      {filteredTickets.map((el) => (
+        <ListContactItem key={el.id} ticket={el} status={status} />
+      ))}
+    </>
+  );
+}
+
+function ListContactItem({ ticket, status }) {
+  const [timeSinceCreated, setTimeSinceCreated] = useState("");
+  const [timeSinceUpdated, setTimeSinceUpdated] = useState("");
+
+  useEffect(() => {
+    const updateCounters = () => {
+      const now = new Date();
+      const created =
+        ticket.status === "pending"
+          ? new Date(ticket.createdAt)
+          : new Date(ticket.acceptDate);
+      const updated = new Date(ticket.updatedAt);
+
+      const createdDiff = differenceInSeconds(now, created);
+      const updatedDiff = differenceInSeconds(now, updated);
+
+      setTimeSinceCreated(
+        createdDiff >= 3600
+          ? `Há ${formatDuration(
+              intervalToDuration({ start: created, end: now }),
+              { format: ["hours", "minutes"], locale: ptBR }
+            )}`
+          : formatDistanceToNow(created, { addSuffix: true, locale: ptBR })
+      );
+
+      setTimeSinceUpdated(
+        updatedDiff >= 3600
+          ? `Há ${formatDuration(
+              intervalToDuration({ start: updated, end: now }),
+              { format: ["hours", "minutes"], locale: ptBR }
+            )}`
+          : formatDistanceToNow(updated, { addSuffix: true, locale: ptBR })
+      );
+    };
+
+    updateCounters();
+
+    const interval = setInterval(updateCounters, 55000);
+
+    return () => clearInterval(interval);
+  }, [ticket.createdAt, ticket.updatedAt]);
+
+  return (
+    <div className="grid grid-cols-[auto_1fr_auto] gap-1 p-1 border-b-muted-foreground">
+      <Avatar>
+        <AvatarImage src={ticket.contact.profilePicUrl} alt="@shadcn" />
+        <AvatarFallback>
+          <Smile />
+        </AvatarFallback>
+      </Avatar>
+      <div className="flex flex-col">
+        <div className="grid grid-cols-[1fr_auto]">
+          <p className="text-sm font-medium truncate">{ticket.contact.name}</p>
+          <span className="rounded-full text-white bg-primary px-2.5 py-0.5 text-xs font-semibold whitespace-nowrap">
+            {timeSinceCreated}
+          </span>
+        </div>
+        <div className="flex flex-col">
+          <div className="flex gap-1">
+            <p className="text-xs font-medium text-muted-foreground">
+              Atendente:
+            </p>
+            {ticket.user && (
+              <span className="text-xs font-semibold whitespace-nowrap">
+                {ticket.user.name}
+              </span>
+            )}
+          </div>
+          <div className="flex gap-1">
+            <p className="text-xs font-medium text-muted-foreground">
+              Última interação:
+            </p>
+            <p className="text-xs font-semibold whitespace-nowrap">
+              {timeSinceUpdated}
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function QueueListItem({ name, qtd }) {
+  return (
+    <div className="grid  grid-cols-[auto_1fr_auto] gap-1  p-1 border-b-muted-foreground">
+      <div className="flex flex-col">
+        <p className="text-sm font-medium">{name}</p>
+        <p className="text-xs text-muted-foreground">{qtd}</p>
+      </div>
+    </div>
+  );
+}

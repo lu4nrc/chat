@@ -1,4 +1,3 @@
-
 import {
   Dialog,
   DialogContent,
@@ -12,8 +11,10 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
 import Tags from "./Tags";
+import { useState } from "react";
 
 export default function ContactDrawer({ contact }) {
+  const [open, setOpen] = useState(false);
   function formatPhoneNumber(phoneNumber) {
     // Remove todos os caracteres não numéricos
     const cleaned = ("" + phoneNumber).replace(/\D/g, "");
@@ -28,7 +29,7 @@ export default function ContactDrawer({ contact }) {
   }
 
   return (
-    <Dialog>
+    <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
         <Avatar className="h-12 w-12" alt="contact_image">
           <AvatarImage src={contact.profilePicUrl} alt="@contact" />

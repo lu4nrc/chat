@@ -22,6 +22,8 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 
+import ModalProfileCors from "@/components/ModalProfileCors";
+
 const UsersCard = ({ usersData, loading }) => {
   const [sortKey, setSortKey] = useState("open");
 
@@ -85,10 +87,10 @@ const UsersCard = ({ usersData, loading }) => {
               <SelectContent>
                 <SelectGroup>
                   <SelectLabel>Status</SelectLabel>
-                  <SelectItem value="open">Atendendo</SelectItem>
-                  <SelectItem value="pending">Pendentes</SelectItem>
+                   {/* <SelectItem value="open">Atendendo</SelectItem> */}
                   <SelectItem value="closed">Fechados</SelectItem>
                   <SelectItem value="media">Tempo Médio</SelectItem>
+                  <SelectItem value="pending">Avaliação</SelectItem> 
                 </SelectGroup>
               </SelectContent>
             </Select>
@@ -98,13 +100,13 @@ const UsersCard = ({ usersData, loading }) => {
           <div className="grid grid-cols-3 md:grid-cols-4 gap-4 py-2 items-center  border-b">
             <div className="text-sm text-muted-foreground">Atendentes</div>
             <div className="text-sm text-muted-foreground text-center">
-              Atendendo
-            </div>
-            <div className="text-sm text-muted-foreground text-center">
               Fechados
             </div>
             <div className="text-sm text-muted-foreground  hidden md:block">
               Tempo Médio
+            </div>
+            <div className="text-sm text-muted-foreground text-center">
+              Avaliação
             </div>
           </div>
           <ScrollArea className="h-[200px]">
@@ -112,25 +114,13 @@ const UsersCard = ({ usersData, loading }) => {
               return (
                 <div
                   key={el.id}
-                  className="grid grid-cols-3 md:grid-cols-4 gap-4 py-2 items-center border-b"
+                  className="grid grid-cols-3 md:grid-cols-4 gap-x-2 gap-y-4 items-center border-b"
                 >
                   <div className="flex gap-2 items-center">
-                    <Avatar className="hidden h-9 w-9 sm:flex">
-                      <AvatarImage src="/avatars/01.png" alt="Avatar" />
-                      <AvatarFallback>
-                        {el.user_name
-                          .split(" ")
-                          .map((palavra) =>palavra? palavra[0].toUpperCase() : "HC")
-                          .join("")}
-                      </AvatarFallback>
-                    </Avatar>
+                    <ModalProfileCors imageUrl={el.imageUrl} />
                     <div className="text-sm font-medium">{el.user_name}</div>
                   </div>
-                  <div className="flex items-center justify-center">
-                    <Badge className="font-medium  bg-chart1/20 text-sky-700 hover:text-white">
-                      {el.open}
-                    </Badge>
-                  </div>
+
                   <div className="flex items-center justify-center">
                     <Badge className="font-medium  bg-chart3/20 text-emerald-700 ">
                       {el.closed}
@@ -138,6 +128,11 @@ const UsersCard = ({ usersData, loading }) => {
                   </div>
                   <div className="hidden md:block">
                     {convertMinToHour(el.m_time_avg)}
+                  </div>
+                  <div className="flex items-center justify-center">
+                    <Badge className="font-medium  bg-chart1/20 text-sky-700 hover:text-white">
+                      {el.open}
+                    </Badge>
                   </div>
                 </div>
               );

@@ -1,26 +1,20 @@
 import React, { useContext, useEffect, useState } from "react";
 import { toast } from "react-toastify";
-import { Field, Form, Formik } from "formik";
+import { ErrorMessage, Field, Form, Formik } from "formik";
 import * as Yup from "yup";
-
-import {
-  Button,
-  CircularProgress,
-  Dialog,
-  DialogActions,
-  DialogTitle,
-  IconButton,
-  InputAdornment,
-  MenuItem,
-  Select,
-  Stack,
-  TextField,
-  Typography,
-} from "@mui/material";
-
+import { i18n } from "../../translate/i18n";
 import { Visibility, VisibilityOff } from "@mui/icons-material";
 
-import { i18n } from "../../translate/i18n";
+import {
+  Dialog,
+  DialogClose,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "../ui/dialog";
 
 import { AuthContext } from "../../context/Auth/AuthContext";
 import toastError from "../../errors/toastError";
@@ -28,6 +22,17 @@ import useWhatsApps from "../../hooks/useWhatsApps";
 import api from "../../services/api";
 import { Can } from "../Can";
 import QueueSelect from "../QueueSelect";
+import { Edit } from "lucide-react";
+import { Button } from "../ui/button";
+import { Input } from "../ui/input";
+import { Label } from "../ui/label";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "../ui/select";
 
 const UserSchema = Yup.object().shape({
   name: Yup.string()
@@ -40,7 +45,7 @@ const UserSchema = Yup.object().shape({
   email: Yup.string().email("Email inválido").required("Obrigatório"),
 });
 
-const UserModal = ({ open, onClose, userId }) => {
+const UserModal = ({ userId, isEdit }) => {
   const initialState = {
     name: "",
     email: "",
@@ -50,6 +55,7 @@ const UserModal = ({ open, onClose, userId }) => {
 
   const { user: loggedInUser } = useContext(AuthContext);
 
+  const [open, setOpen] = useState(false);
   const [user, setUser] = useState(initialState);
   const [selectedQueueIds, setSelectedQueueIds] = useState([]);
   const [showPassword, setShowPassword] = useState(false);
@@ -76,40 +82,57 @@ const UserModal = ({ open, onClose, userId }) => {
   }, [userId, open]);
 
   const handleClose = () => {
-    onClose();
+    setOpen(false);
     setUser(initialState);
   };
 
   const handleSaveUser = async (values) => {
-    const userData = { ...values, whatsappId, queueIds: selectedQueueIds };
+    const ids = selectedQueueIds.map((queue) => queue.id);
+    const userData = { ...values, queueIds: ids };
+
     try {
-      if (userId) {
-        await api.put(`/users/${userId}`, userData);
-      } else {
-        await api.post("/users", userData);
+      let imageUrl = "";
+
+      if (values.image) {
+        const formData = new FormData();
+        formData.append("image", values.image);
+
+        const response = await api.post("/users/profile-image/", formData, {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+        });
+
+        imageUrl = response.data.imageUrl; // URL retornada pelo backend
       }
-      toast.success("Usuário salvo");
+
+      if (userId) {
+        // Editando usuário existente
+        await api.put(`/users/${userId}`, { ...userData, imageUrl });
+      } else {
+        // Criando novo usuário
+        const response = await api.post("/users", { ...userData, imageUrl });
+        // Atualiza userId após criação
+        setUser({ ...user, id: response.data.id });
+      }
+
+      toast.success("Usuário salvo com sucesso!");
+      setOpen(false);
     } catch (err) {
       toastError(err);
     }
-    handleClose();
   };
 
   return (
-    <>
-      <Dialog
-        open={open}
-        onClose={handleClose}
-        maxWidth="xs"
-        fullWidth
-        scroll="paper"
-      >
-        
-        <DialogTitle id="form-dialog-title">
-          {userId
-            ? `${i18n.t("userModal.title.edit")}`
-            : `${i18n.t("userModal.title.add")}`}
-        </DialogTitle>
+    <Dialog open={open} onOpenChange={setOpen}>
+      <DialogTrigger asChild>
+        {isEdit ? <Edit /> : <Button>Criar novo usuário</Button>}
+      </DialogTrigger>
+      <DialogContent className="sm:max-w-[612px]">
+        <DialogHeader>
+          <DialogTitle>Usuário</DialogTitle>
+          <DialogDescription>Informações</DialogDescription>
+        </DialogHeader>
         <Formik
           initialValues={user}
           enableReinitialize={true}
@@ -121,157 +144,129 @@ const UserModal = ({ open, onClose, userId }) => {
             }, 400);
           }}
         >
-          {({ touched, errors, isSubmitting }) => (
-            <Form>
-              <Stack px={1.5} pt={1} spacing={2}>
-                <Stack direction={"row"} spacing={1}>
-                  <Stack spacing={0.5} flex={1}>
-                    <Typography variant="subtitle2">Nome</Typography>
-                    <Field
-                    size="small"
-                      as={TextField}
-                      autoFocus
-                      name="name"
-                      error={touched.name && Boolean(errors.name)}
-                      helperText={touched.name && errors.name}
-                      variant="outlined"
-                      margin="dense"
-                      fullWidth
-                    />
-                  </Stack>
-                  <Stack spacing={0.5} flex={1}>
-                    <Typography variant="subtitle2">Senha</Typography>
-                    <Field
-                    size="small"
-                      as={TextField}
-                      name="password"
-                      variant="outlined"
-                      margin="dense"
-                      error={touched.password && Boolean(errors.password)}
-                      helperText={touched.password && errors.password}
-                      type={showPassword ? "text" : "password"}
-                      InputProps={{
-                        endAdornment: (
-                          <InputAdornment position="end">
-                            <IconButton
-                              aria-label="toggle password visibility"
-                              onClick={() => setShowPassword((e) => !e)}
-                            >
-                              {showPassword ? (
-                                <VisibilityOff />
-                              ) : (
-                                <Visibility />
-                              )}
-                            </IconButton>
-                          </InputAdornment>
-                        ),
-                      }}
-                      fullWidth
-                    />
-                  </Stack>
-                </Stack>
-                <Stack direction={"row"} spacing={1}>
-                  <Stack spacing={0.5} flex={2}>
-                    <Typography variant="subtitle2">Email</Typography>
-                    <Field
-                    size="small"
-                      as={TextField}
-                      name="email"
-                      error={touched.email && Boolean(errors.email)}
-                      helperText={touched.email && errors.email}
-                      variant="outlined"
-                      margin="dense"
-                      fullWidth
-                    />
-                  </Stack>
-                  <Stack spacing={0.5} flex={1}>
-                    <Typography variant="subtitle2">Perfil</Typography>
-                    <Can
-                      role={loggedInUser.profile}
-                      perform="user-modal:editProfile"
-                      yes={() => (
-                        <>
-                          <Field
-                          size="small"
-                            as={Select}
-                            defaultValue=""
-                            name="profile"
-                            labelId="profile-selection-label"
-                            id="profile-selection"
-                            required
-                          >
-                            <MenuItem value="admin">Administrador</MenuItem>
-                            <MenuItem value="user">Usuário</MenuItem>
-                          </Field>
-                        </>
-                      )}
-                    />
-                  </Stack>
-                </Stack>
-                <Can
-                  role={loggedInUser.profile}
-                  perform="user-modal:editQueues"
-                  yes={() => (
-                    <QueueSelect
-                    
-                      defaultValue=""
-                      selectedQueueIds={selectedQueueIds}
-                      onChange={(values) => setSelectedQueueIds(values)}
-                    />
-                  )}
+          {({ touched, errors, isSubmitting, setFieldValue }) => (
+            <Form className="grid grid-cols-2 gap-1 gap-x-4">
+              <div className="grid w-full items-center gap-1.5 relative pb-5">
+                <Label htmlFor="name">Nome</Label>
+                <Field
+                  as={Input}
+                  name="name"
+                  error={touched.name && Boolean(errors.name)}
+                  helperText={touched.name && errors.name}
                 />
-                <Can
-                  role={loggedInUser.profile}
-                  perform="user-modal:editQueues"
-                  yes={() =>
-                    !loading && (
-                      <Stack spacing={0.5} flex={1}>
-                        <Typography variant="subtitle2">
-                          Conexão padrão
-                        </Typography>
-                        <Field
-                        size="small"
-                          as={Select}
-                          value={whatsappId}
-                          onChange={(e) => setWhatsappId(e.target.value)}
-                        >
-                          <MenuItem value={""}>&nbsp;</MenuItem>
-                          {whatsApps.map((whatsapp) => (
-                            <MenuItem key={whatsapp.id} value={whatsapp.id}>
-                              {whatsapp.name}
-                            </MenuItem>
-                          ))}
-                        </Field>
-                      </Stack>
-                    )
-                  }
+                <ErrorMessage name="name">
+                  {(msg) => <div className="text-xs text-red-500 absolute bottom-0">{msg}</div>}
+                </ErrorMessage>
+              </div>
+
+              <div className="grid w-full items-center gap-1.5 relative pb-5">
+                <Label htmlFor="imageUrl">Imagem de perfil</Label>
+                <Input
+                  type="file"
+                  name="image"
+                  onChange={(event) => {
+                    setFieldValue("image", event.currentTarget.files[0]);
+                  }}
                 />
-              </Stack>
-              <DialogActions>
+              </div>
+
+              <div className="grid w-full items-center gap-1.5 relative pb-5">
+                <Label htmlFor="name">Senha</Label>
+                <Field
+                  as={Input}
+                  type="password"
+                  name="password"
+                  error={touched.password && Boolean(errors.password)}
+                  helperText={touched.password && errors.password}
+                />
+                <ErrorMessage name="password">
+                  {(msg) => <div className="text-xs text-red-500 absolute bottom-0">{msg}</div>}
+                </ErrorMessage>
+              </div>
+
+              <div className="grid w-full items-center gap-1.5 relative pb-5">
+                <Label htmlFor="name">Email</Label>
+                <Field
+                  as={Input}
+                  type="email"
+                  name="email"
+                  error={touched.email && Boolean(errors.email)}
+                  helperText={touched.email && errors.email}
+                />
+                <ErrorMessage name="email">
+                  {(msg) => <div className="text-xs text-red-500 absolute bottom-0">{msg}</div>}
+                </ErrorMessage>
+              </div>
+
+              <div className="grid w-full items-center gap-1.5 relative pb-5">
+                <Label htmlFor="name">Perfil</Label>
+                <Select
+                  id="profile-selection"
+                  name="profile"
+                  onValueChange={(value) => {
+                    setFieldValue("profile", value);
+                  }}
+                >
+                  <SelectTrigger className="w-full">
+                    <SelectValue placeholder="Selecione o tipo de usuário" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="admin">Administrador</SelectItem>
+                    <SelectItem value="user">Usuário</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div className="grid w-full items-center gap-1.5 relative pb-5">
+                <Label htmlFor="name">Definir conexão padrão</Label>
+                <Select
+                  id="whatsappId"
+                  name="whatsappId"
+                  onValueChange={(value) => {
+                    setFieldValue("whatsappId", Number(value));
+                  }}
+                >
+                  <SelectTrigger className="w-full">
+                    <SelectValue placeholder="Conexão padrão" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {whatsApps.map((whatsapp) => (
+                      <SelectItem value={String(whatsapp.id)}>
+                        {whatsapp.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div className="col-span-2">
+                <QueueSelect
+                  selectedQueueIds={selectedQueueIds}
+                  onChange={(values) => setSelectedQueueIds(values)}
+                />
+              </div>
+
+ 
+              <div className="flex gap-2 w-full justify-end   col-span-2 pt-2">
                 <Button
                   onClick={handleClose}
                   disabled={isSubmitting}
-                  variant="text"
+                  variant="outline"
                 >
                   {i18n.t("userModal.buttons.cancel")}
                 </Button>
-                <Button
-                  type="submit"
-                  color="primary"
-                  disabled={isSubmitting}
-                  variant="contained"
-                >
+                <Button type="submit" color="primary" disabled={isSubmitting}>
                   {userId
                     ? `${i18n.t("userModal.buttons.okEdit")}`
                     : `${i18n.t("userModal.buttons.okAdd")}`}
-                  {isSubmitting && <CircularProgress size={24} />}
+                  {isSubmitting && "aguardando.."}
                 </Button>
-              </DialogActions>
+              </div>
             </Form>
           )}
         </Formik>
-      </Dialog>
-    </>
+      </DialogContent>
+    </Dialog>
   );
 };
 

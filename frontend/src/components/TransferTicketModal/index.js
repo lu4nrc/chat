@@ -1,58 +1,65 @@
 import React, { useContext, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-
 import {
-  Autocomplete,
-  Stack,
-  Typography,
-  createFilterOptions,
-} from "@mui/material";
-import Button from "@mui/material/Button";
-import Dialog from "@mui/material/Dialog";
-import MenuItem from "@mui/material/MenuItem";
-import Select from "@mui/material/Select";
-import TextField from "@mui/material/TextField";
-
-import CircularProgress from "@mui/material/CircularProgress";
-import DialogActions from "@mui/material/DialogActions";
-import DialogContent from "@mui/material/DialogContent";
-import DialogTitle from "@mui/material/DialogTitle";
-
-import { FiberManualRecord } from "@mui/icons-material";
+  Dialog,
+  DialogContent,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "../ui/dialog";
+import { Button } from "../ui/button";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "../ui/select";
+import { Formik, Form } from "formik";
+import {
+  Command,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+  CommandList,
+} from "@/components/ui/command";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import * as Yup from "yup";
 import { AuthContext } from "../../context/Auth/AuthContext";
 import toastError from "../../errors/toastError";
 import useQueues from "../../hooks/useQueues";
 import useWhatsApps from "../../hooks/useWhatsApps";
 import api from "../../services/api";
-import { i18n } from "../../translate/i18n";
-import ButtonWithSpinner from "../ButtonWithSpinner";
-import { Can } from "../Can";
+import { Check } from "lucide-react";
+import { cn } from "@/lib/utils";
+import ComboboxUser from "../ui/combobox-user";
 
-const filterOptions = createFilterOptions({
-  trim: true,
+// Validação de formulário usando Yup
+const TransferSchema = Yup.object().shape({
+  queueId: Yup.string().required("Obrigatório"),
+  whatsappId: Yup.string().required("Obrigatório"),
 });
 
-const TransferTicketModal = ({
-  modalOpen,
-  onClose,
-  ticketid,
-  ticketWhatsappId,
-}) => {
+const TransferTicketModal = ({ ticketid, ticketWhatsappId }) => {
   const navigate = useNavigate();
-  const [options, setOptions] = useState([]);
+  const [open, setOpen] = useState(false);
+  const [user, setUser] = useState(null);
 
-  const [queues, setQueues] = useState([]);
-  const [allQueues, setAllQueues] = useState([]);
   const [loading, setLoading] = useState(false);
-  const [searchParam, setSearchParam] = useState("");
-  const [selectedUser, setSelectedUser] = useState(null);
-  const [selectedQueue, setSelectedQueue] = useState("");
-  const [selectedWhatsapp, setSelectedWhatsapp] = useState(ticketWhatsappId);
 
   const { findAll: findAllQueues } = useQueues();
   const { loadingWhatsapps, whatsApps } = useWhatsApps();
-
   const { user: loggedInUser } = useContext(AuthContext);
+
+  const [queues, setQueues] = useState([]);
+
+  const [allQueues, setAllQueues] = useState([]);
 
   useEffect(() => {
     const loadQueues = async () => {
@@ -61,189 +68,118 @@ const TransferTicketModal = ({
       setQueues(list);
     };
     loadQueues();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   useEffect(() => {
-    if (!modalOpen || searchParam.length < 1) {
-      setLoading(false);
-      return;
+    if (user != null && Array.isArray(user.queues)) {
+      setQueues(user.queues);
+    } else {
+      setQueues(allQueues);
     }
-    setLoading(true);
-    const delayDebounceFn = setTimeout(() => {
-      const fetchUsers = async () => {
-        try {
-          const { data } = await api.get("/users/", {
-            params: { searchParam },
-          });
-          setOptions(data.users);
+  }, [user]);
 
-          setLoading(false);
-        } catch (err) {
-          setLoading(false);
-          toastError(err);
-        }
-      };
-
-      fetchUsers();
-    }, 500);
-    return () => clearTimeout(delayDebounceFn);
-  }, [searchParam, modalOpen]);
-
-  const handleClose = () => {
-    onClose();
-    setSearchParam("");
-    setSelectedUser(null);
-  };
-
-  const handleSaveTicket = async (e) => {
-    e.preventDefault();
+  const handleSaveTicket = async (values, actions) => {
     if (!ticketid) return;
+
     setLoading(true);
     try {
-      let data = {};
-
-      if (selectedUser) {
-        data.userId = selectedUser.id;
-      }
-
-      if (selectedQueue && selectedQueue !== null) {
-        data.queueId = selectedQueue;
-
-        if (!selectedUser) {
-          data.status = "pending";
-          data.userId = null;
-        }
-      }
-
-      if (selectedWhatsapp) {
-        data.whatsappId = selectedWhatsapp;
-      }
-
+      const data = {
+        queueId: values.queueId,
+        whatsappId: values.whatsappId,
+        userId: user.id || null,
+        status: values.queueId && !user.id ? "pending" : undefined,
+      };
       await api.put(`/tickets/${ticketid}`, data);
-
       setLoading(false);
       navigate(`/tickets`);
+      actions.setSubmitting(false);
     } catch (err) {
       setLoading(false);
       toastError(err);
+      actions.setSubmitting(false);
     }
   };
 
   return (
-    <Dialog open={modalOpen} onClose={handleClose} maxWidth="lg" scroll="paper">
-      <form onSubmit={handleSaveTicket}>
-        <DialogTitle id="form-dialog-title">Transferir Atendimento</DialogTitle>
-        <DialogContent dividers>
-          <Autocomplete
-            style={{ width: 300, marginBottom: 20 }}
-            getOptionLabel={(option) => option.name}
-            renderOption={(props, option) => (
-              <li {...props}>
-                <FiberManualRecord
-                  style={{
-                    fontSize: 15,
-                    color:
-                      option.status === "active"
-                        ? "#98E3C3"
-                        : option.status === "lazy"
-                        ? "#FBED90"
-                        : "#f44336",
-                    marginRight: 5,
-                  }}
-                />
-                {option.name}
-              </li>
-            )}
-            onChange={(e, newValue) => {
-              setSelectedUser(newValue);
-              if (newValue != null && Array.isArray(newValue.queues)) {
-                setQueues(newValue.queues);
-              } else {
-                setQueues(allQueues);
-                setSelectedQueue("");
-              }
-            }}
-            options={options}
-            filterOptions={filterOptions}
-            freeSolo
-            autoHighlight
-            noOptionsText={i18n.t("transferTicketModal.noOptions")}
-            loading={loading}
-            renderInput={(params) => (
-              <TextField
-                {...params}
-                label={i18n.t("transferTicketModal.fieldLabel")}
-                variant="outlined"
-                required
-                autoFocus
-                onChange={(e) => setSearchParam(e.target.value)}
-                InputProps={{
-                  ...params.InputProps,
-                  endAdornment: (
-                    <React.Fragment>
-                      {loading ? (
-                        <CircularProgress color="inherit" size={20} />
-                      ) : null}
-                      {params.InputProps.endAdornment}
-                    </React.Fragment>
-                  ),
-                }}
-              />
-            )}
-          />
+    <Dialog open={open} onOpenChange={setOpen}>
+      <DialogTrigger asChild>
+        <Button variant="ghost">Transferir atendimento</Button>
+      </DialogTrigger>
+      <DialogContent className="sm:max-w-md">
+        <DialogHeader>
+          <DialogTitle>Transferir Atendimento</DialogTitle>
+        </DialogHeader>
 
-          <Stack spacing={0.5}>
-            <Typography variant="subtitle2">Departamento</Typography>
-            <Select
-              required
-              value={selectedQueue}
-              onChange={(e) => setSelectedQueue(e.target.value)}
-            >
-              {/* <MenuItem value={""}>&nbsp;</MenuItem> */}
-              {queues.map((queue) => (
-                <MenuItem key={queue.id} value={queue.id}>
-                  {queue.name}
-                </MenuItem>
-              ))}
-            </Select>
-          </Stack>
-          <Can
-            role={loggedInUser.profile}
-            perform="ticket-options:transferWhatsapp"
-            yes={() =>
-              !loadingWhatsapps && (
-                <Stack spacing={0.5}>
-                  <Typography variant="subtitle2">Conexão</Typography>
-                  <Select
-                    value={selectedWhatsapp}
-                    onChange={(e) => setSelectedWhatsapp(e.target.value)}
-                  >
-                    {whatsApps.map((whasapp) => (
-                      <MenuItem key={whasapp.id} value={whasapp.id}>
-                        {whasapp.name}
-                      </MenuItem>
+        <Formik
+          initialValues={{
+            queueId: "",
+            whatsappId: ticketWhatsappId || "",
+            userId: null,
+          }}
+          validationSchema={TransferSchema}
+          onSubmit={handleSaveTicket}
+        >
+          {({ isSubmitting, setFieldValue }) => (
+            <Form className="space-y-4">
+              <ComboboxUser setUser={setUser} />
+
+              <Select
+                id="queueId"
+                name="queueId"
+                onValueChange={(value) => {
+                  setFieldValue("queueId", Number(value));
+                }}
+              >
+                <SelectTrigger className="w-full">
+                  <SelectValue placeholder="Selecionar departamento" />
+                </SelectTrigger>
+                <SelectContent>
+                  {queues.map((queue) => (
+                    <SelectItem key={queue.id} value={String(queue.id)}>
+                      {queue.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+
+              {!loadingWhatsapps && (
+                <Select
+                  id="whatsappId"
+                  name="whatsappId"
+                  onValueChange={(value) => {
+                    setFieldValue("whatsappId", Number(value));
+                  }}
+                >
+                  <SelectTrigger className="w-full">
+                    <SelectValue placeholder="Selecionar conexão" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {whatsApps.map((whatsapp) => (
+                      <SelectItem key={whatsapp.id} value={String(whatsapp.id)}>
+                        {whatsapp.name}
+                      </SelectItem>
                     ))}
-                  </Select>
-                </Stack>
-              )
-            }
-          />
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={handleClose} disabled={loading} variant="text">
-            {i18n.t("transferTicketModal.buttons.cancel")}
-          </Button>
-          <ButtonWithSpinner
-            variant="contained"
-            type="submit"
-            color="primary"
-            loading={loading}
-          >
-            {i18n.t("transferTicketModal.buttons.ok")}
-          </ButtonWithSpinner>
-        </DialogActions>
-      </form>
+                  </SelectContent>
+                </Select>
+              )}
+
+              <DialogFooter>
+                <Button
+                  type="button"
+                  onClick={() => setOpen(false)}
+                  disabled={isSubmitting}
+                  variant="text"
+                >
+                  Cancelar
+                </Button>
+                <Button type="submit" disabled={isSubmitting}>
+                  {isSubmitting ? "aguarde.." : "Transferir"}
+                </Button>
+              </DialogFooter>
+            </Form>
+          )}
+        </Formik>
+      </DialogContent>
     </Dialog>
   );
 };

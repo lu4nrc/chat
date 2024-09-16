@@ -21,7 +21,7 @@ import { i18n } from "../../translate/i18n";
 import ButtonWithSpinner from "../ButtonWithSpinner";
 import ContactModal from "../ContactModal";
 import formatarNumeroTelefone from "../../utils/numberFormat";
-import { ComboboxDemo } from "../ui/combobox-demo";
+import { ComboboxDemo } from "../ui/combobox-user";
 
 const filter = createFilterOptions({
   trim: true,
