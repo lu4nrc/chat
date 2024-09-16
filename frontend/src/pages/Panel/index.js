@@ -17,6 +17,8 @@ import { Smile } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import Lab from "./Lab";
+import { useOutletContext } from "react-router-dom";
+import { useToast } from "@/hooks/use-toast";
 
 const reducer = (state, action) => {
   switch (action.type) {
@@ -114,6 +116,7 @@ const reducer = (state, action) => {
 };
 
 const PanelPage = () => {
+  const { toast } = useToast()
   const [loading, setLoading] = useState(false);
 
   const [ticketsList, dispatch] = useReducer(reducer, []);
@@ -138,7 +141,12 @@ const PanelPage = () => {
           setLoading(false);
         } catch (err) {
           setLoading(false);
-          toastError(err);
+          const errorMsg =
+          err.response?.data?.message || err.response.data.error;
+        toast({
+          variant: "destructive",
+          title: errorMsg,
+        });
         }
       };
 
@@ -257,7 +265,7 @@ const PanelPage = () => {
   }
   return (
     <>
-      {/* <Lab /> */}
+       <Lab /> 
       <div className="w-full h-screen flex flex-col p-2">
         <div className="flex items-center gap-2 pb-2">
           <h1 className="text-2xl font-semibold leading-none tracking-tight text-foreground">

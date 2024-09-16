@@ -14,8 +14,11 @@ import {
   DialogTrigger,
 } from "../ui/dialog";
 import { Button } from "../ui/button";
+import { useOutletContext } from "react-router-dom";
+import { useToast } from "@/hooks/use-toast";
 
 const QrcodeModal = ({ open, onClose, whatsAppId }) => {
+  const { toast } = useToast()
   const [qrCode, setQrCode] = useState("");
 
   useEffect(() => {
@@ -26,7 +29,12 @@ const QrcodeModal = ({ open, onClose, whatsAppId }) => {
         const { data } = await api.get(`/whatsapp/${whatsAppId}`);
         setQrCode(data.qrcode);
       } catch (err) {
-        toastError(err);
+        const errorMsg =
+        err.response?.data?.message || err.response.data.error;
+      toast({
+        variant: "destructive",
+        title: errorMsg,
+      });
       }
     };
     fetchSession();

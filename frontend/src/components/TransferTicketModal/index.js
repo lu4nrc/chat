@@ -1,5 +1,5 @@
 import React, { useContext, useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useOutletContext } from "react-router-dom";
 import {
   Dialog,
   DialogContent,
@@ -39,6 +39,7 @@ import api from "../../services/api";
 import { Check } from "lucide-react";
 import { cn } from "@/lib/utils";
 import ComboboxUser from "../ui/combobox-user";
+import { useToast } from "@/hooks/use-toast";
 
 // Validação de formulário usando Yup
 const TransferSchema = Yup.object().shape({
@@ -47,6 +48,7 @@ const TransferSchema = Yup.object().shape({
 });
 
 const TransferTicketModal = ({ ticketid, ticketWhatsappId }) => {
+  const { toast } = useToast()
   const navigate = useNavigate();
   const [open, setOpen] = useState(false);
   const [user, setUser] = useState(null);
@@ -95,7 +97,12 @@ const TransferTicketModal = ({ ticketid, ticketWhatsappId }) => {
       actions.setSubmitting(false);
     } catch (err) {
       setLoading(false);
-      toastError(err);
+      const errorMsg =
+      err.response?.data?.message || err.response.data.error;
+    toast({
+      variant: "destructive",
+      title: errorMsg,
+    });
       actions.setSubmitting(false);
     }
   };

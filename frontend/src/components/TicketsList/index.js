@@ -6,6 +6,7 @@ import TicketsListSkeleton from "../TicketsListSkeleton";
 
 import { AuthContext } from "../../context/Auth/AuthContext";
 import useTickets from "../../hooks/useTickets";
+import { useNavigate } from "react-router-dom";
 
 const reducer = (state, action) => {
   if (action.type === "LOAD_TICKETS") {
@@ -103,9 +104,10 @@ const TicketsList = (props) => {
   const [pageNumber, setPageNumber] = useState(1);
   const [ticketsList, dispatch] = useReducer(reducer, []);
   const { user } = useContext(AuthContext);
-
+  const navigate = useNavigate();
 
   useEffect(() => {
+    console.log("RESET")
     dispatch({ type: "RESET" });
     setPageNumber(1);
   }, [status, searchParam, dispatch, showAll, selectedQueueIds]);
@@ -119,6 +121,7 @@ const TicketsList = (props) => {
   });
 
   useEffect(() => {
+    console.log("LOAD_TICKETS")
     if (!status && !searchParam) return;
     dispatch({
       type: "LOAD_TICKETS",
@@ -138,6 +141,7 @@ const TicketsList = (props) => {
       ticket.queueId && selectedQueueIds.indexOf(ticket.queueId) === -1;
 
     socket.on("connect", () => {
+      console.log("connect")
       if (status) {
         socket.emit("joinTickets", status);
       } else {
@@ -146,6 +150,7 @@ const TicketsList = (props) => {
     });
 
     socket.on("ticket", (data) => {
+      console.log("updateUnread")
       if (data.action === "updateUnread") {
         dispatch({
           type: "RESET_UNREAD",
@@ -170,6 +175,7 @@ const TicketsList = (props) => {
     });
 
     socket.on("appMessage", (data) => {
+      console.log("appMessage")
       if (data.action === "create" && shouldUpdateTicket(data.ticket)) {
         dispatch({
           type: "UPDATE_TICKET_UNREAD_MESSAGES",
@@ -179,6 +185,7 @@ const TicketsList = (props) => {
     });
 
     socket.on("contact", (data) => {
+      console.log("contact")
       if (data.action === "update") {
         dispatch({
           type: "UPDATE_TICKET_CONTACT",
@@ -223,6 +230,10 @@ const TicketsList = (props) => {
 
   if (activeTab !== status) return null;
 
+  function handleSelectTicket (ticketId) {
+    navigate(`/tickets/${ticketId}`)
+  }
+
   return (
     <div
       className="overflow-auto h-[calc(100vh-145px)]"
@@ -239,6 +250,7 @@ const TicketsList = (props) => {
           <TicketListItem
             ticket={ticket}
             key={ticket.id}
+            handleSelectTicket={handleSelectTicket}
             setFilter={setFilter}
           />
         ))

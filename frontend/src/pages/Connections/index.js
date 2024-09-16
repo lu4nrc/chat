@@ -69,7 +69,12 @@ const Connections = () => {
     try {
       await api.post(`/whatsappsession/${whatsAppId}`);
     } catch (err) {
-      toastError(err);
+      const errorMsg =
+      err.response?.data?.message || err.response.data.error;
+    toast({
+      variant: "destructive",
+      title: errorMsg,
+    });
     }
   };
 
@@ -77,7 +82,12 @@ const Connections = () => {
     try {
       await api.put(`/whatsappsession/${whatsAppId}`);
     } catch (err) {
-      toastError(err);
+      const errorMsg =
+      err.response?.data?.message || err.response.data.error;
+    toast({
+      variant: "destructive",
+      title: errorMsg,
+    });
     }
   };
 
@@ -107,7 +117,12 @@ const Connections = () => {
       try {
         await api.delete(`/whatsappsession/${confirmModalInfo.whatsAppId}`);
       } catch (err) {
-        toastError(err);
+        const errorMsg =
+        err.response?.data?.message || err.response.data.error;
+      toast({
+        variant: "destructive",
+        title: errorMsg,
+      });
       }
     }
 
@@ -116,7 +131,12 @@ const Connections = () => {
         await api.delete(`/whatsapp/${confirmModalInfo.whatsAppId}`);
         toast.success(i18n.t("connections.toasts.deleted"));
       } catch (err) {
-        toastError(err);
+        const errorMsg =
+        err.response?.data?.message || err.response.data.error;
+      toast({
+        variant: "destructive",
+        title: errorMsg,
+      });
       }
     }
 

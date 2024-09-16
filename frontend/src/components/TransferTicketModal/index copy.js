@@ -81,7 +81,12 @@ const TransferTicketModal = ({
           setLoading(false);
         } catch (err) {
           setLoading(false);
-          toastError(err);
+          const errorMsg =
+          err.response?.data?.message || err.response.data.error;
+        toast({
+          variant: "destructive",
+          title: errorMsg,
+        });
         }
       };
 
@@ -126,7 +131,12 @@ const TransferTicketModal = ({
       navigate(`/tickets`);
     } catch (err) {
       setLoading(false);
-      toastError(err);
+      const errorMsg =
+      err.response?.data?.message || err.response.data.error;
+    toast({
+      variant: "destructive",
+      title: errorMsg,
+    });
     }
   };
 

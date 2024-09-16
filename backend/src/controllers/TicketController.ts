@@ -13,6 +13,7 @@ import formatBody from "../helpers/Mustache";
 
 import ListTicketsServiceToday from "../services/TicketServices/ListTicketsServiceToday";
 import TicketsSearchService from "../services/TicketServices/TicketsSearchService";
+import ListAllOpenTickets from "../services/TicketServices/ListAllOpenTickets";
 
 type IndexQuery = {
   searchParam: string;
@@ -78,8 +79,13 @@ export const index = async (req: Request, res: Response): Promise<Response> => {
 export const store = async (req: Request, res: Response): Promise<Response> => {
   const { contactId, status, userId, isOutbound }: TicketData = req.body;
 
-  const ticket = await CreateTicketService({ contactId, status, userId, isOutbound });
-
+  const ticket = await CreateTicketService({
+    contactId,
+    status,
+    userId,
+    isOutbound
+  });
+console.log("AQUI create")
   const io = getIO();
   io.to(ticket.status).emit("ticket", {
     action: "update",
@@ -156,6 +162,15 @@ export const fullfilter = async (
     userId,
     pageNumber
   });
+
+  return res.status(200).json({ tickets });
+};
+
+export const allOpen = async (
+  req: Request,
+  res: Response
+): Promise<Response> => {
+  const tickets = await ListAllOpenTickets();
 
   return res.status(200).json({ tickets });
 };

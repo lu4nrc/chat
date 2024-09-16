@@ -76,7 +76,12 @@ const SignUp = () => {
 			});
 			history("/login");
 		} catch (err) {
-			toastError(err);
+			const errorMsg =
+            err.response?.data?.message || err.response.data.error;
+          toast({
+            variant: "destructive",
+            title: errorMsg,
+          });
 		}
 	};
 

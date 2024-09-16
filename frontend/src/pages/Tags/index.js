@@ -38,7 +38,12 @@ const Tags = () => {
         result.data.tags.filter((x) => x?.typetag === "custom") || []
       );
     } catch (err) {
-      toastError(err);
+      const errorMsg =
+      err.response?.data?.message || err.response.data.error;
+    toast({
+      variant: "destructive",
+      title: errorMsg,
+    });
     }
 
     setV(null);
@@ -61,7 +66,12 @@ const Tags = () => {
         },
       });
     } catch (err) {
-      toastError(err);
+      const errorMsg =
+      err.response?.data?.message || err.response.data.error;
+    toast({
+      variant: "destructive",
+      title: errorMsg,
+    });
     }
   };
 
@@ -105,7 +115,12 @@ const Tags = () => {
         result.data.tags.filter((x) => x?.typetag === "custom") || []
       );
     } catch (err) {
-      toastError(err);
+      const errorMsg =
+      err.response?.data?.message || err.response.data.error;
+    toast({
+      variant: "destructive",
+      title: errorMsg,
+    });
     }
   };
   React.useEffect(() => {

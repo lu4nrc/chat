@@ -55,7 +55,12 @@ const NewTicketModal = ({ modalOpen, onClose }) => {
           setLoading(false);
         } catch (err) {
           setLoading(false);
-          toastError(err);
+          const errorMsg =
+          err.response?.data?.message || err.response.data.error;
+        toast({
+          variant: "destructive",
+          title: errorMsg,
+        });
         }
       };
 
@@ -82,7 +87,12 @@ const NewTicketModal = ({ modalOpen, onClose }) => {
       });
       navigate(`/tickets/${ticket.id}`);
     } catch (err) {
-      toastError(err);
+      const errorMsg =
+      err.response?.data?.message || err.response.data.error;
+    toast({
+      variant: "destructive",
+      title: errorMsg,
+    });
     }
     setLoading(false);
     handleClose();

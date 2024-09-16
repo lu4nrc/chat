@@ -23,6 +23,7 @@ import QueueSelect from "../QueueSelect";
 import { Switch } from "../ui/switch";
 import { Textarea } from "../ui/textarea";
 import { Edit } from "lucide-react";
+import { useToast } from "@/hooks/use-toast";
 
 const longText = `
 Desmarque esta opção para definir um horário de expediente para os atendimentos.
@@ -49,6 +50,7 @@ const WhatsAppModal = ({ whatsAppId, isEdit }) => {
   };
   const [whatsApp, setWhatsApp] = useState(initialState);
   const [selectedQueueIds, setSelectedQueueIds] = useState([]);
+  const { toast } = useToast()
 
   useEffect(() => {
     const fetchSession = async () => {
@@ -59,7 +61,12 @@ const WhatsAppModal = ({ whatsAppId, isEdit }) => {
         setWhatsApp(data);
         setSelectedQueueIds(data.queues);
       } catch (err) {
-        toastError(err);
+        const errorMsg =
+        err.response?.data?.message || err.response.data.error;
+      toast({
+        variant: "destructive",
+        title: errorMsg,
+      });
       }
     };
     fetchSession();
@@ -83,7 +90,12 @@ const WhatsAppModal = ({ whatsAppId, isEdit }) => {
       });
       setOpen(false);
     } catch (err) {
-      toastError(err);
+      const errorMsg =
+      err.response?.data?.message || err.response.data.error;
+    toast({
+      variant: "destructive",
+      title: errorMsg,
+    });
     }
   };
 

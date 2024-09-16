@@ -113,7 +113,12 @@ const ScheduleModal = ({
       setHasMore(data.hasMore);
       setLoading(false);
     } catch (err) {
-      toastError(err);
+              const errorMsg =
+            err.response?.data?.message || err.response.data.error;
+          toast({
+            variant: "destructive",
+            title: errorMsg,
+          });
       setLoading(false);
     }
   };
@@ -137,13 +142,28 @@ const ScheduleModal = ({
 
     if (!topico) {
       err.response.data.message = "Insira o título";
-      toastError(err);
+              const errorMsg =
+            err.response?.data?.message || err.response.data.error;
+          toast({
+            variant: "destructive",
+            title: errorMsg,
+          });
     } else if (!locale) {
       err.response.data.message = "Insira o local da reunião";
-      toastError(err);
+              const errorMsg =
+            err.response?.data?.message || err.response.data.error;
+          toast({
+            variant: "destructive",
+            title: errorMsg,
+          });
     } else if (!description) {
       err.response.data.message = "Insira a descrição";
-      toastError(err);
+              const errorMsg =
+            err.response?.data?.message || err.response.data.error;
+          toast({
+            variant: "destructive",
+            title: errorMsg,
+          });
     } else {
       setActiveStep((prevActiveStep) => prevActiveStep + 1);
       setSkipped(newSkipped);
@@ -158,10 +178,20 @@ const ScheduleModal = ({
 
     if (anfitriao.length <= 0) {
       err.response.data.message = "Insira um anfitrião da reunião";
-      toastError(err);
+              const errorMsg =
+            err.response?.data?.message || err.response.data.error;
+          toast({
+            variant: "destructive",
+            title: errorMsg,
+          });
     } else if (participantes.length <= 0) {
       err.response.data.message = "Insira algum usuário na reunião";
-      toastError(err);
+              const errorMsg =
+            err.response?.data?.message || err.response.data.error;
+          toast({
+            variant: "destructive",
+            title: errorMsg,
+          });
     } else {
       setActiveStep((prevActiveStep) => prevActiveStep + 1);
       setSkipped(newSkipped);
@@ -192,7 +222,12 @@ const ScheduleModal = ({
 
         handleCloseModal();
       } catch (err) {
-        toastError(err);
+                const errorMsg =
+            err.response?.data?.message || err.response.data.error;
+          toast({
+            variant: "destructive",
+            title: errorMsg,
+          });
       }
     } else {
       try {
@@ -202,7 +237,12 @@ const ScheduleModal = ({
 
         handleCloseModal();
       } catch (err) {
-        toastError(err);
+                const errorMsg =
+            err.response?.data?.message || err.response.data.error;
+          toast({
+            variant: "destructive",
+            title: errorMsg,
+          });
       }
     }
   };
@@ -258,7 +298,12 @@ const ScheduleModal = ({
           setLoading(false);
         } catch (err) {
           setLoading(false);
-          toastError(err);
+                  const errorMsg =
+            err.response?.data?.message || err.response.data.error;
+          toast({
+            variant: "destructive",
+            title: errorMsg,
+          });
         }
       };
       const fetchUsers = async () => {
@@ -269,7 +314,12 @@ const ScheduleModal = ({
           setLoading(false);
         } catch (err) {
           setLoading(false);
-          toastError(err);
+                  const errorMsg =
+            err.response?.data?.message || err.response.data.error;
+          toast({
+            variant: "destructive",
+            title: errorMsg,
+          });
         }
       };
 

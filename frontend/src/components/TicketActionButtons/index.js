@@ -2,15 +2,17 @@ import React, { useContext, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
 import { AuthContext } from "../../context/Auth/AuthContext";
-import toastError from "../../errors/toastError";
+
 import api from "../../services/api";
 
 import TicketOptionsMenu from "../TicketOptionsMenu";
 import { Tooltip, TooltipContent, TooltipTrigger } from "../ui/tooltip";
 import { Check, EllipsisVertical, LoaderCircle, RotateCcw } from "lucide-react";
 import { Button } from "../ui/button";
+import { useToast } from "@/hooks/use-toast";
 
 const TicketActionButtons = ({ ticket }) => {
+  const { toast } = useToast();
   const navigate = useNavigate();
   const [anchorEl, setAnchorEl] = useState(null);
   const [loading, setLoading] = useState(false);
@@ -41,7 +43,11 @@ const TicketActionButtons = ({ ticket }) => {
       }
     } catch (err) {
       setLoading(false);
-      toastError(err);
+      const errorMsg = err.response?.data?.message || err.response.data.error;
+      toast({
+        variant: "destructive",
+        title: errorMsg,
+      });
     }
   };
 

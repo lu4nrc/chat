@@ -32,7 +32,7 @@ const SetTicketMessagesAsRead = async (ticket: Ticket): Promise<void> => {
   io.to(ticket.status).to("notification").emit("ticket", {
     action: "updateUnread",
     ticketId: ticket.id
-  });
+  }); 
 };
 
 export default SetTicketMessagesAsRead;

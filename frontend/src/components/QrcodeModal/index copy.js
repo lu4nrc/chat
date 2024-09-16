@@ -5,9 +5,11 @@ import openSocket from "../../services/socket-io";
 
 import { Dialog, DialogContent, Stack, Typography } from "@mui/material";
 import api from "../../services/api";
+import { useToast } from "@/hooks/use-toast";
 
 const QrcodeModal = ({ open, onClose, whatsAppId }) => {
   const [qrCode, setQrCode] = useState("");
+  const { toast } = useToast()
 
   useEffect(() => {
     const fetchSession = async () => {
@@ -17,7 +19,12 @@ const QrcodeModal = ({ open, onClose, whatsAppId }) => {
         const { data } = await api.get(`/whatsapp/${whatsAppId}`);
         setQrCode(data.qrcode);
       } catch (err) {
-        toastError(err);
+        const errorMsg =
+        err.response?.data?.message || err.response.data.error;
+      toast({
+        variant: "destructive",
+        title: errorMsg,
+      });
       }
     };
     fetchSession();

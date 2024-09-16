@@ -18,6 +18,7 @@ import { i18n } from "../../translate/i18n";
 import toastError from "../../errors/toastError";
 import api from "../../services/api";
 import ColorPicker from "../ColorPicker";
+import { useToast } from "@/hooks/use-toast";
 
 const QueueSchema = Yup.object().shape({
   name: Yup.string()
@@ -32,7 +33,7 @@ const QueueSchema = Yup.object().shape({
 });
 
 const QueueModal = ({ open, onClose, queueId }) => {
-  /* const classes = useStyles(); */
+  const { toast } = useToast()
 
   const initialState = {
     name: "",
@@ -53,7 +54,12 @@ const QueueModal = ({ open, onClose, queueId }) => {
           return { ...prevState, ...data };
         });
       } catch (err) {
-        toastError(err);
+        const errorMsg =
+        err.response?.data?.message || err.response.data.error;
+      toast({
+        variant: "destructive",
+        title: errorMsg,
+      });
       }
     })();
 
@@ -86,7 +92,12 @@ const QueueModal = ({ open, onClose, queueId }) => {
       });
       handleClose();
     } catch (err) {
-      toastError(err);
+      const errorMsg =
+      err.response?.data?.message || err.response.data.error;
+    toast({
+      variant: "destructive",
+      title: errorMsg,
+    });
     }
   };
 

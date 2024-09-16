@@ -1,6 +1,6 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import React, { useCallback, useEffect, useState, useReducer } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useOutletContext } from "react-router-dom";
 // import SearchIcon from "@mui/icons-material/Search";
 import Avatar from "@mui/material/Avatar";
 import Table from "@mui/material/Table";
@@ -25,6 +25,7 @@ import { WhatsappLogo } from "@phosphor-icons/react";
 import Button from "@mui/material/Button";
 import dayjs from "dayjs";
 import { DateRangePicker } from "@mui/x-date-pickers-pro";
+import { useToast } from "@/hooks/use-toast";
 
 const reducer = (state, action) => {
   if (action.type === "LOAD_CONTACTS") {
@@ -87,7 +88,7 @@ const Search = () => {
   const [hasMore, setHasMore] = useState(false);
   const [pageNumber, setPageNumber] = useState(1);
   const [status, setStatus] = useState(null);
-
+  const { toast } = useToast()
   // const handleSearch = (event) => {
   //   setSearchParam(event.target.value.toLowerCase());
   // };
@@ -118,7 +119,12 @@ const Search = () => {
           setHasMore(data.hasMore);
           setLoading(false);
         } catch (err) {
-          toastError(err);
+          const errorMsg =
+          err.response?.data?.message || err.response.data.error;
+        toast({
+          variant: "destructive",
+          title: errorMsg,
+        });
           setLoading(false);
         }
       };
@@ -157,7 +163,12 @@ const Search = () => {
         payload: data.chats,
       });
     } catch (err) {
-      toastError(err);
+      const errorMsg =
+      err.response?.data?.message || err.response.data.error;
+    toast({
+      variant: "destructive",
+      title: errorMsg,
+    });
     }
     setLoading(false);
   };
@@ -170,7 +181,12 @@ const Search = () => {
         setUsers(usersData.data.users);
         setQueue(queueData.data);
       } catch (err) {
-        toastError(err);
+        const errorMsg =
+        err.response?.data?.message || err.response.data.error;
+      toast({
+        variant: "destructive",
+        title: errorMsg,
+      });
       }
     };
     fetch();

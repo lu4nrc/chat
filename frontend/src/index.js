@@ -1,14 +1,13 @@
 import React from "react";
 import ReactDOM from "react-dom/client";
 import "./scrollbar.css";
-import App from "./App";
 
-import { BrowserRouter } from "react-router-dom";
-import { TooltipProvider } from "./components/ui/tooltip";
+import "./index.css";
+import { RouterProvider } from "react-router-dom";
+
+
+import router from "./routes";
+
 ReactDOM.createRoot(document.getElementById("root")).render(
-  <BrowserRouter>
-    <TooltipProvider>
-      <App />
-    </TooltipProvider>
-  </BrowserRouter>
+  <RouterProvider router={router} />
 );

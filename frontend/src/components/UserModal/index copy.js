@@ -28,6 +28,7 @@ import useWhatsApps from "../../hooks/useWhatsApps";
 import api from "../../services/api";
 import { Can } from "../Can";
 import QueueSelect from "../QueueSelect";
+import { useToast } from "@/hooks/use-toast";
 
 const UserSchema = Yup.object().shape({
   name: Yup.string()
@@ -55,6 +56,7 @@ const UserModal = ({ open, onClose, userId }) => {
   const [showPassword, setShowPassword] = useState(false);
   const [whatsappId, setWhatsappId] = useState(false);
   const { loading, whatsApps } = useWhatsApps();
+  const { toast } = useToast()
 
   useEffect(() => {
     const fetchUser = async () => {
@@ -68,7 +70,12 @@ const UserModal = ({ open, onClose, userId }) => {
         setSelectedQueueIds(userQueueIds);
         setWhatsappId(data.whatsappId ? data.whatsappId : "");
       } catch (err) {
-        toastError(err);
+        const errorMsg =
+        err.response?.data?.message || err.response.data.error;
+      toast({
+        variant: "destructive",
+        title: errorMsg,
+      });
       }
     };
 
@@ -90,7 +97,12 @@ const UserModal = ({ open, onClose, userId }) => {
       }
       toast.success("Usuário salvo");
     } catch (err) {
-      toastError(err);
+      const errorMsg =
+      err.response?.data?.message || err.response.data.error;
+    toast({
+      variant: "destructive",
+      title: errorMsg,
+    });
     }
     handleClose();
   };

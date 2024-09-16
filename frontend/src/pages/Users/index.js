@@ -22,6 +22,7 @@ import { PersonAdd, Search } from "@mui/icons-material";
 import { Stack, TableContainer, Typography } from "@mui/material";
 import { PencilSimple, Trash } from "@phosphor-icons/react";
 import ButtomCustom from "../../components/Shared/Buttons/ButtomCustom";
+import { useToast } from "@/hooks/use-toast";
 
 const reducer = (state, action) => {
   if (action.type === "LOAD_USERS") {
@@ -77,6 +78,7 @@ const Users = () => {
   const [confirmModalOpen, setConfirmModalOpen] = useState(false);
   const [searchParam, setSearchParam] = useState("");
   const [users, dispatch] = useReducer(reducer, []);
+  const { toast } = useToast()
 
   useEffect(() => {
     dispatch({ type: "RESET" });
@@ -95,7 +97,12 @@ const Users = () => {
           setHasMore(data.hasMore);
           setLoading(false);
         } catch (err) {
-          toastError(err);
+          const errorMsg =
+          err.response?.data?.message || err.response.data.error;
+        toast({
+          variant: "destructive",
+          title: errorMsg,
+        });
         }
       };
       fetchUsers();
@@ -150,7 +157,12 @@ const Users = () => {
         },
       });
     } catch (err) {
-      toastError(err);
+      const errorMsg =
+      err.response?.data?.message || err.response.data.error;
+    toast({
+      variant: "destructive",
+      title: errorMsg,
+    });
     }
     setDeletingUser(null);
     setSearchParam("");

@@ -19,6 +19,7 @@ import { i18n } from "../../translate/i18n";
 import { Stack } from "@mui/material";
 import toastError from "../../errors/toastError";
 import api from "../../services/api";
+import { useToast } from "@/hooks/use-toast";
 
 const ContactSchema = Yup.object().shape({
   name: Yup.string()
@@ -30,6 +31,7 @@ const ContactSchema = Yup.object().shape({
 });
 
 const ContactModal = ({ open, onClose, contactId, initialValues, onSave }) => {
+  const { toast } = useToast()
   const isMounted = useRef(true);
   const initialState = {
     name: "",
@@ -63,7 +65,12 @@ const ContactModal = ({ open, onClose, contactId, initialValues, onSave }) => {
           setContact(data);
         }
       } catch (err) {
-        toastError(err);
+        const errorMsg =
+        err.response?.data?.message || err.response.data.error;
+      toast({
+        variant: "destructive",
+        title: errorMsg,
+      });
       }
     };
 
@@ -94,7 +101,12 @@ const ContactModal = ({ open, onClose, contactId, initialValues, onSave }) => {
         },
       });
     } catch (err) {
-      toastError(err);
+      const errorMsg =
+      err.response?.data?.message || err.response.data.error;
+    toast({
+      variant: "destructive",
+      title: errorMsg,
+    });
     }
   };
 

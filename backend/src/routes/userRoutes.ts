@@ -2,10 +2,9 @@ import { Router } from "express";
 
 import isAuth from "../middleware/isAuth";
 import * as UserController from "../controllers/UserController";
-import uploadConfig from "../config/upload";
-import multer from "multer";
 
-const upload = multer(uploadConfig);
+import upload from "../middleware/upload"; 
+
 
 const userRoutes = Router();
 
@@ -19,9 +18,7 @@ userRoutes.put("/users/time/:userId", isAuth, UserController.updateTimer);
 
 //userRoutes.put("/users/status/:userId", isAuth, UserController.updateStatus);
 
-userRoutes.put("/users/image/:userId", isAuth, upload.single("fileupload"),
-    UserController.updateProfileImage);
-
+userRoutes.post("/users/profile-image/", upload.single("image"), UserController.updateProfileImage);
 
 userRoutes.get("/users/:userId", isAuth, UserController.show);
 

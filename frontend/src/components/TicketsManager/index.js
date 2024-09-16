@@ -10,7 +10,6 @@ import TicketsQueueSelect from "../TicketsQueueSelect";
 import { Button } from "../ui/button";
 import { LoaderCircle } from "lucide-react";
 import { Input } from "../ui/input";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "../ui/tabs";
 import { Switch } from "../ui/switch";
 import { Tooltip, TooltipContent, TooltipTrigger } from "../ui/tooltip";
 

@@ -20,6 +20,7 @@ import { i18n } from "../../translate/i18n";
 
 import toastError from "../../errors/toastError";
 import api from "../../services/api";
+import { useToast } from "@/hooks/use-toast";
 
 const QuickAnswerSchema = Yup.object().shape({
   shortcut: Yup.string()
@@ -39,7 +40,7 @@ const QuickAnswersModal = ({
   initialValues,
   onSave,
 }) => {
-  /* const classes = useStyles(); */
+  const { toast } = useToast()
   const isMounted = useRef(true);
 
   const initialState = {
@@ -71,7 +72,12 @@ const QuickAnswersModal = ({
           setQuickAnswer(data);
         }
       } catch (err) {
-        toastError(err);
+        const errorMsg =
+        err.response?.data?.message || err.response.data.error;
+      toast({
+        variant: "destructive",
+        title: errorMsg,
+      });
       }
     };
 
@@ -97,7 +103,12 @@ const QuickAnswersModal = ({
       }
       toast.success(i18n.t("quickAnswersModal.success"));
     } catch (err) {
-      toastError(err);
+      const errorMsg =
+      err.response?.data?.message || err.response.data.error;
+    toast({
+      variant: "destructive",
+      title: errorMsg,
+    });
     }
   };
 

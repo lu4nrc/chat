@@ -15,8 +15,11 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { ChevronDown, EllipsisVertical, Trash } from "lucide-react";
+import { useOutletContext } from "react-router-dom";
+import { useToast } from "@/hooks/use-toast";
 
 const TicketOptionsMenu = ({ ticket }) => {
+  const { toast } = useToast()
   const [open, setOpen] = useState(false);
   const [transferTicketModalOpen, setTransferTicketModalOpen] = useState(false);
   const isMounted = useRef(true);
@@ -32,7 +35,12 @@ const TicketOptionsMenu = ({ ticket }) => {
     try {
       await api.delete(`/tickets/${ticket.id}`);
     } catch (err) {
-      toastError(err);
+      const errorMsg =
+      err.response?.data?.message || err.response.data.error;
+    toast({
+      variant: "destructive",
+      title: errorMsg,
+    });
     }
   };
 

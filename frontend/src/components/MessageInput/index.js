@@ -6,7 +6,7 @@ import CircularProgress from "@mui/material/CircularProgress";
 import IconButton from "@mui/material/IconButton";
 import MicRecorder from "mic-recorder-to-mp3";
 import React, { useContext, useEffect, useRef, useState } from "react";
-import { useParams } from "react-router-dom";
+import { useOutletContext, useParams } from "react-router-dom";
 
 import CheckCircleOutlineIcon from "@mui/icons-material/CheckCircleOutline";
 
@@ -35,6 +35,7 @@ import { useTheme } from "../theme/theme-provider";
 import { Button } from "../ui/button";
 import { Tooltip, TooltipContent, TooltipTrigger } from "../ui/tooltip";
 import { Switch } from "../ui/switch";
+import { useToast } from "@/hooks/use-toast";
 
 const Mp3Recorder = new MicRecorder({ bitRate: 128 });
 
@@ -101,6 +102,7 @@ const MessageInput = ({ ticketStatus }) => {
   const { setReplyingMessage, replyingMessage } =
     useContext(ReplyMessageContext);
   const { user } = useContext(AuthContext);
+  const { toast } = useToast()
 
   const [signMessage, setSignMessage] = useLocalStorage("signOption", true);
 
@@ -167,7 +169,12 @@ const MessageInput = ({ ticketStatus }) => {
     try {
       await api.post(`/messages/${ticketId}`, formData);
     } catch (err) {
-      toastError(err);
+              const errorMsg =
+            err.response?.data?.message || err.response.data.error;
+          toast({
+            variant: "destructive",
+            title: errorMsg,
+          });
     }
 
     setLoading(false);
@@ -192,7 +199,12 @@ const MessageInput = ({ ticketStatus }) => {
     try {
       await api.post(`/messages/${ticketId}`, message);
     } catch (err) {
-      toastError(err);
+              const errorMsg =
+            err.response?.data?.message || err.response.data.error;
+          toast({
+            variant: "destructive",
+            title: errorMsg,
+          });
     }
 
     setInputMessage("");
@@ -209,7 +221,12 @@ const MessageInput = ({ ticketStatus }) => {
       setRecording(true);
       setLoading(false);
     } catch (err) {
-      toastError(err);
+              const errorMsg =
+            err.response?.data?.message || err.response.data.error;
+          toast({
+            variant: "destructive",
+            title: errorMsg,
+          });
       setLoading(false);
       setRecording(false);
     }
@@ -253,7 +270,12 @@ const MessageInput = ({ ticketStatus }) => {
 
       await api.post(`/messages/${ticketId}`, formData);
     } catch (err) {
-      toastError(err);
+              const errorMsg =
+            err.response?.data?.message || err.response.data.error;
+          toast({
+            variant: "destructive",
+            title: errorMsg,
+          });
     }
 
     setRecording(false);
@@ -265,7 +287,12 @@ const MessageInput = ({ ticketStatus }) => {
       await Mp3Recorder.stop().getMp3();
       setRecording(false);
     } catch (err) {
-      toastError(err);
+              const errorMsg =
+            err.response?.data?.message || err.response.data.error;
+          toast({
+            variant: "destructive",
+            title: errorMsg,
+          });
     }
   };
 

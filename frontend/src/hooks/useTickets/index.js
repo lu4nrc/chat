@@ -3,6 +3,8 @@ import { getHoursCloseTicketsAuto } from "../../config";
 import toastError from "../../errors/toastError";
 
 import api from "../../services/api";
+import { useOutletContext } from "react-router-dom";
+import { useToast } from "../use-toast";
 
 const useTickets = ({
     searchParam,
@@ -17,6 +19,7 @@ const useTickets = ({
     const [hasMore, setHasMore] = useState(false);
     const [tickets, setTickets] = useState([]);
     const [count, setCount] = useState(0);
+    const { toast } = useToast()
 
     useEffect(() => {
         setLoading(true);
@@ -59,7 +62,12 @@ const useTickets = ({
                     setLoading(false)
                 } catch (err) {
                     setLoading(false)
-                    toastError(err)
+                    const errorMsg =
+                    err.response?.data?.message || err.response.data.error;
+                  toast({
+                    variant: "destructive",
+                    title: errorMsg,
+                  });
                 }
             }
 

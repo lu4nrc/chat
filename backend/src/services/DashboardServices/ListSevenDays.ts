@@ -18,6 +18,7 @@ interface Response {
   media: any;
   queues: any;
   users: any;
+  outin: any;
 }
 
 const ListSevenDays = async (): Promise<Response> => {
@@ -25,7 +26,7 @@ const ListSevenDays = async (): Promise<Response> => {
     {
       model: User,
       as: "user",
-      attributes: ["id", "name"]
+      attributes: ["id", "name", "imageUrl"]
     },
     {
       model: Contact,
@@ -131,6 +132,7 @@ const ListSevenDays = async (): Promise<Response> => {
         } else {
           acc.users.push({
             id: userId,
+            imageUrl: current.user?.imageUrl,
             user_name: current.user?.name || "Sem usuário",
             total: 1,
             open: status === "open" ? 1 : 0,
@@ -162,7 +164,7 @@ const ListSevenDays = async (): Promise<Response> => {
         acc.queues.push({
           id: queueIdKey,
           queue_name: queueName,
-          fill: current.queue ? current.queue.color : "hsl(0, 0%, 90%)",
+          fill: current.queue ? current.queue.color : "hsl(347, 76%, 50%)",
           total: 1,
           open: status === "open" ? 1 : 0,
           pending: status === "pending" ? 1 : 0,
@@ -203,8 +205,6 @@ const ListSevenDays = async (): Promise<Response> => {
     }
   );
 
- // console.log(grouped.outin);
-
   const sortedHours = grouped.today.sort(
     (a, b) => new Date(a.date) - new Date(b.date)
   );
@@ -214,7 +214,8 @@ const ListSevenDays = async (): Promise<Response> => {
     status: grouped.status,
     media: grouped.media,
     queues: grouped.queues,
-    users: grouped.users
+    users: grouped.users,
+    outin: grouped.outin
   };
 };
 

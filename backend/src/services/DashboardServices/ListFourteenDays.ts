@@ -18,6 +18,7 @@ interface Response {
   media: any;
   queues: any;
   users: any;
+  outin: any;
 }
 
 const ListSevenDays = async (): Promise<Response> => {
@@ -25,7 +26,7 @@ const ListSevenDays = async (): Promise<Response> => {
     {
       model: User,
       as: "user",
-      attributes: ["id", "name"]
+      attributes: ["id", "name", "imageUrl"]
     },
     {
       model: Contact,
@@ -63,14 +64,13 @@ const ListSevenDays = async (): Promise<Response> => {
         contactId,
         createdAt,
         acceptDate,
-        updatedAt
+        updatedAt,
+        isOutbound
       } = current;
 
- 
-      
       //? Group by Today
       const formattedCreatedAt = format(createdAt, "yyyy-MM-dd");
-      
+
       const todayEntry = acc.today.find(
         entry => entry.date === formattedCreatedAt
       );
@@ -81,6 +81,13 @@ const ListSevenDays = async (): Promise<Response> => {
           date: formattedCreatedAt,
           total: 1
         });
+      }
+
+      //?Grouped by ativoPassivo
+      if (isOutbound) {
+        acc.outin.outbound++;
+      } else {
+        acc.outin.inbound++;
       }
 
       //?Grouped by Status
@@ -124,6 +131,7 @@ const ListSevenDays = async (): Promise<Response> => {
         } else {
           acc.users.push({
             id: userId,
+            imageUrl: current.user?.imageUrl,
             user_name: current.user?.name || "Sem usuário",
             total: 1,
             open: status === "open" ? 1 : 0,
@@ -155,7 +163,7 @@ const ListSevenDays = async (): Promise<Response> => {
         acc.queues.push({
           id: queueIdKey,
           queue_name: queueName,
-          fill: current.queue ? current.queue.color : "hsl(0, 0%, 90%)",
+          fill: current.queue ? current.queue.color : "hsl(347, 76%, 50%)",
           total: 1,
           open: status === "open" ? 1 : 0,
           pending: status === "pending" ? 1 : 0,
@@ -181,6 +189,7 @@ const ListSevenDays = async (): Promise<Response> => {
       return acc;
     },
     {
+      outin: { outbound: 0, inbound: 0 },
       status: { total: 0, open: 0, pending: 0, closed: 0 },
       today: [],
       media: {
@@ -204,7 +213,8 @@ const ListSevenDays = async (): Promise<Response> => {
     status: grouped.status,
     media: grouped.media,
     queues: grouped.queues,
-    users: grouped.users
+    users: grouped.users,
+    outin: grouped.outin
   };
 };
 

@@ -17,7 +17,7 @@ import TableRow from "@mui/material/TableRow";
 
 import ListItem from "@mui/material/ListItem";
 
-import { Button, Card, Stack, styled, useTheme } from "@mui/material";
+import { Button, Card, Stack, styled} from "@mui/material";
 import Checkbox from "@mui/material/Checkbox";
 import { registerLocale } from "react-datepicker";
 import toastError from "../../errors/toastError";
@@ -34,19 +34,19 @@ import Queues from "../Queues";
 import QuickAnswers from "../QuickAnswers";
 import Tags from "../Tags";
 import Users from "../Users";
-
+import { useOutletContext } from "react-router-dom";
+import { useToast } from "@/hooks/use-toast";
 
 registerLocale("pt-br", ptBR);
 
-const StyledTimePicker = styled(TimePicker)(({ theme }) => ({
+/* const StyledTimePicker = styled(TimePicker)(({ theme }) => ({
   "& .MuiInputBase-root": {
     height: 34,
     maxWidth: 110,
   },
-}));
+})); */
 
 const TabPanel = (props) => {
-  
   const { children, index, value, ...other } = props;
   return (
     <Card role="tabpanel" hidden={value !== index} {...other} elevation={0}>
@@ -56,11 +56,10 @@ const TabPanel = (props) => {
 };
 
 const Settings = () => {
-  const theme = useTheme()
-
   const [settings, setSettings] = useState([]);
 
   const [openingHours, setOpeningHours] = useState({});
+  const { toast } = useToast();
 
   const replicateDays = (data) => {
     const { days } = data;
@@ -90,7 +89,11 @@ const Settings = () => {
           },
         });
       } catch (err) {
-        toastError(err);
+        const errorMsg = err.response?.data?.message || err.response.data.error;
+        toast({
+          variant: "destructive",
+          title: errorMsg,
+        });
       }
     };
     update();
@@ -102,7 +105,12 @@ const Settings = () => {
           const { data } = await api.get("/openinghours");
           setOpeningHours(data);
         } catch (err) {
-          toastError(err);
+          const errorMsg =
+            err.response?.data?.message || err.response.data.error;
+          toast({
+            variant: "destructive",
+            title: errorMsg,
+          });
         }
       };
       update();
@@ -113,7 +121,11 @@ const Settings = () => {
         const { data } = await api.get("/settings");
         setSettings(data);
       } catch (err) {
-        toastError(err);
+        const errorMsg = err.response?.data?.message || err.response.data.error;
+        toast({
+          variant: "destructive",
+          title: errorMsg,
+        });
       }
     };
     fetchSession();
@@ -154,7 +166,11 @@ const Settings = () => {
         },
       });
     } catch (err) {
-      toastError(err);
+      const errorMsg = err.response?.data?.message || err.response.data.error;
+      toast({
+        variant: "destructive",
+        title: errorMsg,
+      });
     }
   };
 
@@ -172,7 +188,6 @@ const Settings = () => {
   };
 
   return (
-    
     <div>
       <Stack p={2} spacing={2}>
         <Tabs
@@ -205,15 +220,10 @@ const Settings = () => {
                     <TableCell align="center">Configurações</TableCell>
                   </TableRow>
                 </TableHead>
-                <TableBody>
+               {/*  <TableBody>
                   {openingHours?.days?.length
                     ? openingHours?.days.map((day, i) => (
-                        <TableRow
-                          key={day.index}
-                          style={
-                            i % 2 === 0 ? {} : { backgroundColor: `${theme.palette.background.neutral}` }
-                          }
-                        >
+                        <TableRow>
                           <TableCell
                             component="th"
                             scope="row"
@@ -292,7 +302,7 @@ const Settings = () => {
                         </TableRow>
                       ))
                     : null}
-                </TableBody>
+                </TableBody> */}
               </Table>
 
               <Stack spacing={1}>

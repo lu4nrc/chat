@@ -1,15 +1,22 @@
 import React, { useEffect } from "react";
-import toastError from "../../errors/toastError";
 import { Button } from "../ui/button";
 
+import { useToast } from "@/hooks/use-toast";
+
 const LocationPreview = ({ image, link, description }) => {
+  const { toast } = useToast()
+
   useEffect(() => {}, [image, link, description]);
 
   const handleLocation = async () => {
     try {
       window.open(link);
     } catch (err) {
-      toastError(err);
+      const errorMsg = err.response?.data?.message || err.response.data.error;
+      toast({
+        variant: "destructive",
+        title: errorMsg,
+      });
     }
   };
 
@@ -52,7 +59,7 @@ const LocationPreview = ({ image, link, description }) => {
           )}
           <div style={{ display: "block", content: "", clear: "both" }}></div>
           <div>
-            <Button  onClick={handleLocation} disabled={!link}>
+            <Button onClick={handleLocation} disabled={!link}>
               Visualizar
             </Button>
           </div>

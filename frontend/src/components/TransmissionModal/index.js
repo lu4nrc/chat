@@ -151,7 +151,12 @@ const TransmissionModal = ({ open, onClose, transmission }) => {
           dispatch({ type: "LOAD_CONTACTS", payload: data.contacts });
           setLoading(false);
         } catch (err) {
-          toastError(err);
+          const errorMsg =
+          err.response?.data?.message || err.response.data.error;
+        toast({
+          variant: "destructive",
+          title: errorMsg,
+        });
         }
       };
       fetchContacts();
@@ -313,7 +318,12 @@ const TransmissionModal = ({ open, onClose, transmission }) => {
       handleClose();
     } catch (err) {
       handleClose();
-      toastError(err);
+      const errorMsg =
+      err.response?.data?.message || err.response.data.error;
+    toast({
+      variant: "destructive",
+      title: errorMsg,
+    });
     }
   };
 

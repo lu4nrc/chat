@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
 import { getIO } from "../libs/socket";
-
+import fs from "fs";
 import CheckSettingsHelper from "../helpers/CheckSettings";
 import AppError from "../errors/AppError";
 
@@ -9,12 +9,13 @@ import ListUsersService from "../services/UserServices/ListUsersService";
 import ResetPassService from "../services/UserServices/ResetPassUserService";
 import UpdateUserService from "../services/UserServices/UpdateUserService";
 
-
 import ShowUserService from "../services/UserServices/ShowUserService";
 import DeleteUserService from "../services/UserServices/DeleteUserService";
 import UpdateProfileImageService from "../services/UserServices/UpdateProfileImageService";
 import UpdateStatusUserService from "../services/UserServices/UpdateStatusUserService";
 import UpdateDatetimeUserService from "../services/UserServices/UpdateDatetimeUserService";
+import sharp from "sharp";
+import path from "path";
 
 type IndexQuery = {
   searchParam: string;
@@ -33,7 +34,8 @@ export const index = async (req: Request, res: Response): Promise<Response> => {
 };
 
 export const store = async (req: Request, res: Response): Promise<Response> => {
-  const { email, password, name, profile, queueIds, whatsappId } = req.body;
+  const { email, password, name, profile, queueIds, whatsappId, imageUrl } =
+    req.body;
 
   if (
     req.url === "/signup" &&
@@ -50,7 +52,8 @@ export const store = async (req: Request, res: Response): Promise<Response> => {
     name,
     profile,
     queueIds,
-    whatsappId
+    whatsappId,
+    imageUrl
   });
 
   const io = getIO();
@@ -61,7 +64,6 @@ export const store = async (req: Request, res: Response): Promise<Response> => {
 
   return res.status(200).json(user);
 };
-
 
 export const reset = async (req: Request, res: Response): Promise<Response> => {
   const { email } = req.body;
@@ -104,17 +106,67 @@ export const updateProfileImage = async (
   res: Response
 ): Promise<Response> => {
   const { userId } = req.params;
-  const image = req.file as Express.Multer.File;
-  await UpdateProfileImageService({ imageUrl: image.filename, userId });
 
-  return res.status(200).json({});
+  // Verifica se o arquivo foi enviado corretamente
+  if (!req.file) {
+    throw new AppError("ERR_NO_FILE_UPLOADED", 400);
+  }
+
+  const filePath = req.file.path; // Caminho do arquivo salvo pelo multer
+  const compressedFilePath = path.resolve(
+    __dirname,
+    "..",
+    "..",
+    "public",
+    "uploads",
+    `${Date.now()}-compressed-${req.file.originalname}`
+  );
+
+  try {
+    // Processa e comprime a imagem com sharp
+    const compressedBuffer = await sharp(filePath)
+      .resize(Number(process.env.WIDTH) || 350, Number(process.env.HEIGHT) || 350, {
+        fit: "inside",
+        withoutEnlargement: true
+      })
+      .toFormat("jpeg", {
+        progressive: true,
+        quality: 90
+      })
+      .toBuffer();
+
+    // Salva a imagem comprimida no lugar do arquivo original ou em outro caminho
+    fs.writeFileSync(compressedFilePath, compressedBuffer);
+
+    // Deleta a imagem original, se necessário
+    fs.unlinkSync(filePath);
+
+    // Cria a URL da imagem comprimida
+    const imageUrl = path.basename(compressedFilePath);
+
+    // Atualiza o perfil de usuário com a URL da nova imagem
+    if (userId) await UpdateProfileImageService({ imageUrl, userId });
+
+    return res
+      .status(200)
+      .json({ message: "Imagem de perfil atualizada com sucesso!", imageUrl });
+  } catch (error) {
+    console.error("Error processing image:", error.message);
+
+    // Limpa o arquivo original se houver erro
+    if (fs.existsSync(filePath)) {
+      fs.unlinkSync(filePath);
+    }
+
+    throw new AppError("ERR_PROCESSING_IMAGE", 500);
+  }
 };
 
 export const updateTimer = async (
   req: Request,
   res: Response
 ): Promise<Response> => {
-  const { userId} = req.params;
+  const { userId } = req.params;
   await UpdateDatetimeUserService({ userId });
   return res.status(200).json({});
 };

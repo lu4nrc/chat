@@ -18,6 +18,7 @@ interface Response {
   media: any;
   queues: any;
   users: any;
+  outin: any;
 }
 
 const ListToday = async (): Promise<Response> => {
@@ -25,7 +26,7 @@ const ListToday = async (): Promise<Response> => {
     {
       model: User,
       as: "user",
-      attributes: ["id", "name"]
+      attributes: ["id", "name", "imageUrl"]
     },
     {
       model: Contact,
@@ -133,6 +134,7 @@ const ListToday = async (): Promise<Response> => {
         } else {
           acc.users.push({
             id: userId,
+            imageUrl: current.user?.imageUrl,
             user_name: current.user?.name || "Sem usuário",
             total: 1,
             open: status === "open" ? 1 : 0,
@@ -140,6 +142,7 @@ const ListToday = async (): Promise<Response> => {
             closed: status === "closed" ? 1 : 0,
             m_time: status === "closed" ? m_time : 0,
             m_time_avg: status === "closed" ? m_time : 0,
+            rating: 0,
             tickets: [current]
           });
         }
@@ -164,7 +167,7 @@ const ListToday = async (): Promise<Response> => {
         acc.queues.push({
           id: queueIdKey,
           queue_name: queueName,
-          fill: current.queue ? current.queue.color : "hsl(0, 0%, 90%)",
+          fill: current.queue ? current.queue.color : "hsl(347, 76%, 50%)",
           total: 1,
           open: status === "open" ? 1 : 0,
           pending: status === "pending" ? 1 : 0,
@@ -214,7 +217,8 @@ const ListToday = async (): Promise<Response> => {
     status: grouped.status,
     media: grouped.media,
     queues: grouped.queues,
-    users: grouped.users
+    users: grouped.users,
+    outin: grouped.outin
   };
 };
 

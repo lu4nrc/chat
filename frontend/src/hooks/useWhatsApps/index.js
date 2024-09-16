@@ -3,6 +3,8 @@ import openSocket from "../../services/socket-io";
 import toastError from "../../errors/toastError";
 
 import api from "../../services/api";
+import { useOutletContext } from "react-router-dom";
+import { useToast } from "../use-toast";
 const reducer = (state, action) => {
 	if (action.type === "LOAD_WHATSAPPS") {
 		const whatsApps = action.payload;
@@ -55,6 +57,7 @@ const reducer = (state, action) => {
 const useWhatsApps = () => {
 	const [whatsApps, dispatch] = useReducer(reducer, []);
 	const [loading, setLoading] = useState(true);
+	const { toast } = useToast()
 
 	useEffect(() => {
 		setLoading(true);
@@ -67,7 +70,12 @@ const useWhatsApps = () => {
 			} catch (err) {
 				
 				setLoading(false);
-				toastError(err);
+				const errorMsg =
+				err.response?.data?.message || err.response.data.error;
+			  toast({
+				variant: "destructive",
+				title: errorMsg,
+			  });
 			}
 		};
 		fetchSession();

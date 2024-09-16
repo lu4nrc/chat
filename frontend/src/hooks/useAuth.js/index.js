@@ -1,15 +1,15 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import openSocket from "../../services/socket-io";
-import { toast } from "react-toastify";
 
 import { i18n } from "../../translate/i18n";
 import api from "../../services/api";
-import toastError from "../../errors/toastError";
+import { useToast } from "../use-toast";
 
 var interval = null;
 const useAuth = () => {
   const navigate = useNavigate();
+  const { toast } = useToast();
   const [isAuth, setIsAuth] = useState(false);
   const [loading, setLoading] = useState(true);
   const [user, setUser] = useState({});
@@ -63,7 +63,12 @@ const useAuth = () => {
           setIsAuth(true);
           setUser(data.user);
         } catch (err) {
-          toastError(err);
+          const errorMsg =
+            err.response?.data?.message || err.response.data.error;
+          toast({
+            variant: "destructive",
+            title: errorMsg,
+          });
         }
       }
       setLoading(false);
@@ -94,16 +99,19 @@ const useAuth = () => {
       api.defaults.headers.Authorization = `Bearer ${data.token}`;
       setUser(data.user);
       setIsAuth(true);
-      toast.success(i18n.t("auth.toasts.success"), {
-        style: {
-          backgroundColor: "#D4EADD",
-          color: "#64A57B",
-        },
+      toast({
+        variant: "destructive",
+        title: i18n.t("auth.toasts.success"),
+        //description: "Friday, February 10, 2023 at 5:57 PM",
       });
       navigate("/tickets");
       setLoading(false);
     } catch (err) {
-      toastError(err);
+      const errorMsg = err.response?.data?.message || err.response.data.error;
+      toast({
+        variant: "destructive",
+        title: errorMsg,
+      });
       setLoading(false);
     }
   };
@@ -120,7 +128,11 @@ const useAuth = () => {
       clearInterval(interval);
       navigate("/login");
     } catch (err) {
-      toastError(err);
+      toast({
+        variant: "destructive",
+        title: "Ops, Algo deu errado!",
+        //description: "Friday, February 10, 2023 at 5:57 PM",
+      });
       setLoading(false);
     }
   };

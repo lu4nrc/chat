@@ -12,16 +12,23 @@ import { ReplyMessageContext } from "../../context/ReplyingMessage/ReplyingMessa
 import toastError from "../../errors/toastError";
 import api from "../../services/api";
 import { ChevronDown, MessageSquareReply, Trash } from "lucide-react";
+import { useOutletContext } from "react-router-dom";
+import { useToast } from "@/hooks/use-toast";
 
 const MessageOptionsMenu = ({ message }) => {
   const [open, setOpen] = useState(false);
   const { setReplyingMessage } = useContext(ReplyMessageContext);
-
+  const { toast } = useToast()
   const handleDeleteMessage = async () => {
     try {
       await api.delete(`/messages/${message.id}`);
     } catch (err) {
-      toastError(err);
+      const errorMsg =
+      err.response?.data?.message || err.response.data.error;
+    toast({
+      variant: "destructive",
+      title: errorMsg,
+    });
     }
   };
 

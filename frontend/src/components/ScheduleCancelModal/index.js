@@ -33,7 +33,12 @@ const ScheduleCancelModal = ({ handleClose, openStatus, value, callback }) => {
       callback();
       handleClose();
     } catch (err) {
-      toastError(err);
+      const errorMsg =
+      err.response?.data?.message || err.response.data.error;
+    toast({
+      variant: "destructive",
+      title: errorMsg,
+    });
     }
   };
 

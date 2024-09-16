@@ -35,6 +35,7 @@ import { WhatsAppsContext } from "../../context/WhatsApp/WhatsAppsContext";
 import toastError from "../../errors/toastError";
 import api from "../../services/api";
 import { i18n } from "../../translate/i18n";
+import { useToast } from "@/hooks/use-toast";
 
 const CustomToolTip = ({ title, content, children }) => {
   const theme = useTheme();
@@ -71,12 +72,18 @@ const Connections = () => {
   const [confirmModalInfo, setConfirmModalInfo] = useState(
     confirmationModalInitialState
   );
+  const { toast } = useToast()
 
   const handleStartWhatsAppSession = async (whatsAppId) => {
     try {
       await api.post(`/whatsappsession/${whatsAppId}`);
     } catch (err) {
-      toastError(err);
+      const errorMsg =
+      err.response?.data?.message || err.response.data.error;
+    toast({
+      variant: "destructive",
+      title: errorMsg,
+    });
     }
   };
 
@@ -84,7 +91,12 @@ const Connections = () => {
     try {
       await api.put(`/whatsappsession/${whatsAppId}`);
     } catch (err) {
-      toastError(err);
+      const errorMsg =
+      err.response?.data?.message || err.response.data.error;
+    toast({
+      variant: "destructive",
+      title: errorMsg,
+    });
     }
   };
 
@@ -134,7 +146,12 @@ const Connections = () => {
       try {
         await api.delete(`/whatsappsession/${confirmModalInfo.whatsAppId}`);
       } catch (err) {
-        toastError(err);
+        const errorMsg =
+        err.response?.data?.message || err.response.data.error;
+      toast({
+        variant: "destructive",
+        title: errorMsg,
+      });
       }
     }
 
@@ -148,7 +165,12 @@ const Connections = () => {
           },
         });
       } catch (err) {
-        toastError(err);
+        const errorMsg =
+        err.response?.data?.message || err.response.data.error;
+      toast({
+        variant: "destructive",
+        title: errorMsg,
+      });
       }
     }
 

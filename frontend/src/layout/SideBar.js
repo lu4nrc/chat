@@ -1,8 +1,6 @@
-import { useContext, useEffect, useState } from "react";
+import { useContext } from "react";
 
-import { Can } from "../components/Can";
 import { AuthContext, useAuthContext } from "../context/Auth/AuthContext";
-import { WhatsAppsContext } from "../context/WhatsApp/WhatsAppsContext";
 
 import {
   Gauge,
@@ -16,20 +14,21 @@ import {
   WifiOff,
 } from "lucide-react";
 
-import { NavLink } from "react-router-dom";
 import {
   Tooltip,
   TooltipContent,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import ModeToggle from "@/components/ModeToggle";
+import { Link } from "react-router-dom";
 
-const SideBar = (props) => {
-  const { whatsApps } = useContext(WhatsAppsContext);
-  const { user } = useContext(AuthContext);
-  const [connectionWarning, setConnectionWarning] = useState(false);
+
+const SideBar = ({ user }) => {
+
+
+  //const [connectionWarning, setConnectionWarning] = useState(false);
   const { handleLogout } = useAuthContext();
-  useEffect(() => {
+  /*   useEffect(() => {
     const delayDebounceFn = setTimeout(() => {
       if (whatsApps.length > 0) {
         const offlineWhats = whatsApps.filter((whats) => {
@@ -49,20 +48,20 @@ const SideBar = (props) => {
       }
     }, 2000);
     return () => clearTimeout(delayDebounceFn);
-  }, [whatsApps]);
+  }, [whatsApps]); */
 
   return (
     <nav className="flex flex-col items-center border-r  gap-4 px-2 sm:py-5 bg-muted">
       {user.profile === "admin" && (
         <Tooltip>
           <TooltipTrigger asChild>
-            <NavLink
+            <Link
               to="/"
               className="flex h-9 w-9 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:text-foreground md:h-9 md:w-9 aria-[current=page]:bg-primary aria-[current=page]:text-white   "
             >
               <Gauge className="h-6 w-6" />
               <span className="sr-only">Dashboard</span>
-            </NavLink>
+            </Link>
           </TooltipTrigger>
           <TooltipContent side="right">Dashboard</TooltipContent>
         </Tooltip>
@@ -70,53 +69,49 @@ const SideBar = (props) => {
 
       <Tooltip>
         <TooltipTrigger asChild>
-          <NavLink
+          <Link
             to="/connections"
             className="flex h-9 w-9 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:text-foreground md:h-9 md:w-9 aria-[current=page]:bg-primary aria-[current=page]:text-white"
           >
-            {connectionWarning ? (
-              <WifiOff className="h-6 w-6 text-red-400 " />
-            ) : (
-              <Wifi className="h-6 w-6 text-emerald-400 " />
-            )}
+            <Wifi className="h-6 w-6" />
             <span className="sr-only">Conexões</span>
-          </NavLink>
+          </Link>
         </TooltipTrigger>
         <TooltipContent side="right">Conexões</TooltipContent>
       </Tooltip>
       <Tooltip>
         <TooltipTrigger asChild>
-          <NavLink
+          <Link
             to="/tickets"
             className="flex h-9 w-9 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:text-foreground md:h-9 md:w-9 aria-[current=page]:bg-primary aria-[current=page]:text-white"
           >
             <MessageCircleMore className="h-6 w-6" />
             <span className="sr-only">Atendimentos</span>
-          </NavLink>
+          </Link>
         </TooltipTrigger>
         <TooltipContent side="right">Atendimentos</TooltipContent>
       </Tooltip>
       <Tooltip>
         <TooltipTrigger asChild>
-          <NavLink
+          <Link
             to="/contacts"
             className="flex h-9 w-9 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:text-foreground md:h-9 md:w-9 aria-[current=page]:bg-primary aria-[current=page]:text-white"
           >
             <NotebookText className="h-6 w-6" />
             <span className="sr-only">Contatos</span>
-          </NavLink>
+          </Link>
         </TooltipTrigger>
         <TooltipContent side="right">Contatos</TooltipContent>
       </Tooltip>
       <Tooltip>
         <TooltipTrigger asChild>
-          <NavLink
+          <Link
             to="/search"
             className="flex h-9 w-9 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:text-foreground md:h-9 md:w-9 aria-[current=page]:bg-primary aria-[current=page]:text-white"
           >
             <Search className="h-6 w-6" />
             <span className="sr-only">Pesquisar</span>
-          </NavLink>
+          </Link>
         </TooltipTrigger>
         <TooltipContent side="right">Pesquisar</TooltipContent>
       </Tooltip>
@@ -125,25 +120,25 @@ const SideBar = (props) => {
         <>
           <Tooltip>
             <TooltipTrigger asChild>
-              <NavLink
+              <Link
                 to="/panel"
                 className="flex h-9 w-9 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:text-foreground md:h-9 md:w-9 aria-[current=page]:bg-primary aria-[current=page]:text-white"
               >
                 <Monitor className="h-6 w-6" />
                 <span className="sr-only">Painel</span>
-              </NavLink>
+              </Link>
             </TooltipTrigger>
             <TooltipContent side="right">Painel</TooltipContent>
           </Tooltip>
           <Tooltip>
             <TooltipTrigger asChild>
-              <NavLink
+              <Link
                 to="/settings"
                 className="flex h-9 w-9 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:text-foreground md:h-9 md:w-9 aria-[current=page]:bg-primary aria-[current=page]:text-white"
               >
                 <Settings className="h-6 w-6" />
                 <span className="sr-only">Configurações</span>
-              </NavLink>
+              </Link>
             </TooltipTrigger>
             <TooltipContent side="right">Configurações</TooltipContent>
           </Tooltip>
@@ -151,13 +146,13 @@ const SideBar = (props) => {
           {/* //TODO: Lista de transmissao */}
           {/*               <Tooltip>
                 <TooltipTrigger asChild>
-                  <NavLink
+                  <Link
                     to="/transmission"
                     className="flex h-9 w-9 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:text-foreground md:h-9 md:w-9 aria-[current=page]:bg-primary aria-[current=page]:text-white"
                   >
                     <Ratio className="h-6 w-6" />
                     <span className="sr-only">Listas de transmissão</span>
-                  </NavLink>
+                  </Link>
                 </TooltipTrigger>
                 <TooltipContent side="right">
                   Listas de transmissão

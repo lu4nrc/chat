@@ -21,6 +21,8 @@ import {
   Trash,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { useOutletContext } from "react-router-dom";
+import { useToast } from "@/hooks/use-toast";
 
 const reducer = (state, action) => {
   if (action.type === "LOAD_MESSAGES") {
@@ -74,6 +76,7 @@ const MessagesList = ({ ticketId, isGroup }) => {
   const [hasMore, setHasMore] = useState(false);
   const [loading, setLoading] = useState(true);
   const lastMessageRef = useRef();
+  const { toast } = useToast()
 
   const [selectedMessage, setSelectedMessage] = useState({});
   const [anchorEl, setAnchorEl] = useState(null);
@@ -178,7 +181,12 @@ const MessagesList = ({ ticketId, isGroup }) => {
           setLoading(false);
         } catch (err) {
           setLoading(false);
-          toastError(err);
+          const errorMsg =
+          err.response?.data?.message || err.response.data.error;
+        toast({
+          variant: "destructive",
+          title: errorMsg,
+        });
         }
       };
       fetchMessages();

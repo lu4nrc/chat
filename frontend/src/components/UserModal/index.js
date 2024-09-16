@@ -74,7 +74,12 @@ const UserModal = ({ userId, isEdit }) => {
         setSelectedQueueIds(userQueueIds);
         setWhatsappId(data.whatsappId ? data.whatsappId : "");
       } catch (err) {
-        toastError(err);
+        const errorMsg =
+        err.response?.data?.message || err.response.data.error;
+      toast({
+        variant: "destructive",
+        title: errorMsg,
+      });
       }
     };
 
@@ -119,7 +124,12 @@ const UserModal = ({ userId, isEdit }) => {
       toast.success("Usuário salvo com sucesso!");
       setOpen(false);
     } catch (err) {
-      toastError(err);
+      const errorMsg =
+      err.response?.data?.message || err.response.data.error;
+    toast({
+      variant: "destructive",
+      title: errorMsg,
+    });
     }
   };
 

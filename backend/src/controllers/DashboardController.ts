@@ -15,20 +15,21 @@ type IndexQuery = {
 };
 
 export const index = async (req: Request, res: Response): Promise<Response> => {
-  const { today, status, queues, users, media } = await ListToday();
+  const { today, status, queues, users, media, outin } = await ListToday();
 
-  return res.status(200).json({ today, status, queues, users, media });
+  return res.status(200).json({ today, status, queues, users, media, outin });
 };
 export const seven = async (req: Request, res: Response): Promise<Response> => {
-  const { today, status, queues, users, media } = await ListSevenDays();
+  const { today, status, queues, users, media, outin } = await ListSevenDays();
 
-  return res.status(200).json({ today, status, queues, users, media });
+  return res.status(200).json({ today, status, queues, users, media, outin });
 };
 export const fourteen = async (
   req: Request,
   res: Response
 ): Promise<Response> => {
-  const { today, status, queues, users, media } = await ListFourteenDays();
+  const { today, status, queues, users, media, outin } =
+    await ListFourteenDays();
 
-  return res.status(200).json({ today, status, queues, users, media });
+  return res.status(200).json({ today, status, queues, users, media, outin });
 };

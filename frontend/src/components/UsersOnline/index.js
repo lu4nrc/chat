@@ -56,7 +56,12 @@ const UsersOnline = () => {
           const { data } = await api.get("/users/");
           setUsers(data.users);
         } catch (err) {
-          toastError(err);
+          const errorMsg =
+          err.response?.data?.message || err.response.data.error;
+        toast({
+          variant: "destructive",
+          title: errorMsg,
+        });
         }
       };
       fetchUsers();
@@ -67,7 +72,12 @@ const UsersOnline = () => {
           const { data } = await api.get("/users/");
           setUsers(data.users);
         } catch (err) {
-          toastError(err);
+          const errorMsg =
+          err.response?.data?.message || err.response.data.error;
+        toast({
+          variant: "destructive",
+          title: errorMsg,
+        });
         }
       };
       fetchUsers();

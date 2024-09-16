@@ -25,6 +25,7 @@ import TableRowSkeleton from "../../components/TableRowSkeleton";
 import toastError from "../../errors/toastError";
 import api from "../../services/api";
 import { i18n } from "../../translate/i18n";
+import { useToast } from "@/hooks/use-toast";
 
 const reducer = (state, action) => {
   if (action.type === "LOAD_QUEUES") {
@@ -70,7 +71,7 @@ const reducer = (state, action) => {
 };
 
 const Queues = () => {
-  /*   const classes = useStyles(); */
+  const { toast } = useToast()
 
   const [queues, dispatch] = useReducer(reducer, []);
   const [loading, setLoading] = useState(false);
@@ -88,7 +89,12 @@ const Queues = () => {
 
         setLoading(false);
       } catch (err) {
-        toastError(err);
+        const errorMsg =
+        err.response?.data?.message || err.response.data.error;
+      toast({
+        variant: "destructive",
+        title: errorMsg,
+      });
         setLoading(false);
       }
     })();
@@ -142,7 +148,12 @@ const Queues = () => {
         },
       });
     } catch (err) {
-      toastError(err);
+      const errorMsg =
+      err.response?.data?.message || err.response.data.error;
+    toast({
+      variant: "destructive",
+      title: errorMsg,
+    });
     }
     setSelectedQueue(null);
   };

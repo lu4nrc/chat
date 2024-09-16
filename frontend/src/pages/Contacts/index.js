@@ -133,7 +133,12 @@ const Contacts = () => {
       });
       navigate(`/tickets/${ticket.id}`);
     } catch (err) {
-      toastError(err);
+      const errorMsg =
+      err.response?.data?.message || err.response.data.error;
+    toast({
+      variant: "destructive",
+      title: errorMsg,
+    });
     }
     setLoading(false);
   };
@@ -167,7 +172,12 @@ const Contacts = () => {
         },
       });
     } catch (err) {
-      toastError(err);
+      const errorMsg =
+      err.response?.data?.message || err.response.data.error;
+    toast({
+      variant: "destructive",
+      title: errorMsg,
+    });
     }
     setDeletingContact(null);
     setSearchParam("");
@@ -179,7 +189,12 @@ const Contacts = () => {
       await api.post("/contacts/import");
       navigate.go(0);
     } catch (err) {
-      /* toastError(err); */
+      const errorMsg =
+      err.response?.data?.message || err.response.data.error;
+    toast({
+      variant: "destructive",
+      title: errorMsg,
+    });
     }
   };
 

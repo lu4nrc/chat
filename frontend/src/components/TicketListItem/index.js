@@ -8,7 +8,12 @@ import {
   startOfDay,
   subDays,
 } from "date-fns";
-import { useNavigate, useParams } from "react-router-dom";
+import {
+  Link,
+  useNavigate,
+  useOutletContext,
+  useParams,
+} from "react-router-dom";
 import MarkdownWrapper from "../MarkdownWrapper";
 import api from "../../services/api";
 
@@ -20,18 +25,19 @@ import { ChevronRight, Clock, LoaderCircle, Smile } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
 import { Tooltip, TooltipContent, TooltipTrigger } from "../ui/tooltip";
 import { cn } from "@/lib/utils";
+import { useToast } from "@/hooks/use-toast";
 
-const TicketListItem = memo(({ ticket, setFilter }) => {
+const TicketListItem = memo(({ ticket, setFilter, handleSelectTicket }) => {
+  const { toast } = useToast();
+  let { ticketId } = useParams();
+
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
-  const { ticketId } = useParams();
   const isMounted = useRef(true);
   const { user } = useContext(AuthContext);
   const [currentTicket, setCurrentTicket] = useState(ticket);
   const openPoppover = false;
   const queueColor = currentTicket.queue?.color || null;
- // console.log("user: ", user);
-  //console.log("ticket: ", ticket);
 
   const handleAcepptTicket = async (id) => {
     setLoading(true);
@@ -42,7 +48,11 @@ const TicketListItem = memo(({ ticket, setFilter }) => {
       });
     } catch (err) {
       setLoading(false);
-      toastError(err);
+      const errorMsg = err.response?.data?.message || err.response.data.error;
+      toast({
+        variant: "destructive",
+        title: errorMsg,
+      });
     }
     if (isMounted.current) {
       setLoading(false);
@@ -50,14 +60,14 @@ const TicketListItem = memo(({ ticket, setFilter }) => {
     navigate(`/tickets/${id}`);
   };
 
-  const spyMessages = (id) => {
+  /*   const spyMessages = (id) => {
     navigate(`/tickets/${id}`);
-  };
+  }; */
 
-  const handleSelectTicket = (id) => {
+  /*   const handleSelectTicket = (id) => {
     setFilter("");
     navigate(`/tickets/${id}`);
-  };
+  }; */
   const [anchorEl, setAnchorEl] = useState(null);
 
   const handleClick = (event) => {
@@ -101,12 +111,22 @@ const TicketListItem = memo(({ ticket, setFilter }) => {
 
   return (
     <div
-      className="group/item flex pl-1 items-center gap-1 hover:bg-muted"
+      className={cn(
+        "group/item flex pl-1 items-center gap-1 hover:bg-muted",
+        ticketId === ticket.id ? "bg-muted" : ""
+      )}
       key={currentTicket.id}
       onClick={(e) => {
+        handleSelectTicket(ticket.id)
+       /*  console.log("navigate")
+        e.preventDefault();
+        navigate(`/tickets/${ticket.id}`); */
+      }}
+      //to={`/tickets/${ticket.id}`}
+      /*  onClick={(e) => {
         if (currentTicket.status === "pending") spyMessages(ticket.id);
         handleSelectTicket(ticket.id);
-      }}
+      }} */
       // selected={ticketId && +ticketId === currentTicket.id}
     >
       <Tooltip>

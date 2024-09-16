@@ -1,20 +1,15 @@
 import React from "react";
-import { useParams } from "react-router-dom";
 
-import Ticket from "../../components/Ticket/";
 import TicketsManager from "../../components/TicketsManager/";
 import chat from "../../assets/chat.svg";
-
+import { Outlet } from "react-router-dom";
 const Chat = () => {
-  const { ticketId } = useParams();
-
   return (
     <div className="grid md:grid-cols-[320px_1fr] lg:grid-cols-[420px_1fr]">
       <TicketsManager />
 
-      {ticketId ? (
-        <Ticket />
-      ) : (
+      <Outlet />
+      {/*       ) : (
         <div className="hidden md:flex flex-col items-center justify-center h-full bg-muted">
           <img
             className="h-[300px]  md:h-[420px]"
@@ -27,7 +22,7 @@ const Chat = () => {
             <strong>Escolha um para começar!</strong>
           </span>
         </div>
-      )}
+      )} */}
     </div>
   );
 };

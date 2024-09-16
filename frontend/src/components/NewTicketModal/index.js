@@ -1,5 +1,5 @@
 import React, { useContext, useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useOutletContext } from "react-router-dom";
 
 import {
   Dialog,
@@ -22,8 +22,10 @@ import formatarNumeroTelefone from "../../utils/numberFormat";
 
 import { MessageSquarePlus } from "lucide-react";
 import ComboboxContact from "../ui/combobox-Contact";
+import { useToast } from "@/hooks/use-toast";
 
 const NewTicketModal = () => {
+  const { toast } = useToast()
   const navigate = useNavigate();
   const [open, setOpen] = useState(false);
 
@@ -47,7 +49,12 @@ const NewTicketModal = () => {
       setSelectedContact("");
       navigate(`/tickets/${ticket.id}`);
     } catch (err) {
-      toastError(err);
+      const errorMsg =
+      err.response?.data?.message || err.response.data.error;
+    toast({
+      variant: "destructive",
+      title: errorMsg,
+    });
     }
     setLoading(false);
     setOpen(false);

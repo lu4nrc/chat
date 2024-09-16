@@ -42,7 +42,12 @@ const Transmission = () => {
       setTransmissions(data);
       setLoading(false);
     } catch (err) {
-      toastError(err);
+      const errorMsg =
+      err.response?.data?.message || err.response.data.error;
+    toast({
+      variant: "destructive",
+      title: errorMsg,
+    });
     }
   };
   useEffect(() => {
@@ -78,7 +83,12 @@ const Transmission = () => {
       });
       fetchContacts();
     } catch (err) {
-      toastError(err);
+      const errorMsg =
+      err.response?.data?.message || err.response.data.error;
+    toast({
+      variant: "destructive",
+      title: errorMsg,
+    });
     }
   };
   const sendTransmission = async (id) => {
@@ -111,7 +121,12 @@ const Transmission = () => {
         });
       }
     } catch (err) {
-      toastError(err);
+      const errorMsg =
+      err.response?.data?.message || err.response.data.error;
+    toast({
+      variant: "destructive",
+      title: errorMsg,
+    });
     }
     setSendLoading(false);
     setTransmissionId(null);

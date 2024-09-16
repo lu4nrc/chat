@@ -1,5 +1,5 @@
 import React, { useContext, useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useOutletContext } from "react-router-dom";
 import toastError from "../../errors/toastError";
 import api from "../../services/api";
 
@@ -10,8 +10,10 @@ import Typography from "@mui/material/Typography";
 import { AuthContext } from "../../context/Auth/AuthContext";
 
 import { Button, Divider } from "@mui/material";
+import { useToast } from "@/hooks/use-toast";
 
 const VcardPreview = ({ contact, numbers }) => {
+  const { toast } = useToast()
   const navigate = useNavigate();
   const { user } = useContext(AuthContext);
 
@@ -36,8 +38,12 @@ const VcardPreview = ({ contact, numbers }) => {
           const { data } = await api.post("/contact", contactObj);
           setContact(data);
         } catch (err) {
-          console.log(err);
-          toastError(err);
+          const errorMsg =
+          err.response?.data?.message || err.response.data.error;
+        toast({
+          variant: "destructive",
+          title: errorMsg,
+        });
         }
       };
       fetchContacts();
@@ -54,7 +60,12 @@ const VcardPreview = ({ contact, numbers }) => {
       });
       navigate(`/tickets/${ticket.id}`);
     } catch (err) {
-      toastError(err);
+      const errorMsg =
+      err.response?.data?.message || err.response.data.error;
+    toast({
+      variant: "destructive",
+      title: errorMsg,
+    });
     }
   };
 

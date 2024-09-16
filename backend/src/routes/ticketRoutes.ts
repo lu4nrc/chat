@@ -7,6 +7,9 @@ const ticketRoutes = express.Router();
 
 ticketRoutes.get("/tickets", isAuth, TicketController.index);
 
+//new route to get tickets for panel
+ticketRoutes.get("/tickets/allOpen", isAuth, TicketController.allOpen);
+
 //new route to get tickets with pagination
 ticketRoutes.get("/tickets/custom", isAuth, TicketController.fullfilter);
 

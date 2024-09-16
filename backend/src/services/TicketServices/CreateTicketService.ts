@@ -26,10 +26,21 @@ const CreateTicketService = async ({
 
   const { isGroup } = await ShowContactService(contactId);
 
-  if (queueId === undefined) {
+  if (!queueId) {
     const user = await User.findByPk(userId, { include: ["queues"] });
-    queueId = user?.queues.length === 1 ? user.queues[0].id : undefined;
+
+    if (!user) {
+      console.log("Usuário não encontrado.");
+      queueId = undefined;
+    } else if (user.queues && user.queues.length > 0) {
+      queueId = user.queues[0].id;
+    } else {
+      console.log("Usuário sem filas associadas.");
+      queueId = undefined;
+    }
   }
+
+  console.log("AQUI: ", queueId);
 
   const durationDate = new Date();
   const { id }: Ticket = await defaultWhatsapp.$create("ticket", {
@@ -46,6 +57,8 @@ const CreateTicketService = async ({
   });
 
   const ticket = await Ticket.findByPk(id, { include: ["contact"] });
+
+  
 
   if (!ticket) {
     throw new AppError("ERR_CREATING_TICKET");
