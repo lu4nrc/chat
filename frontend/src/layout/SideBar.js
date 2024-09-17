@@ -88,7 +88,7 @@ const SideBar = ({ user }) => {
         </TooltipTrigger>
         <TooltipContent side="right">Atendimentos</TooltipContent>
       </Tooltip>
-     
+
       <Tooltip>
         <TooltipTrigger asChild>
           <Link
@@ -100,8 +100,8 @@ const SideBar = ({ user }) => {
           </Link>
         </TooltipTrigger>
         <TooltipContent side="right">Contatos</TooltipContent>
-      </Tooltip> 
-      
+      </Tooltip>
+
       {/*  
      <Tooltip>
         <TooltipTrigger asChild>
@@ -119,7 +119,7 @@ const SideBar = ({ user }) => {
 
       {user.profile === "admin" && (
         <>
-      {/*
+          {/*
            <Tooltip>
             <TooltipTrigger asChild>
               <Link
@@ -133,8 +133,8 @@ const SideBar = ({ user }) => {
             <TooltipContent side="right">Painel</TooltipContent>
           </Tooltip> 
           */}
-       {/*
-           <Tooltip>
+
+          <Tooltip>
             <TooltipTrigger asChild>
               <Link
                 to="/settings"
@@ -145,8 +145,7 @@ const SideBar = ({ user }) => {
               </Link>
             </TooltipTrigger>
             <TooltipContent side="right">Configurações</TooltipContent>
-          </Tooltip> 
-          */}
+          </Tooltip>
 
           {/* //TODO: Lista de transmissao */}
           {/*               <Tooltip>
