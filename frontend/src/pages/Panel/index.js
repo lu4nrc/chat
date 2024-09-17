@@ -9,16 +9,16 @@ import {
 } from "date-fns";
 import { ptBR } from "date-fns/locale";
 
-import toastError from "../../errors/toastError";
-
 import api from "../../services/api";
-import { Smile } from "lucide-react";
+import { Headset, Loader, Smile } from "lucide-react";
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import Lab from "./Lab";
 import { useOutletContext } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { cn } from "@/lib/utils";
 
 const reducer = (state, action) => {
   switch (action.type) {
@@ -116,7 +116,7 @@ const reducer = (state, action) => {
 };
 
 const PanelPage = () => {
-  const { toast } = useToast()
+  const { toast } = useToast();
   const [loading, setLoading] = useState(false);
 
   const [ticketsList, dispatch] = useReducer(reducer, []);
@@ -142,11 +142,11 @@ const PanelPage = () => {
         } catch (err) {
           setLoading(false);
           const errorMsg =
-          err.response?.data?.message || err.response.data.error;
-        toast({
-          variant: "destructive",
-          title: errorMsg,
-        });
+            err.response?.data?.message || err.response.data.error;
+          toast({
+            variant: "destructive",
+            title: errorMsg,
+          });
         }
       };
 
@@ -160,7 +160,7 @@ const PanelPage = () => {
     const socket = openSocket();
 
     socket.on("connect", () => {
-      socket.emit("joinTickets", 'open');
+      socket.emit("joinTickets", "open");
       socket.emit("joinTickets", "pending");
       socket.emit("joinNotification");
     });
@@ -265,7 +265,7 @@ const PanelPage = () => {
   }
   return (
     <>
-       <Lab /> 
+      {/* <Lab />  */}
       <div className="w-full h-screen flex flex-col p-2">
         <div className="flex items-center gap-2 pb-2">
           <h1 className="text-2xl font-semibold leading-none tracking-tight text-foreground">
@@ -274,12 +274,10 @@ const PanelPage = () => {
           <Badge className="ml-auto sm:ml-0">Beta</Badge>
         </div>
         <div className="grid grid-cols-6  gap-2 h-screen">
-          <div className="bg-muted col-span-2 rounded-sm">
-            <ListTicketStatus tickets={ByGroup.pending} status={"pending"} />
-          </div>
-          <div className="bg-muted col-span-2  rounded-sm">
-            <ListTicketStatus tickets={ByGroup.open} status={"open"} />
-          </div>
+          <ListTicketStatus tickets={ByGroup.pending} status={"pending"} />
+
+          <ListTicketStatus tickets={ByGroup.open} status={"open"} />
+
           <div className="bg-muted rounded-sm">
             <div>
               {Object.entries(ByGroup.byQueue).map(([key, value]) => (
@@ -311,11 +309,30 @@ function ListTicketStatus({ tickets, status }) {
   }
 
   return (
-    <>
-      {filteredTickets.map((el) => (
-        <ListContactItem key={el.id} ticket={el} status={status} />
-      ))}
-    </>
+    <div className="flex flex-col bg-muted col-span-2 rounded-sm">
+      <div className="flex gap-2">
+        <div
+          className={cn(
+            "flex justify-center items-center p-2 bg-yellow-100 rounded-full",
+            status === "open" ? "bg-sky-100" : "bg-yellow-100"
+          )}
+        >
+          {status === "open" ? (
+            <Headset className="text-sky-500 w-4 h-4" />
+          ) : (
+            <Loader className="text-yellow-500 w-4 h-4" />
+          )}
+        </div>
+        <h2 className="text-xl font-semibold pl-1 py-1">
+          {status === "open" ? "Em atendimento" : "Aguardando"}
+        </h2>
+      </div>
+      <ScrollArea className="h-[calc(100vh-150px)] w-full ">
+        {filteredTickets.map((el) => (
+          <ListContactItem key={el.id} ticket={el} status={status} />
+        ))}
+      </ScrollArea>
+    </div>
   );
 }
 

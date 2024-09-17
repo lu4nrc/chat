@@ -1,5 +1,4 @@
 import React, { useContext, useEffect, useState } from "react";
-import { toast } from "react-toastify";
 import { ErrorMessage, Field, Form, Formik } from "formik";
 import * as Yup from "yup";
 import { i18n } from "../../translate/i18n";
@@ -33,6 +32,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from "../ui/select";
+import { useToast } from "@/hooks/use-toast";
+import { description } from "@/pages/Dashboard/components/Outin";
 
 const UserSchema = Yup.object().shape({
   name: Yup.string()
@@ -45,7 +46,7 @@ const UserSchema = Yup.object().shape({
   email: Yup.string().email("Email inválido").required("Obrigatório"),
 });
 
-const UserModal = ({ userId, isEdit }) => {
+const UserModal = ({ userId, open, setOpen }) => {
   const initialState = {
     name: "",
     email: "",
@@ -55,16 +56,17 @@ const UserModal = ({ userId, isEdit }) => {
 
   const { user: loggedInUser } = useContext(AuthContext);
 
-  const [open, setOpen] = useState(false);
   const [user, setUser] = useState(initialState);
   const [selectedQueueIds, setSelectedQueueIds] = useState([]);
-  const [showPassword, setShowPassword] = useState(false);
+
   const [whatsappId, setWhatsappId] = useState(false);
   const { loading, whatsApps } = useWhatsApps();
+  const { toast } = useToast();
 
   useEffect(() => {
     const fetchUser = async () => {
-      if (!userId) return;
+      if (!userId) return setUser(initialState);
+
       try {
         const { data } = await api.get(`/users/${userId}`);
         setUser((prevState) => {
@@ -74,12 +76,12 @@ const UserModal = ({ userId, isEdit }) => {
         setSelectedQueueIds(userQueueIds);
         setWhatsappId(data.whatsappId ? data.whatsappId : "");
       } catch (err) {
-        const errorMsg =
-        err.response?.data?.message || err.response.data.error;
-      toast({
-        variant: "destructive",
-        title: errorMsg,
-      });
+        const errorMsg = err.response?.data?.message || err.response.data.error;
+
+        toast({
+          variant: "destructive",
+          title: errorMsg,
+        });
       }
     };
 
@@ -120,24 +122,30 @@ const UserModal = ({ userId, isEdit }) => {
         // Atualiza userId após criação
         setUser({ ...user, id: response.data.id });
       }
-
-      toast.success("Usuário salvo com sucesso!");
+      toast({
+        variant: "success",
+        title: "Usuário salvo com sucesso!",
+        description:
+          "Parabéns! Seu usuário foi criado com sucesso. Agora já pode aproveitar todas as funcionalidades. Bem-vindo a bordo!",
+      });
       setOpen(false);
     } catch (err) {
-      const errorMsg =
-      err.response?.data?.message || err.response.data.error;
-    toast({
-      variant: "destructive",
-      title: errorMsg,
-    });
+      const errorMsg = err.response?.data?.message || err.response.data.error;
+      const errorType = err.response?.data?.type || err.response.data.type;
+      toast({
+        variant: "destructive",
+        title: errorMsg,
+        description:
+          "Parece que esse e-mail já está sendo usado. Talvez você possa tentar outro?",
+      });
     }
   };
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger asChild>
+      {/* <DialogTrigger asChild>
         {isEdit ? <Edit /> : <Button>Criar novo usuário</Button>}
-      </DialogTrigger>
+      </DialogTrigger> */}
       <DialogContent className="sm:max-w-[612px]">
         <DialogHeader>
           <DialogTitle>Usuário</DialogTitle>
@@ -165,7 +173,11 @@ const UserModal = ({ userId, isEdit }) => {
                   helperText={touched.name && errors.name}
                 />
                 <ErrorMessage name="name">
-                  {(msg) => <div className="text-xs text-red-500 absolute bottom-0">{msg}</div>}
+                  {(msg) => (
+                    <div className="text-xs text-red-500 absolute bottom-0">
+                      {msg}
+                    </div>
+                  )}
                 </ErrorMessage>
               </div>
 
@@ -190,7 +202,11 @@ const UserModal = ({ userId, isEdit }) => {
                   helperText={touched.password && errors.password}
                 />
                 <ErrorMessage name="password">
-                  {(msg) => <div className="text-xs text-red-500 absolute bottom-0">{msg}</div>}
+                  {(msg) => (
+                    <div className="text-xs text-red-500 absolute bottom-0">
+                      {msg}
+                    </div>
+                  )}
                 </ErrorMessage>
               </div>
 
@@ -204,7 +220,11 @@ const UserModal = ({ userId, isEdit }) => {
                   helperText={touched.email && errors.email}
                 />
                 <ErrorMessage name="email">
-                  {(msg) => <div className="text-xs text-red-500 absolute bottom-0">{msg}</div>}
+                  {(msg) => (
+                    <div className="text-xs text-red-500 absolute bottom-0">
+                      {msg}
+                    </div>
+                  )}
                 </ErrorMessage>
               </div>
 
@@ -256,7 +276,6 @@ const UserModal = ({ userId, isEdit }) => {
                 />
               </div>
 
- 
               <div className="flex gap-2 w-full justify-end   col-span-2 pt-2">
                 <Button
                   onClick={handleClose}

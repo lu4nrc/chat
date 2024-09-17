@@ -98,7 +98,7 @@ const TicketsList = (props) => {
     updateCount,
     activeTab,
     filter,
-    setFilter,
+    setFilter
   } = props;
 
   const [pageNumber, setPageNumber] = useState(1);
@@ -107,7 +107,7 @@ const TicketsList = (props) => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    console.log("RESET");
+    console.log("RESET")
     dispatch({ type: "RESET" });
     setPageNumber(1);
   }, [status, searchParam, dispatch, showAll, selectedQueueIds]);
@@ -121,7 +121,7 @@ const TicketsList = (props) => {
   });
 
   useEffect(() => {
-    console.log("LOAD_TICKETS");
+    console.log("LOAD_TICKETS")
     if (!status && !searchParam) return;
     dispatch({
       type: "LOAD_TICKETS",
@@ -141,7 +141,7 @@ const TicketsList = (props) => {
       ticket.queueId && selectedQueueIds.indexOf(ticket.queueId) === -1;
 
     socket.on("connect", () => {
-      console.log("connect");
+      console.log("connect")
       if (status) {
         socket.emit("joinTickets", status);
       } else {
@@ -150,9 +150,8 @@ const TicketsList = (props) => {
     });
 
     socket.on("ticket", (data) => {
-      console.log("ticket");
+      console.log("updateUnread")
       if (data.action === "updateUnread") {
-        console.log("action: updateUnread");
         dispatch({
           type: "RESET_UNREAD",
           payload: data.ticketId,
@@ -160,7 +159,6 @@ const TicketsList = (props) => {
       }
 
       if (data.action === "update" && shouldUpdateTicket(data.ticket)) {
-        console.log("update && shouldUpdateTicket(data.ticket");
         dispatch({
           type: "UPDATE_TICKET",
           payload: data.ticket,
@@ -168,18 +166,16 @@ const TicketsList = (props) => {
       }
 
       if (data.action === "update" && notBelongsToUserQueues(data.ticket)) {
-        console.log("update && notBelongsToUserQueues(data.ticket)");
         dispatch({ type: "DELETE_TICKET", payload: data.ticket.id });
       }
 
       if (data.action === "delete") {
-        console.log("delete");
         dispatch({ type: "DELETE_TICKET", payload: data.ticketId });
       }
     });
 
     socket.on("appMessage", (data) => {
-      console.log("appMessage");
+      console.log("appMessage")
       if (data.action === "create" && shouldUpdateTicket(data.ticket)) {
         dispatch({
           type: "UPDATE_TICKET_UNREAD_MESSAGES",
@@ -189,7 +185,7 @@ const TicketsList = (props) => {
     });
 
     socket.on("contact", (data) => {
-      console.log("contact");
+      console.log("contact")
       if (data.action === "update") {
         dispatch({
           type: "UPDATE_TICKET_CONTACT",
@@ -234,6 +230,10 @@ const TicketsList = (props) => {
 
   if (activeTab !== status) return null;
 
+  function handleSelectTicket (ticketId) {
+    navigate(`/tickets/${ticketId}`)
+  }
+
   return (
     <div
       className="overflow-auto h-[calc(100vh-145px)]"
@@ -250,6 +250,7 @@ const TicketsList = (props) => {
           <TicketListItem
             ticket={ticket}
             key={ticket.id}
+            handleSelectTicket={handleSelectTicket}
             setFilter={setFilter}
           />
         ))

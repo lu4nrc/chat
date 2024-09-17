@@ -1,28 +1,18 @@
 import React, { useEffect, useReducer, useState } from "react";
-import { toast } from "react-toastify";
+
 import openSocket from "../../services/socket-io";
 
-import IconButton from "@mui/material/IconButton";
-import InputAdornment from "@mui/material/InputAdornment";
-import Table from "@mui/material/Table";
-import TableBody from "@mui/material/TableBody";
-import TableCell from "@mui/material/TableCell";
-import TableHead from "@mui/material/TableHead";
-import TableRow from "@mui/material/TableRow";
-import TextField from "@mui/material/TextField";
+import { Edit, Trash, Search } from "lucide-react";
+import { useToast } from "@/hooks/use-toast";
 
 import ConfirmationModal from "../../components/ConfirmationModal";
 import TableRowSkeleton from "../../components/TableRowSkeleton";
 import UserModal from "../../components/UserModal";
-import toastError from "../../errors/toastError";
 import api from "../../services/api";
 import { i18n } from "../../translate/i18n";
-
-import { PersonAdd, Search } from "@mui/icons-material";
-import { Stack, TableContainer, Typography } from "@mui/material";
-import { PencilSimple, Trash } from "@phosphor-icons/react";
-import ButtomCustom from "../../components/Shared/Buttons/ButtomCustom";
-import { useToast } from "@/hooks/use-toast";
+import { Table, TableCell, TableRow } from "@/components/ui/table";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 
 const reducer = (state, action) => {
   if (action.type === "LOAD_USERS") {
@@ -75,10 +65,11 @@ const Users = () => {
   const [selectedUser, setSelectedUser] = useState(null);
   const [deletingUser, setDeletingUser] = useState(null);
   const [userModalOpen, setUserModalOpen] = useState(false);
+
   const [confirmModalOpen, setConfirmModalOpen] = useState(false);
   const [searchParam, setSearchParam] = useState("");
   const [users, dispatch] = useReducer(reducer, []);
-  const { toast } = useToast()
+  const { toast } = useToast();
 
   useEffect(() => {
     dispatch({ type: "RESET" });
@@ -98,11 +89,11 @@ const Users = () => {
           setLoading(false);
         } catch (err) {
           const errorMsg =
-          err.response?.data?.message || err.response.data.error;
-        toast({
-          variant: "destructive",
-          title: errorMsg,
-        });
+            err.response?.data?.message || err.response.data.error;
+          toast({
+            variant: "destructive",
+            title: errorMsg,
+          });
         }
       };
       fetchUsers();
@@ -128,23 +119,18 @@ const Users = () => {
     };
   }, []);
 
-  const handleOpenUserModal = () => {
-    setSelectedUser(null);
-    setUserModalOpen(true);
-  };
-
-  const handleCloseUserModal = () => {
-    setSelectedUser(null);
-    setUserModalOpen(false);
-  };
-
   const handleSearch = (event) => {
     setSearchParam(event.target.value.toLowerCase());
   };
 
+  const handleCreateUser = () => {
+    setSelectedUser(null); // Limpa o estado
+    setUserModalOpen(true); // Abre o modal para criação
+  };
+
   const handleEditUser = (user) => {
-    setSelectedUser(user);
-    setUserModalOpen(true);
+    setSelectedUser(user); // Define o usuário a ser editado
+    setUserModalOpen(true); // Abre o modal para edição
   };
 
   const handleDeleteUser = async (userId) => {
@@ -157,102 +143,82 @@ const Users = () => {
         },
       });
     } catch (err) {
-      const errorMsg =
-      err.response?.data?.message || err.response.data.error;
-    toast({
-      variant: "destructive",
-      title: errorMsg,
-    });
+      const errorMsg = err.response?.data?.message || err.response.data.error;
+      toast({
+        variant: "destructive",
+        title: errorMsg,
+      });
     }
     setDeletingUser(null);
     setSearchParam("");
     setPageNumber(1);
   };
 
-  // const loadMore = () => {
-  //   setPageNumber((prevState) => prevState + 1);
-  // };
-
-  // const handleScroll = (e) => {
-  //   if (!hasMore || loading) return;
-  //   const { scrollTop, scrollHeight, clientHeight } = e.currentTarget;
-  //   if (scrollHeight - (scrollTop + 100) < clientHeight) {
-  //     loadMore();
-  //   }
-  // };
-
   return (
-    <Stack p={2}>
-      <Stack pt={0.5} spacing={2}>
-        <Typography variant="h5">Usuários</Typography>
-        <Stack direction={"row"} justifyContent={"space-between"}>
-          <TextField
-            size="small"
-            placeholder={i18n.t("contacts.searchPlaceholder")}
-            type="search"
-            value={searchParam}
-            onChange={handleSearch}
-            InputProps={{
-              startAdornment: (
-                <InputAdornment position="start">
-                  <Search style={{ color: "gray" }} />
-                </InputAdornment>
-              ),
-            }}
-          />
-
-          <UserModal
-            open={userModalOpen}
-            onClose={handleCloseUserModal}
-            aria-labelledby="form-dialog-title"
-            userId={selectedUser && selectedUser.id}
-          />
-        </Stack>
-        <Stack sx={{ width: "100%", overflow: "hidden" }}>
-          <TableContainer sx={{ maxHeight: `calc(100vh - 160px)` }}>
-            <Table stickyHeader size="small">
-              <TableHead>
-                <TableRow>
-                  <TableCell align="center">Nome</TableCell>
-                  <TableCell align="center">Email</TableCell>
-                  <TableCell align="center">Perfil</TableCell>
-                  <TableCell align="center">Conexão Padrão</TableCell>
-                  <TableCell align="center">Ações</TableCell>
-                </TableRow>
-              </TableHead>
-              <TableBody>
-                {users.map((user) => (
-                  <TableRow key={user.id}>
-                    <TableCell align="center">{user.name}</TableCell>
-                    <TableCell align="center">{user.email}</TableCell>
-                    <TableCell align="center">{user.profile}</TableCell>
-                    <TableCell align="center">{user.whatsapp?.name}</TableCell>
-                    <TableCell align="center">
-                      <IconButton
-                        size="small"
-                        onClick={() => handleEditUser(user)}
-                      >
-                        <PencilSimple size={24} />
-                      </IconButton>
-
-                      <IconButton
-                        size="small"
-                        onClick={(e) => {
-                          setConfirmModalOpen(true);
-                          setDeletingUser(user);
-                        }}
-                      >
-                        <Trash size={24} />
-                      </IconButton>
-                    </TableCell>
-                  </TableRow>
-                ))}
-                {loading && <TableRowSkeleton columns={4} />}
-              </TableBody>
-            </Table>
-          </TableContainer>
-        </Stack>
-      </Stack>
+    <div className="p-4">
+      <div className="flex justify-between mb-4">
+        <h1 className="text-xl font-semibold">Usuários</h1>
+        <UserModal
+          open={userModalOpen}
+          setOpen={setUserModalOpen}
+          userId={selectedUser && selectedUser.id}
+        />
+        <Button onClick={handleCreateUser}>Novo Usuário</Button>
+      </div>
+      <div className="flex justify-between mb-4">
+        <Input
+          placeholder={i18n.t("contacts.searchPlaceholder")}
+          type="search"
+          value={searchParam}
+          onChange={handleSearch}
+          className="w-full max-w-md"
+        />
+      </div>
+      <div className="overflow-hidden">
+        <Table>
+          <thead>
+            <TableRow>
+              <TableCell className="text-center">Nome</TableCell>
+              <TableCell className="text-center">Email</TableCell>
+              <TableCell className="text-center">Perfil</TableCell>
+              <TableCell className="text-center">Conexão Padrão</TableCell>
+              <TableCell className="text-center">Ações</TableCell>
+            </TableRow>
+          </thead>
+          <tbody>
+            {users.map((user) => (
+              <TableRow key={user.id}>
+                <TableCell className="text-center">{user.name}</TableCell>
+                <TableCell className="text-center">{user.email}</TableCell>
+                <TableCell className="text-center">{user.profile}</TableCell>
+                <TableCell className="text-center">
+                  {user.whatsapp?.name}
+                </TableCell>
+                <TableCell className="text-center flex justify-center space-x-2">
+                  <Button
+                    variant="ghost"
+                    onClick={() => handleEditUser(user)}
+                    size="sm"
+                  >
+                    <Edit className="h-4 w-4" />
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    onClick={() => {
+                      setConfirmModalOpen(true);
+                      setDeletingUser(user);
+                    }}
+                    size="sm"
+                  >
+                    <Trash className="h-4 w-4" />
+                  </Button>
+                </TableCell>
+              </TableRow>
+            ))}
+            {loading && <TableRowSkeleton columns={4} />}
+          </tbody>
+        </Table>
+      </div>
       <ConfirmationModal
         title={
           deletingUser &&
@@ -266,7 +232,7 @@ const Users = () => {
       >
         {i18n.t("users.confirmationModal.deleteMessage")}
       </ConfirmationModal>
-    </Stack>
+    </div>
   );
 };
 

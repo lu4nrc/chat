@@ -72,9 +72,10 @@ const TicketActionButtons = ({ ticket }) => {
 
             <Tooltip>
               <TooltipTrigger asChild>
+                {/*//! Aqui resolve muita coisa */}
                 <div
                   onClick={() =>
-                    handleUpdateTicketStatus("waitingRating", user?.id)
+                    handleUpdateTicketStatus("closed", user?.id)
                   }
                   className="flex h-9 w-9 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:text-foreground"
                 >

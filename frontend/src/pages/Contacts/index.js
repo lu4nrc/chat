@@ -133,12 +133,11 @@ const Contacts = () => {
       });
       navigate(`/tickets/${ticket.id}`);
     } catch (err) {
-      const errorMsg =
-      err.response?.data?.message || err.response.data.error;
-    toast({
-      variant: "destructive",
-      title: errorMsg,
-    });
+      const errorMsg = err.response?.data?.message || err.response.data.error;
+      toast({
+        variant: "destructive",
+        title: errorMsg,
+      });
     }
     setLoading(false);
   };
@@ -172,12 +171,11 @@ const Contacts = () => {
         },
       });
     } catch (err) {
-      const errorMsg =
-      err.response?.data?.message || err.response.data.error;
-    toast({
-      variant: "destructive",
-      title: errorMsg,
-    });
+      const errorMsg = err.response?.data?.message || err.response.data.error;
+      toast({
+        variant: "destructive",
+        title: errorMsg,
+      });
     }
     setDeletingContact(null);
     setSearchParam("");
@@ -185,16 +183,15 @@ const Contacts = () => {
   };
 
   const handleimportContact = async () => {
+    console.log("aqui");
     try {
       await api.post("/contacts/import");
       navigate.go(0);
     } catch (err) {
-      const errorMsg =
-      err.response?.data?.message || err.response.data.error;
-    toast({
-      variant: "destructive",
-      title: errorMsg,
-    });
+      toast({
+        variant: "destructive",
+        title: "Erro ao importar",
+      });
     }
   };
 
@@ -214,8 +211,10 @@ const Contacts = () => {
           onChange={handleSearch}
         />
         <div className="flex gap-1">
-          <Button>Importar contatos</Button>
-          <Button>Novo contato</Button>
+          <Button onClick={(e) => handleimportContact()}>
+            Importar contatos
+          </Button>
+          {/* <Button>Novo contato</Button> */}
         </div>
       </div>
 
@@ -267,6 +266,7 @@ const Contacts = () => {
                       <MessageSquarePlus className="h-4 w-4" />
                     </Button>
                     <Button
+                    disabled
                       variant="ghost"
                       onClick={() => hadleEditContact(contact.id)}
                     >
@@ -275,6 +275,7 @@ const Contacts = () => {
 
                     {user.profile === "admin" && (
                       <Button
+                      disabled
                         variant="ghost"
                         onClick={() => hadleEditContact(contact.id)}
                       >

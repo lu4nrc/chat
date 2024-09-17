@@ -313,13 +313,13 @@ const MessagesList = ({ ticketId, isGroup }) => {
 
   const renderMessageAck = (message) => {
     if (message.ack === 0) {
-      return <Clock size={18} color="grey" />;
+      return <Clock size={18} className="text-muted-foreground" />;
     }
     if (message.ack === 1) {
-      return <Check size={18} color="grey" />;
+      return <Check size={18} className="text-muted-foreground"  />;
     }
     if (message.ack === 2) {
-      return <CheckCheck size={18} color="grey" />;
+      return <CheckCheck size={18} className="text-muted-foreground"  />;
     }
     if (message.ack === 3 || message.ack === 4) {
       return <CheckCheck size={18} color="#00a86b" />;
@@ -462,8 +462,8 @@ const MessagesList = ({ ticketId, isGroup }) => {
                 className={cn(
                   "group w-fit md:max-w-[90%] flex flex-col relative rounded-xl text-base overflow-hidden justify-center items-start min-h-9 text-foreground ",
                   message.fromMe
-                    ? "bg-primary-foreground dark:border dark:bg-background rounded-br-none"
-                    : "bg-muted rounded-bl-none",
+                    ? "rounded-br-none bg-sky-100 text-sky-900 dark:text-muted-foreground dark:bg-slate-900 "
+                    : "bg-muted rounded-bl-none text-slate-800 dark:text-muted-foreground ",
                   message.mediaType === "chat" ? "p-2" : ""
                 )}
               >

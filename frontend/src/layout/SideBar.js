@@ -22,10 +22,7 @@ import {
 import ModeToggle from "@/components/ModeToggle";
 import { Link } from "react-router-dom";
 
-
 const SideBar = ({ user }) => {
-
-
   //const [connectionWarning, setConnectionWarning] = useState(false);
   const { handleLogout } = useAuthContext();
   /*   useEffect(() => {
@@ -91,6 +88,7 @@ const SideBar = ({ user }) => {
         </TooltipTrigger>
         <TooltipContent side="right">Atendimentos</TooltipContent>
       </Tooltip>
+     
       <Tooltip>
         <TooltipTrigger asChild>
           <Link
@@ -102,8 +100,10 @@ const SideBar = ({ user }) => {
           </Link>
         </TooltipTrigger>
         <TooltipContent side="right">Contatos</TooltipContent>
-      </Tooltip>
-      <Tooltip>
+      </Tooltip> 
+      
+      {/*  
+     <Tooltip>
         <TooltipTrigger asChild>
           <Link
             to="/search"
@@ -114,11 +114,13 @@ const SideBar = ({ user }) => {
           </Link>
         </TooltipTrigger>
         <TooltipContent side="right">Pesquisar</TooltipContent>
-      </Tooltip>
+      </Tooltip> 
+      */}
 
       {user.profile === "admin" && (
         <>
-          <Tooltip>
+      {/*
+           <Tooltip>
             <TooltipTrigger asChild>
               <Link
                 to="/panel"
@@ -129,8 +131,10 @@ const SideBar = ({ user }) => {
               </Link>
             </TooltipTrigger>
             <TooltipContent side="right">Painel</TooltipContent>
-          </Tooltip>
-          <Tooltip>
+          </Tooltip> 
+          */}
+       {/*
+           <Tooltip>
             <TooltipTrigger asChild>
               <Link
                 to="/settings"
@@ -141,7 +145,8 @@ const SideBar = ({ user }) => {
               </Link>
             </TooltipTrigger>
             <TooltipContent side="right">Configurações</TooltipContent>
-          </Tooltip>
+          </Tooltip> 
+          */}
 
           {/* //TODO: Lista de transmissao */}
           {/*               <Tooltip>

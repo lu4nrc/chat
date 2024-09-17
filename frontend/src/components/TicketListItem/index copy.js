@@ -27,7 +27,7 @@ import { Tooltip, TooltipContent, TooltipTrigger } from "../ui/tooltip";
 import { cn } from "@/lib/utils";
 import { useToast } from "@/hooks/use-toast";
 
-const TicketListItem = memo(({ ticket, setFilter }) => {
+const TicketListItem = memo(({ ticket, setFilter, handleSelectTicket }) => {
   const { toast } = useToast();
   let { ticketId } = useParams();
 
@@ -64,10 +64,10 @@ const TicketListItem = memo(({ ticket, setFilter }) => {
     navigate(`/tickets/${id}`);
   }; */
 
-  const handleSelectTicket = (id) => {
+  /*   const handleSelectTicket = (id) => {
     setFilter("");
     navigate(`/tickets/${id}`);
-  };
+  }; */
   const [anchorEl, setAnchorEl] = useState(null);
 
   const handleClick = (event) => {
@@ -117,7 +117,10 @@ const TicketListItem = memo(({ ticket, setFilter }) => {
       )}
       key={currentTicket.id}
       onClick={(e) => {
-        handleSelectTicket(ticket.id);
+        handleSelectTicket(ticket.id)
+       /*  console.log("navigate")
+        e.preventDefault();
+        navigate(`/tickets/${ticket.id}`); */
       }}
       //to={`/tickets/${ticket.id}`}
       /*  onClick={(e) => {

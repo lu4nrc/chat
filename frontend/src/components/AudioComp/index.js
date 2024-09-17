@@ -1,4 +1,4 @@
-import { Box, IconButton, Typography} from "@mui/material";
+import { Box, IconButton, Typography } from "@mui/material";
 import { Pause, Play } from "@phosphor-icons/react";
 import { useWavesurfer } from "@wavesurfer/react";
 import { useCallback, useRef, useState } from "react";
@@ -8,44 +8,48 @@ import { useCallback, useRef, useState } from "react";
 const formatTime = (seconds) => {
   const minutes = Math.floor(seconds / 60);
   const secs = Math.floor(seconds % 60);
-  return `${minutes}:${secs < 10 ? '0' + secs : secs}`;
+  return `${minutes}:${secs < 10 ? "0" + secs : secs}`;
 };
 
 const AudioComp = ({ audio }) => {
-  const containerRef = useRef(null)
+  const containerRef = useRef(null);
 
-
-
-  const { wavesurfer, isPlaying, currentTime,  } = useWavesurfer({
+  const { wavesurfer, isPlaying, currentTime } = useWavesurfer({
     container: containerRef,
     url: audio,
-    width: 125,
-    barWidth:2,
-    barRadius:2,
-    autoScroll:false,
-    audioRate:1,
-    barGap:2,
-    height:30,
-    cursorWidth:2,
-    waveColor: '#cacaca',
-    progressColor: "#FF2661"
-  })
+    width: "100%",
+    
+    barWidth: 2,
+    barRadius: 2,
+    autoScroll: false,
+    audioRate: 1,
+    barGap: 2,
+    height: 30,
+    cursorWidth: 2,
+    waveColor: "#cacaca",
+    progressColor: "#FF2661",
+  });
 
   const onPlayPause = useCallback(() => {
-    wavesurfer && wavesurfer.playPause()
-  }, [wavesurfer])
+    wavesurfer && wavesurfer.playPause();
+  }, [wavesurfer]);
 
   return (
-    <Box display={"flex"} paddingRight={2.5} justifyContent={"center"} alignItems={"center"}>
-      <IconButton onClick={onPlayPause}>
+    <div className="flex justify-between items-center gap-1 px-1">
+      <div onClick={onPlayPause}>
         {isPlaying ? <Pause size={22} /> : <Play size={22} />}
-      </IconButton>
-      <div ref={containerRef} />
+      </div>
+      <div ref={containerRef} className="min-w-32 w-full h-8"/>
 
-      <Box>
-        <span style={{fontSize: "12px", fontWeight: 700}}>{isPlaying ? formatTime(currentTime) : formatTime(currentTime > 0 ? currentTime : wavesurfer?.decodedData?.duration)}{}</span>
-      </Box>
-    </Box>
+      <span className="text-xs font-semibold" >
+        {isPlaying
+          ? formatTime(currentTime)
+          : formatTime(
+              currentTime > 0 ? currentTime : wavesurfer?.decodedData?.duration
+            )}
+        {}
+      </span>
+    </div>
   );
 };
 

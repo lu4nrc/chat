@@ -100,9 +100,9 @@ const useAuth = () => {
       setUser(data.user);
       setIsAuth(true);
       toast({
-        variant: "destructive",
+        variant: "success",
         title: i18n.t("auth.toasts.success"),
-        //description: "Friday, February 10, 2023 at 5:57 PM",
+        //description: "Se até o Domínio Web tem bug, quem sou eu pra não ter? 😅🖥️",
       });
       navigate("/tickets");
       setLoading(false);

@@ -5,7 +5,8 @@ import Typography from "@mui/material/Typography";
 
 import Select from "@mui/material/Select";
 import TextField from "@mui/material/TextField";
-import { toast } from "react-toastify";
+
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 import Table from "@mui/material/Table";
 import TableBody from "@mui/material/TableBody/TableBody";
@@ -17,15 +18,12 @@ import TableRow from "@mui/material/TableRow";
 
 import ListItem from "@mui/material/ListItem";
 
-import { Button, Card, Stack, styled} from "@mui/material";
+import { Button, Card, Stack, styled } from "@mui/material";
 import Checkbox from "@mui/material/Checkbox";
 import { registerLocale } from "react-datepicker";
 import toastError from "../../errors/toastError";
 import api from "../../services/api";
 import { i18n } from "../../translate/i18n.js";
-
-import Tab from "@mui/material/Tab";
-import Tabs from "@mui/material/Tabs";
 
 import { CopySimple } from "@phosphor-icons/react";
 import ptBR from "date-fns/locale/pt-BR";
@@ -189,236 +187,137 @@ const Settings = () => {
 
   return (
     <div>
-      <Stack p={2} spacing={2}>
-        <Tabs
-          value={value}
-          onChange={handleChange}
-          variant="scrollable"
-          scrollButtons={false}
-        >
-          <Tab label="Horário de funcionamento" />
-          <Tab label="Usuários" />
-          <Tab label="Departamentos" />
-          <Tab label="Tags" />
-          <Tab label="Respostas Rápidas" />
-          <Tab label="Api" />
-        </Tabs>
+      <div className="flex p-1 gap-1 flex-col">
+        <Tabs defaultValue="openinghours" className="w-full">
+          <TabsList>
+            <TabsTrigger value="openinghours">
+              Horário de funcionamento
+            </TabsTrigger>
+            <TabsTrigger value="user">Usuários</TabsTrigger>
+            <TabsTrigger value="queue">Departamentos</TabsTrigger>
+            <TabsTrigger value="tags">Tags</TabsTrigger>
+            <TabsTrigger value="quickresponses">Respostas Rápidas</TabsTrigger>
+            <TabsTrigger value="api">Api</TabsTrigger>
+          </TabsList>
+      
+          <TabsContent value="openinghours">
+            {" "}
+            <Stack p={2}>
+              <Stack pt={0.5} spacing={2}>
+                <Stack spacing={1}>
+                  <Typography variant="subtitle1">
+                    Mensagem de ausência
+                  </Typography>
 
-        <TabPanel sx={{ height: "calc(100vh - 98px)" }} index={0} value={value}>
-          <Stack p={2}>
-            <Stack pt={0.5} spacing={2}>
-              <Typography variant="h5">Horário de funcionamento</Typography>
-              <Table size="small">
-                <TableHead>
-                  <TableRow>
-                    <TableCell>Dias da semana</TableCell>
-                    <TableCell align="center">Aberto</TableCell>
-                    <TableCell align="center">Início</TableCell>
-                    <TableCell align="center">Final</TableCell>
-                    <TableCell align="center">Início</TableCell>
-                    <TableCell align="center">Final</TableCell>
-                    <TableCell align="center">Configurações</TableCell>
-                  </TableRow>
-                </TableHead>
-               {/*  <TableBody>
-                  {openingHours?.days?.length
-                    ? openingHours?.days.map((day, i) => (
-                        <TableRow>
-                          <TableCell
-                            component="th"
-                            scope="row"
-                            style={{ borderBottom: "none" }}
-                          >
-                            <ListItem>
-                              <Typography variant="body2">
-                                {day.label}
-                              </Typography>
-                            </ListItem>
-                          </TableCell>
-                          <TableCell align="center">
-                            <Checkbox
-                              checked={day.open}
-                              onClick={() => {
-                                var newState = openingHours;
-                                newState.days[day.index].open = !day.open;
-                                setOpeningHours({ ...newState });
-                              }}
-                            />
-                          </TableCell>
-
-                          <TableCell align="center">
-                            <StyledTimePicker
-                              value={dayjs(day.start1)}
-                              onChange={(date) => {
-                                var newState = openingHours;
-                                newState.days[day.index].start1 = date;
-                                setOpeningHours({ ...newState });
-                              }}
-                            />
-                          </TableCell>
-
-                          <TableCell align="center">
-                            <StyledTimePicker
-                              value={dayjs(day.end1)}
-                              onChange={(date) => {
-                                var newState = openingHours;
-                                newState.days[day.index].end1 = date;
-                                setOpeningHours({ ...newState });
-                              }}
-                            />
-                          </TableCell>
-
-                          <TableCell align="center">
-                            <StyledTimePicker
-                              value={dayjs(day.start2)}
-                              onChange={(date) => {
-                                var newState = openingHours;
-                                newState.days[day.index].start2 = date;
-                                setOpeningHours({ ...newState });
-                              }}
-                            />
-                          </TableCell>
-
-                          <TableCell align="center">
-                            <StyledTimePicker
-                              value={dayjs(day.end2)}
-                              onChange={(date) => {
-                                var newState = openingHours;
-                                newState.days[day.index].end2 = date;
-                                setOpeningHours({ ...newState });
-                              }}
-                            />
-                          </TableCell>
-                          <TableCell align="center">
-                            {day.index === 0 && (
-                              <Button
-                                onClick={() => replicateDays(openingHours)}
-                                startIcon={<CopySimple size={24} />}
-                              >
-                                Replicar
-                              </Button>
-                            )}
-                          </TableCell>
-                        </TableRow>
-                      ))
-                    : null}
-                </TableBody> */}
-              </Table>
-
-              <Stack spacing={1}>
-                <Typography variant="subtitle1">
-                  Mensagem de ausência
-                </Typography>
-
-                <Stack direction={"row"} spacing={2}>
-                  <TextField
-                    defaultValue={openingHours.message}
-                    onChange={handleMessage}
-                    placeholder={i18n.t("scheduleModal.labels.description")}
-                    fullWidth
-                    multiline
-                    maxRows={2}
-                    minRows={2}
-                  />
-                  <Button
-                    variant="contained"
-                    onClick={() => updateOpeningHours()}
-                  >
-                    Salvar horário
-                  </Button>
+                  <Stack direction={"row"} spacing={2}>
+                    <TextField
+                      defaultValue={openingHours.message}
+                      onChange={handleMessage}
+                      placeholder={i18n.t("scheduleModal.labels.description")}
+                      fullWidth
+                      multiline
+                      maxRows={2}
+                      minRows={2}
+                    />
+                    <Button
+                      variant="contained"
+                      onClick={() => updateOpeningHours()}
+                    >
+                      Salvar horário
+                    </Button>
+                  </Stack>
                 </Stack>
               </Stack>
             </Stack>
-          </Stack>
-        </TabPanel>
+          </TabsContent>
+          <TabsContent value="user">
+            <Users />
+          </TabsContent>
+          <TabsContent value="queue">
+            <Queues />
+          </TabsContent>
+          <TabsContent value="tags">
+            <Tags />
+          </TabsContent>
+          <TabsContent value="quickresponses">
+            <QuickAnswers />
+          </TabsContent>
+          <TabsContent value="api">
+            {" "}
+            <Stack direction={"row"} spacing={2} p={2} alignItems={"end"}>
+              <Stack flex={1}>
+                <Typography variant="body2">
+                  {i18n.t("settings.settings.userCreation.name")}
+                </Typography>
+                <Select
+                  margin="dense"
+                  variant="outlined"
+                  native
+                  id="userCreation-setting"
+                  name="userCreation"
+                  value={
+                    settings &&
+                    settings.length > 0 &&
+                    getSettingValue("userCreation")
+                  }
+                  /* className={classes.settingOption} */
+                  onChange={handleChangeSetting}
+                >
+                  <option value="enabled">
+                    {i18n.t("settings.settings.userCreation.options.enabled")}
+                  </option>
+                  <option value="disabled">
+                    {i18n.t("settings.settings.userCreation.options.disabled")}
+                  </option>
+                </Select>
+              </Stack>
+              <Stack flex={1}>
+                <Typography variant="body2">
+                  {i18n.t("settings.settings.createTicket.name")}
+                </Typography>
+                <Select
+                  margin="dense"
+                  variant="outlined"
+                  native
+                  id="ticketCreate-setting"
+                  name="ticketCreate"
+                  value={
+                    settings &&
+                    settings.length > 0 &&
+                    getSettingValue("ticketCreate")
+                  }
+                  /* className={classes.settingOption} */
+                  onChange={handleChangeSetting}
+                >
+                  <option value="enabled">
+                    {i18n.t("settings.settings.createTicket.options.enabled")}
+                  </option>
+                  <option value="disabled">
+                    {i18n.t("settings.settings.createTicket.options.disabled")}
+                  </option>
+                </Select>
+              </Stack>
 
-        <TabPanel sx={{ height: "calc(100vh - 98px)" }} index={1} value={value}>
-          <Users />
-        </TabPanel>
-
-        <TabPanel sx={{ height: "calc(100vh - 98px)" }} index={2} value={value}>
-          <Queues />
-        </TabPanel>
-        <TabPanel sx={{ height: "calc(100vh - 98px)" }} index={3} value={value}>
-          <Tags />
-        </TabPanel>
-        <TabPanel sx={{ height: "calc(100vh - 98px)" }} index={4} value={value}>
-          <QuickAnswers />
-        </TabPanel>
-
-        <TabPanel sx={{ height: "calc(100vh - 98px)" }} index={5} value={value}>
-          <Stack direction={"row"} spacing={2} p={2} alignItems={"end"}>
-            <Stack flex={1}>
-              <Typography variant="body2">
-                {i18n.t("settings.settings.userCreation.name")}
-              </Typography>
-              <Select
-                margin="dense"
-                variant="outlined"
-                native
-                id="userCreation-setting"
-                name="userCreation"
-                value={
-                  settings &&
-                  settings.length > 0 &&
-                  getSettingValue("userCreation")
-                }
-                /* className={classes.settingOption} */
-                onChange={handleChangeSetting}
-              >
-                <option value="enabled">
-                  {i18n.t("settings.settings.userCreation.options.enabled")}
-                </option>
-                <option value="disabled">
-                  {i18n.t("settings.settings.userCreation.options.disabled")}
-                </option>
-              </Select>
+              <Stack flex={1}>
+                <TextField
+                  id="api-token-setting"
+                  readOnly
+                  label="Token Api"
+                  margin="dense"
+                  variant="outlined"
+                  fullWidth
+                  value={
+                    settings &&
+                    settings.length > 0 &&
+                    getSettingValue("userApiToken")
+                  }
+                />
+              </Stack>
             </Stack>
-            <Stack flex={1}>
-              <Typography variant="body2">
-                {i18n.t("settings.settings.createTicket.name")}
-              </Typography>
-              <Select
-                margin="dense"
-                variant="outlined"
-                native
-                id="ticketCreate-setting"
-                name="ticketCreate"
-                value={
-                  settings &&
-                  settings.length > 0 &&
-                  getSettingValue("ticketCreate")
-                }
-                /* className={classes.settingOption} */
-                onChange={handleChangeSetting}
-              >
-                <option value="enabled">
-                  {i18n.t("settings.settings.createTicket.options.enabled")}
-                </option>
-                <option value="disabled">
-                  {i18n.t("settings.settings.createTicket.options.disabled")}
-                </option>
-              </Select>
-            </Stack>
-
-            <Stack flex={1}>
-              <TextField
-                id="api-token-setting"
-                readOnly
-                label="Token Api"
-                margin="dense"
-                variant="outlined"
-                fullWidth
-                value={
-                  settings &&
-                  settings.length > 0 &&
-                  getSettingValue("userApiToken")
-                }
-              />
-            </Stack>
-          </Stack>
-        </TabPanel>
-      </Stack>
+          </TabsContent>
+        </Tabs>
+      
+      </div>
     </div>
   );
 };
