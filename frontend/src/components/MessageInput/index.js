@@ -1,18 +1,11 @@
 import data from "@emoji-mart/data";
 import Picker from "@emoji-mart/react";
 
-import { ClickAwayListener } from "@mui/base/ClickAwayListener";
-import CircularProgress from "@mui/material/CircularProgress";
-import IconButton from "@mui/material/IconButton";
 import MicRecorder from "mic-recorder-to-mp3";
 import React, { useContext, useEffect, useRef, useState } from "react";
 import { useOutletContext, useParams } from "react-router-dom";
 
-import CheckCircleOutlineIcon from "@mui/icons-material/CheckCircleOutline";
-
-import HighlightOffIcon from "@mui/icons-material/HighlightOff";
-import MoodIcon from "@mui/icons-material/Mood";
-import { Menu, MenuItem, Stack, Hidden } from "@mui/material";
+//import { Menu, MenuItem } from "@mui/material";
 
 import { AuthContext } from "../../context/Auth/AuthContext";
 import { ReplyMessageContext } from "../../context/ReplyingMessage/ReplyingMessageContext";
@@ -23,7 +16,7 @@ import { i18n } from "../../translate/i18n";
 import RecordingTimer from "./RecordingTimer";
 import { Textarea } from "../ui/textarea";
 import {
-  EllipsisVertical,
+  Check,
   LoaderCircle,
   Mic,
   Paperclip,
@@ -39,58 +32,10 @@ import { useToast } from "@/hooks/use-toast";
 
 const Mp3Recorder = new MicRecorder({ bitRate: 128 });
 
-/* const AntSwitch = styled(Switch)(({ theme }) => ({
-  width: 45,
-  height: 20,
-  padding: 0,
-  display: "flex",
-  "&:active": {
-    "& .MuiSwitch-thumb": {
-      width: 15,
-    },
-    "& .MuiSwitch-switchBase.Mui-checked": {
-      transform: "translateX(20px)",
-    },
-  },
-  "& .MuiSwitch-switchBase": {
-    padding: 2,
-    "&.Mui-checked": {
-      transform: "translateX(25px)",
-      color: "#fff",
-      "& + .MuiSwitch-track": {
-        opacity: 1,
-        backgroundColor:
-          theme.palette.mode === "dark"
-            ? theme.palette.primary.main
-            : theme.palette.primary.main,
-      },
-    },
-  },
-  "& .MuiSwitch-thumb": {
-    boxShadow: "0 2px 4px 0 rgb(0 35 11 / 20%)",
-    width: 16,
-    height: 16,
-    borderRadius: 8,
-    transition: theme.transitions.create(["width"], {
-      duration: 200,
-    }),
-  },
-  "& .MuiSwitch-track": {
-    borderRadius: 20 / 2,
-    opacity: 1,
-    backgroundColor:
-      theme.palette.mode === "dark"
-        ? "rgba(255,255,255,.35)"
-        : "rgba(0,0,0,.25)",
-    boxSizing: "border-box",
-  },
-})); */
-
 const MessageInput = ({ ticketStatus }) => {
   const { theme } = useTheme();
   const { ticketId } = useParams();
-  const [anchorEl, setAnchorEl] = useState(null);
-  const [anchorElAnswers, setAnchorElAnswers] = useState(null);
+
   const [medias, setMedias] = useState([]);
   const [inputMessage, setInputMessage] = useState("");
   const [showEmoji, setShowEmoji] = useState(false);
@@ -98,11 +43,12 @@ const MessageInput = ({ ticketStatus }) => {
   const [recording, setRecording] = useState(false);
   const [quickAnswers, setQuickAnswer] = useState([]);
   const [typeBar, setTypeBar] = useState(false);
+  const [selectedIndex, setSelectedIndex] = useState(0); // Índice selecionado
   const textareaRef = useRef();
   const { setReplyingMessage, replyingMessage } =
     useContext(ReplyMessageContext);
   const { user } = useContext(AuthContext);
-  const { toast } = useToast()
+  const { toast } = useToast();
 
   const [signMessage, setSignMessage] = useLocalStorage("signOption", true);
 
@@ -112,7 +58,6 @@ const MessageInput = ({ ticketStatus }) => {
 
   const handleClosesAnswers = () => {
     setTypeBar(false);
-    setAnchorElAnswers(null);
   };
 
   useEffect(() => {
@@ -169,16 +114,33 @@ const MessageInput = ({ ticketStatus }) => {
     try {
       await api.post(`/messages/${ticketId}`, formData);
     } catch (err) {
-              const errorMsg =
-            err.response?.data?.message || err.response.data.error;
-          toast({
-            variant: "destructive",
-            title: errorMsg,
-          });
+      const errorMsg = err.response?.data?.message || err.response.data.error;
+      toast({
+        variant: "destructive",
+        title: errorMsg,
+      });
     }
 
     setLoading(false);
     setMedias([]);
+  };
+
+  // Função para destacar parte do shortcut que coincide com o input
+  const highlightShortcut = (shortcut) => {
+    const typedText = inputMessage.substring(1); // Remove o "/" da busca
+    const matchIndex = shortcut.toLowerCase().indexOf(typedText.toLowerCase());
+
+    if (matchIndex === 0 && typedText !== "") {
+      return (
+        <>
+          <span className="text-primary">
+            {shortcut.substring(0, typedText.length)}
+          </span>
+          {shortcut.substring(typedText.length)}
+        </>
+      );
+    }
+    return shortcut;
   };
 
   const handleSendMessage = async () => {
@@ -187,7 +149,6 @@ const MessageInput = ({ ticketStatus }) => {
 
     const message = {
       read: 1,
-      //MediaType: "bot",
       fromMe: true,
       mediaUrl: "",
       body: signMessage
@@ -199,12 +160,11 @@ const MessageInput = ({ ticketStatus }) => {
     try {
       await api.post(`/messages/${ticketId}`, message);
     } catch (err) {
-              const errorMsg =
-            err.response?.data?.message || err.response.data.error;
-          toast({
-            variant: "destructive",
-            title: errorMsg,
-          });
+      const errorMsg = err.response?.data?.message || err.response.data.error;
+      toast({
+        variant: "destructive",
+        title: errorMsg,
+      });
     }
 
     setInputMessage("");
@@ -221,12 +181,11 @@ const MessageInput = ({ ticketStatus }) => {
       setRecording(true);
       setLoading(false);
     } catch (err) {
-              const errorMsg =
-            err.response?.data?.message || err.response.data.error;
-          toast({
-            variant: "destructive",
-            title: errorMsg,
-          });
+      const errorMsg = err.response?.data?.message || err.response.data.error;
+      toast({
+        variant: "destructive",
+        title: errorMsg,
+      });
       setLoading(false);
       setRecording(false);
     }
@@ -239,8 +198,10 @@ const MessageInput = ({ ticketStatus }) => {
           params: { searchParam: inputMessage.substring(1) },
         });
         setQuickAnswer(data.quickAnswers);
+
         if (data.quickAnswers.length > 0) {
           setTypeBar(true);
+          setSelectedIndex(0);
         } else {
           setTypeBar(false);
         }
@@ -249,6 +210,21 @@ const MessageInput = ({ ticketStatus }) => {
       }
     } else {
       setTypeBar(false);
+    }
+  };
+
+  const handleKeyDown = (e) => {
+    if (e.shiftKey) return;
+
+    if (e.key === "Enter") {
+      if (typeBar && quickAnswers.length > 0) {
+        // Seleciona a resposta rápida com base no índice selecionado
+        setInputMessage(quickAnswers[selectedIndex].message);
+        setTypeBar(false);
+      } else {
+        handleSendMessage();
+      }
+      e.preventDefault(); // Evita pular uma linha ao pressionar Enter
     }
   };
 
@@ -270,12 +246,11 @@ const MessageInput = ({ ticketStatus }) => {
 
       await api.post(`/messages/${ticketId}`, formData);
     } catch (err) {
-              const errorMsg =
-            err.response?.data?.message || err.response.data.error;
-          toast({
-            variant: "destructive",
-            title: errorMsg,
-          });
+      const errorMsg = err.response?.data?.message || err.response.data.error;
+      toast({
+        variant: "destructive",
+        title: errorMsg,
+      });
     }
 
     setRecording(false);
@@ -287,21 +262,12 @@ const MessageInput = ({ ticketStatus }) => {
       await Mp3Recorder.stop().getMp3();
       setRecording(false);
     } catch (err) {
-              const errorMsg =
-            err.response?.data?.message || err.response.data.error;
-          toast({
-            variant: "destructive",
-            title: errorMsg,
-          });
+      const errorMsg = err.response?.data?.message || err.response.data.error;
+      toast({
+        variant: "destructive",
+        title: errorMsg,
+      });
     }
-  };
-
-  const handleOpenMenuClick = (event) => {
-    setAnchorEl(event.currentTarget);
-  };
-
-  const handleMenuItemClick = (event) => {
-    setAnchorEl(null);
   };
 
   const renderReplyingMessage = (message) => {
@@ -352,29 +318,52 @@ const MessageInput = ({ ticketStatus }) => {
     return (
       <div className="flex flex-col gap-3 bg-muted pt-2 py-3 px-2 w-full">
         {replyingMessage && renderReplyingMessage(replyingMessage)}
+        {typeBar && quickAnswers.length > 0 ? (
+          <div className="flex flex-col">
+            {quickAnswers.map((value, index) => {
+              return (
+                <div
+                  className={`grid grid-cols-[auto_1fr] gap-2 py-1 px-2 rounded-md cursor-pointer ${
+                    index === selectedIndex
+                      ? "bg-background"
+                      : "hover:bg-background"
+                  }`}
+                  key={index}
+                  onClick={() => handleQuickAnswersClick(value.message)}
+                >
+                  <p className="text-sm font-bold">
+                    {highlightShortcut(value.shortcut)}
+                  </p>
+
+                  <p className="text-sm text-muted-foreground truncate">
+                    {value.message}
+                  </p>
+                </div>
+              );
+            })}
+          </div>
+        ) : null}
         <div className="flex items-center justify-between gap-2">
           <div className="flex gap-1 ">
             <div className=" hidden sm:flex gap-1">
-              <ClickAwayListener onClickAway={() => setShowEmoji(false)}>
-                <div className="relative">
-                  <Smile
-                    className="text-muted-foreground"
-                    disabled={loading || recording || ticketStatus !== "open"}
-                    onClick={() => setShowEmoji((prevState) => !prevState)}
-                  />
+              <div className="relative">
+                <Smile
+                  className="text-muted-foreground"
+                  disabled={loading || recording || ticketStatus !== "open"}
+                  onClick={() => setShowEmoji((prevState) => !prevState)}
+                />
 
-                  {showEmoji ? (
-                    <div className="absolute bottom-16 z-10">
-                      <Picker
-                        theme={theme}
-                        data={data}
-                        perLine={16}
-                        onEmojiSelect={handleAddEmoji}
-                      />
-                    </div>
-                  ) : null}
-                </div>
-              </ClickAwayListener>
+                {showEmoji ? (
+                  <div className="absolute bottom-16 z-10">
+                    <Picker
+                      theme={theme}
+                      data={data}
+                      perLine={16}
+                      onEmojiSelect={handleAddEmoji}
+                    />
+                  </div>
+                ) : null}
+              </div>
 
               <input
                 style={{ display: "none" }}
@@ -406,63 +395,6 @@ const MessageInput = ({ ticketStatus }) => {
                 <TooltipContent side="right">Assinar</TooltipContent>
               </Tooltip>
             </div>
-            <div className="block sm:hidden">
-              <EllipsisVertical onClick={handleOpenMenuClick} />
-
-              <Menu
-                id="simple-menu"
-                keepMounted
-                anchorEl={anchorEl}
-                open={Boolean(anchorEl)}
-                onClose={handleMenuItemClick}
-              >
-                <MenuItem onClick={handleMenuItemClick}>
-                  <IconButton
-                    aria-label="emojiPicker"
-                    component="span"
-                    disabled={loading || recording || ticketStatus !== "open"}
-                    onClick={(e) => setShowEmoji((prevState) => !prevState)}
-                  >
-                    <MoodIcon />
-                  </IconButton>
-                </MenuItem>
-                <Stack onClick={handleMenuItemClick}>
-                  <input
-                    multiple
-                    type="file"
-                    id="upload-button"
-                    disabled={loading || recording || ticketStatus !== "open"}
-                    sx={{ display: "none" }}
-                    onChange={handleChangeMedias}
-                  />
-                  <label htmlFor="upload-button">
-                    <IconButton
-                      aria-label="upload"
-                      component="span"
-                      disabled={loading || recording || ticketStatus !== "open"}
-                    >
-                      <Paperclip size={24} />
-                    </IconButton>
-                  </label>
-                </Stack>
-                <MenuItem onClick={handleMenuItemClick}>
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <div className="flex items-center space-x-2">
-                        <Switch
-                          checked={signMessage}
-                          onCheckedChange={() =>
-                            setSignMessage((prevState) => !prevState)
-                          }
-                          id="Assinar"
-                        />
-                      </div>
-                    </TooltipTrigger>
-                    <TooltipContent side="right">Assinar</TooltipContent>
-                  </Tooltip>
-                </MenuItem>
-              </Menu>
-            </div>
           </div>
 
           <Textarea
@@ -480,42 +412,9 @@ const MessageInput = ({ ticketStatus }) => {
             onPaste={(e) => {
               ticketStatus === "open" && handleInputPaste(e);
             }}
-            onKeyDown={(e) => {
-              if (loading || e.shiftKey) return;
-              else if (e.key === "Enter") {
-                handleSendMessage();
-              }
-            }}
+            onKeyDown={handleKeyDown}
           />
-          {typeBar ? (
-            <Stack>
-              <Menu
-                anchorEl={anchorElAnswers}
-                open={typeBar}
-                onClose={handleClosesAnswers}
-                anchorOrigin={{
-                  vertical: "bottom",
-                  horizontal: "center",
-                }}
-                transformOrigin={{
-                  vertical: "top",
-                  horizontal: "left",
-                }}
-              >
-                {quickAnswers.map((value, index) => {
-                  return (
-                    <MenuItem
-                      key={index}
-                      onClick={() => handleQuickAnswersClick(value.message)}
-                    >
-                      <strong>{value.shortcut}</strong>
-                      {` - ${value.message}`}
-                    </MenuItem>
-                  );
-                })}
-              </Menu>
-            </Stack>
-          ) : null}
+
           {inputMessage ? (
             <Button
               aria-label="sendMessage"
@@ -526,33 +425,28 @@ const MessageInput = ({ ticketStatus }) => {
               <Send />
             </Button>
           ) : recording ? (
-            <Stack direction={"row"} alignItems={"center"}>
-              <IconButton
+            <div className="flex items-center gap-1">
+              <Button
                 aria-label="cancelRecording"
-                component="span"
-                fontSize="large"
                 disabled={loading}
                 onClick={handleCancelAudio}
               >
-                <HighlightOffIcon />
-              </IconButton>
+                <X />
+              </Button>
               {loading ? (
-                <Stack>
-                  <CircularProgress />
-                </Stack>
+                <LoaderCircle className="mr-2 h-4 w-4 animate-spin text-primary" />
               ) : (
                 <RecordingTimer />
               )}
 
-              <IconButton
+              <Button
                 aria-label="sendRecordedAudio"
-                component="span"
                 onClick={handleUploadAudio}
                 disabled={loading}
               >
-                <CheckCircleOutlineIcon />
-              </IconButton>
-            </Stack>
+                <Check />
+              </Button>
+            </div>
           ) : (
             <Button
               aria-label="showRecorder"

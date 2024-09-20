@@ -14,18 +14,12 @@ import { useToast } from "@/hooks/use-toast";
 const TicketActionButtons = ({ ticket }) => {
   const { toast } = useToast();
   const navigate = useNavigate();
-  const [anchorEl, setAnchorEl] = useState(null);
+
   const [loading, setLoading] = useState(false);
 
   const { user } = useContext(AuthContext);
 
-  const handleOpenTicketOptionsMenu = (e) => {
-    setAnchorEl(e.currentTarget);
-  };
 
-  const handleCloseTicketOptionsMenu = () => {
-    setAnchorEl(null);
-  };
 
   const handleUpdateTicketStatus = async (status, userId) => {
     setLoading(true);

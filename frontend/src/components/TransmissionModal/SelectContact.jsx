@@ -1,14 +1,4 @@
-import * as React from 'react';
-import Grid from '@mui/material/Grid';
-import List from '@mui/material/List';
-import Card from '@mui/material/Card';
-import CardHeader from '@mui/material/CardHeader';
-import ListItem from '@mui/material/ListItem';
-import ListItemText from '@mui/material/ListItemText';
-import ListItemIcon from '@mui/material/ListItemIcon';
-import Checkbox from '@mui/material/Checkbox';
-import Button from '@mui/material/Button';
-import Divider from '@mui/material/Divider';
+import * as React from "react";
 
 function not(a, b) {
   return a.filter((value) => b.indexOf(value) === -1);
@@ -66,7 +56,8 @@ export default function SelectAllTransferList() {
   };
 
   const Contacts = (title, items) => (
-    <Card >
+    <>
+      {/*  <Card >
       <CardHeader
         sx={{ px: 2, py: 1}}
         avatar={
@@ -123,11 +114,13 @@ export default function SelectAllTransferList() {
           );
         })}
       </List>
-    </Card>
+    </Card>  */}
+    </>
   );
 
   const SelectedContacts = (title, items) => (
-    <Card>
+    <>
+      {/*  <Card>
       <CardHeader
         sx={{ px: 2, py: 1 }}
         avatar={
@@ -183,37 +176,40 @@ export default function SelectAllTransferList() {
           );
         })}
       </List>
-    </Card>
+    </Card> */}
+    </>
   );
 
   return (
-    <Grid container spacing={2} justifyContent="center" alignItems="center">
-      <Grid item>{Contacts('Lista de Contatos', left)}</Grid>
-      <Grid item>
-        <Grid container direction="column" alignItems="center">
-          <Button
-            sx={{ my: 0.5 }}
-            variant="outlined"
-            size="small"
-            onClick={handleCheckedRight}
-            disabled={leftChecked.length === 0}
-            aria-label="move selected right"
-          >
-            &gt;
-          </Button>
-          <Button
-            sx={{ my: 0.5 }}
-            variant="outlined"
-            size="small"
-            onClick={handleCheckedLeft}
-            disabled={rightChecked.length === 0}
-            aria-label="move selected left"
-          >
-            &lt;
-          </Button>
+    <>
+     {/*  <Grid container spacing={2} justifyContent="center" alignItems="center">
+        <Grid item>{Contacts("Lista de Contatos", left)}</Grid>
+        <Grid item>
+          <Grid container direction="column" alignItems="center">
+            <Button
+              sx={{ my: 0.5 }}
+              variant="outlined"
+              size="small"
+              onClick={handleCheckedRight}
+              disabled={leftChecked.length === 0}
+              aria-label="move selected right"
+            >
+              &gt;
+            </Button>
+            <Button
+              sx={{ my: 0.5 }}
+              variant="outlined"
+              size="small"
+              onClick={handleCheckedLeft}
+              disabled={rightChecked.length === 0}
+              aria-label="move selected left"
+            >
+              &lt;
+            </Button>
+          </Grid>
         </Grid>
-      </Grid>
-      <Grid item>{SelectedContacts('Selecionados', right)}</Grid>
-    </Grid>
+        <Grid item>{SelectedContacts("Selecionados", right)}</Grid>
+      </Grid> */}
+    </>
   );
 }

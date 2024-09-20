@@ -76,7 +76,7 @@ const MessagesList = ({ ticketId, isGroup }) => {
   const [hasMore, setHasMore] = useState(false);
   const [loading, setLoading] = useState(true);
   const lastMessageRef = useRef();
-  const { toast } = useToast()
+  const { toast } = useToast();
 
   const [selectedMessage, setSelectedMessage] = useState({});
   const [anchorEl, setAnchorEl] = useState(null);
@@ -182,11 +182,11 @@ const MessagesList = ({ ticketId, isGroup }) => {
         } catch (err) {
           setLoading(false);
           const errorMsg =
-          err.response?.data?.message || err.response.data.error;
-        toast({
-          variant: "destructive",
-          title: errorMsg,
-        });
+            err.response?.data?.message || err.response.data.error;
+          toast({
+            variant: "destructive",
+            title: errorMsg,
+          });
         }
       };
       fetchMessages();
@@ -316,10 +316,10 @@ const MessagesList = ({ ticketId, isGroup }) => {
       return <Clock size={18} className="text-muted-foreground" />;
     }
     if (message.ack === 1) {
-      return <Check size={18} className="text-muted-foreground"  />;
+      return <Check size={18} className="text-muted-foreground" />;
     }
     if (message.ack === 2) {
-      return <CheckCheck size={18} className="text-muted-foreground"  />;
+      return <CheckCheck size={18} className="text-muted-foreground" />;
     }
     if (message.ack === 3 || message.ack === 4) {
       return <CheckCheck size={18} color="#00a86b" />;
@@ -360,19 +360,6 @@ const MessagesList = ({ ticketId, isGroup }) => {
       );
     }
   };
-
-  /*   const renderMessageDivider = (message, index) => {
-    if (index < messagesList.length && index > 0) {
-      let messageUser = messagesList[index].fromMe;
-      let previousMessageUser = messagesList[index - 1].fromMe;
-
-      if (messageUser !== previousMessageUser) {
-        return (
-          <span style={{ marginTop: 16 }} key={`divider-${message.id}`}></span>
-        );
-      }
-    }
-  }; */
 
   const renderQuotedMessage = (message) => {
     return (
@@ -503,6 +490,8 @@ const MessagesList = ({ ticketId, isGroup }) => {
                       ""
                     )}
                   </div>
+                ) : message.mediaType === "location" ? (
+                  " "
                 ) : (
                   <p className="pl-1 pr-1 whitespace-pre-wrap leading-5 text-[14.2px]">
                     <MarkdownWrapper>{message.body}</MarkdownWrapper>

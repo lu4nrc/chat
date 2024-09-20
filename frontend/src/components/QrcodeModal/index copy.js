@@ -3,7 +3,7 @@ import React, { useEffect, useState } from "react";
 import toastError from "../../errors/toastError";
 import openSocket from "../../services/socket-io";
 
-import { Dialog, DialogContent, Stack, Typography } from "@mui/material";
+
 import api from "../../services/api";
 import { useToast } from "@/hooks/use-toast";
 

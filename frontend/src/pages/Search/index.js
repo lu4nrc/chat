@@ -1,31 +1,16 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import React, { useCallback, useEffect, useState, useReducer } from "react";
 import { useNavigate, useOutletContext } from "react-router-dom";
-// import SearchIcon from "@mui/icons-material/Search";
-import Avatar from "@mui/material/Avatar";
-import Table from "@mui/material/Table";
-import TableBody from "@mui/material/TableBody";
-import TableCell from "@mui/material/TableCell";
-import TableHead from "@mui/material/TableHead";
-import TableRow from "@mui/material/TableRow";
-import MenuItem from "@mui/material/MenuItem";
-import IconButton from "@mui/material/IconButton";
-import TableRowSkeleton from "../../components/TableRowSkeleton";
+
 import api from "../../services/api";
-import toastError from "../../errors/toastError";
-import {
-  // InputAdornment,
-  Stack,
-  TableContainer,
-  TextField,
-  Typography,
-  // styled,
-} from "@mui/material";
+
+
 import { WhatsappLogo } from "@phosphor-icons/react";
-import Button from "@mui/material/Button";
+
 import dayjs from "dayjs";
-import { DateRangePicker } from "@mui/x-date-pickers-pro";
+
 import { useToast } from "@/hooks/use-toast";
+import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 
 const reducer = (state, action) => {
   if (action.type === "LOAD_CONTACTS") {
@@ -71,10 +56,6 @@ const reducer = (state, action) => {
   }
 };
 
-// const StyledInput = styled(TextField)(({ theme }) => ({
-//   "& .MuiInputBase-root": {},
-// }));
-
 const Search = () => {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
@@ -88,7 +69,7 @@ const Search = () => {
   const [hasMore, setHasMore] = useState(false);
   const [pageNumber, setPageNumber] = useState(1);
   const [status, setStatus] = useState(null);
-  const { toast } = useToast()
+  const { toast } = useToast();
   // const handleSearch = (event) => {
   //   setSearchParam(event.target.value.toLowerCase());
   // };
@@ -120,11 +101,11 @@ const Search = () => {
           setLoading(false);
         } catch (err) {
           const errorMsg =
-          err.response?.data?.message || err.response.data.error;
-        toast({
-          variant: "destructive",
-          title: errorMsg,
-        });
+            err.response?.data?.message || err.response.data.error;
+          toast({
+            variant: "destructive",
+            title: errorMsg,
+          });
           setLoading(false);
         }
       };
@@ -163,12 +144,11 @@ const Search = () => {
         payload: data.chats,
       });
     } catch (err) {
-      const errorMsg =
-      err.response?.data?.message || err.response.data.error;
-    toast({
-      variant: "destructive",
-      title: errorMsg,
-    });
+      const errorMsg = err.response?.data?.message || err.response.data.error;
+      toast({
+        variant: "destructive",
+        title: errorMsg,
+      });
     }
     setLoading(false);
   };
@@ -181,12 +161,11 @@ const Search = () => {
         setUsers(usersData.data.users);
         setQueue(queueData.data);
       } catch (err) {
-        const errorMsg =
-        err.response?.data?.message || err.response.data.error;
-      toast({
-        variant: "destructive",
-        title: errorMsg,
-      });
+        const errorMsg = err.response?.data?.message || err.response.data.error;
+        toast({
+          variant: "destructive",
+          title: errorMsg,
+        });
       }
     };
     fetch();
@@ -207,7 +186,20 @@ const Search = () => {
     }
   };
   return (
-    <Stack p={2} spacing={2}>
+    <>
+         <Card className="col-span-2 w-full h-screen">
+            <CardHeader>
+              <CardTitle>Manutenção....</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <p></p>
+            </CardContent>
+            <CardFooter>
+              <p></p>
+            </CardFooter>
+          </Card>
+      {/* <Stack p={2} spacing={2}>
+   
       <Stack spacing={2}>
         <Typography variant="h5">Conversas</Typography>
         <Stack
@@ -216,7 +208,7 @@ const Search = () => {
           justifyContent={"space-between"}
           spacing={3}
         >
-          {/* <StyledInput
+           <StyledInput
             size="small"
             placeholder="Localizar Mensagem..."
             type="search"
@@ -229,7 +221,7 @@ const Search = () => {
                 </InputAdornment>
               ),
             }}
-          /> */}
+          /> 
 
           <Stack direction={"row"}>
             <Stack direction={"row"} flex={1}>
@@ -395,7 +387,8 @@ const Search = () => {
           </Table>
         </TableContainer>
       </Stack>
-    </Stack>
+    </Stack>  */}
+    </>
   );
 };
 

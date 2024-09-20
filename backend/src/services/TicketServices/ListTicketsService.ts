@@ -77,7 +77,7 @@ const ListTicketsService = async ({
     };
   }
 
-  if (searchParam) {
+/*   if (searchParam) {
     const sanitizedSearchParam = searchParam.toLocaleLowerCase().trim();
 
     includeCondition = [
@@ -123,7 +123,7 @@ const ListTicketsService = async ({
     };
 
  
-  }
+  } */
 
   if (date) {
     whereCondition = {
@@ -144,7 +144,7 @@ const ListTicketsService = async ({
     };
   }
 
-  const limit = 40;
+  const limit = 20;
   const offset = limit * (+pageNumber - 1);
 
   const { count, rows: tickets } = await Ticket.findAndCountAll({

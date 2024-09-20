@@ -3,15 +3,7 @@ import React, { useEffect, useRef, useState } from "react";
 import { toast } from "react-toastify";
 import * as Yup from "yup";
 
-import { Colorize } from "@mui/icons-material";
-import { IconButton, InputAdornment, Stack, Typography } from "@mui/material";
-import Button from "@mui/material/Button";
-import CircularProgress from "@mui/material/CircularProgress";
-import Dialog from "@mui/material/Dialog";
-import DialogActions from "@mui/material/DialogActions";
-import DialogContent from "@mui/material/DialogContent";
-import DialogTitle from "@mui/material/DialogTitle";
-import TextField from "@mui/material/TextField";
+
 
 import { i18n } from "../../translate/i18n";
 
@@ -33,7 +25,7 @@ const QueueSchema = Yup.object().shape({
 });
 
 const QueueModal = ({ open, onClose, queueId }) => {
-  const { toast } = useToast()
+  const { toast } = useToast();
 
   const initialState = {
     name: "",
@@ -54,12 +46,11 @@ const QueueModal = ({ open, onClose, queueId }) => {
           return { ...prevState, ...data };
         });
       } catch (err) {
-        const errorMsg =
-        err.response?.data?.message || err.response.data.error;
-      toast({
-        variant: "destructive",
-        title: errorMsg,
-      });
+        const errorMsg = err.response?.data?.message || err.response.data.error;
+        toast({
+          variant: "destructive",
+          title: errorMsg,
+        });
       }
     })();
 
@@ -92,18 +83,17 @@ const QueueModal = ({ open, onClose, queueId }) => {
       });
       handleClose();
     } catch (err) {
-      const errorMsg =
-      err.response?.data?.message || err.response.data.error;
-    toast({
-      variant: "destructive",
-      title: errorMsg,
-    });
+      const errorMsg = err.response?.data?.message || err.response.data.error;
+      toast({
+        variant: "destructive",
+        title: errorMsg,
+      });
     }
   };
 
   return (
     <div /* className={classes.root} */>
-      <Dialog open={open} onClose={handleClose} scroll="paper">
+      {/*   <Dialog open={open} onClose={handleClose} scroll="paper">
         <DialogTitle>
           {queueId ? `Editar departamento` : `Adicionar departamento`}
         </DialogTitle>
@@ -154,7 +144,7 @@ const QueueModal = ({ open, onClose, queueId }) => {
                             <InputAdornment position="start">
                               <div
                                 style={{ backgroundColor: values.color }}
-                                /* className={classes.colorAdorment} */
+                               
                               ></div>
                             </InputAdornment>
                           ),
@@ -221,7 +211,7 @@ const QueueModal = ({ open, onClose, queueId }) => {
                   color="primary"
                   disabled={isSubmitting}
                   variant="contained"
-                  /* className={classes.btnWrapper} */
+                 
                 >
                   {queueId
                     ? `${i18n.t("queueModal.buttons.okEdit")}`
@@ -229,7 +219,7 @@ const QueueModal = ({ open, onClose, queueId }) => {
                   {isSubmitting && (
                     <CircularProgress
                       size={24}
-                      /* className={classes.buttonProgress} */
+                     
                     />
                   )}
                 </Button>
@@ -237,7 +227,7 @@ const QueueModal = ({ open, onClose, queueId }) => {
             </Form>
           )}
         </Formik>
-      </Dialog>
+      </Dialog> */}
     </div>
   );
 };

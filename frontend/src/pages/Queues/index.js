@@ -2,27 +2,13 @@ import React, { useEffect, useReducer, useState } from "react";
 
 import openSocket from "../../services/socket-io";
 
-import {
-  IconButton,
-  Stack,
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableRow,
-  Typography,
-  TableContainer,
-  Paper,
-} from "@mui/material";
 
-import AddCircleOutlineIcon from "@mui/icons-material/AddCircleOutline";
+
+
 import { PencilSimple, Trash } from "@phosphor-icons/react";
-import { toast } from "react-toastify";
 import ConfirmationModal from "../../components/ConfirmationModal";
 import QueueModal from "../../components/QueueModal";
-import ButtomCustom from "../../components/Shared/Buttons/ButtomCustom";
 import TableRowSkeleton from "../../components/TableRowSkeleton";
-import toastError from "../../errors/toastError";
 import api from "../../services/api";
 import { i18n } from "../../translate/i18n";
 import { useToast } from "@/hooks/use-toast";
@@ -71,7 +57,7 @@ const reducer = (state, action) => {
 };
 
 const Queues = () => {
-  const { toast } = useToast()
+  const { toast } = useToast();
 
   const [queues, dispatch] = useReducer(reducer, []);
   const [loading, setLoading] = useState(false);
@@ -89,12 +75,11 @@ const Queues = () => {
 
         setLoading(false);
       } catch (err) {
-        const errorMsg =
-        err.response?.data?.message || err.response.data.error;
-      toast({
-        variant: "destructive",
-        title: errorMsg,
-      });
+        const errorMsg = err.response?.data?.message || err.response.data.error;
+        toast({
+          variant: "destructive",
+          title: errorMsg,
+        });
         setLoading(false);
       }
     })();
@@ -148,28 +133,29 @@ const Queues = () => {
         },
       });
     } catch (err) {
-      const errorMsg =
-      err.response?.data?.message || err.response.data.error;
-    toast({
-      variant: "destructive",
-      title: errorMsg,
-    });
+      const errorMsg = err.response?.data?.message || err.response.data.error;
+      toast({
+        variant: "destructive",
+        title: errorMsg,
+      });
     }
     setSelectedQueue(null);
   };
 
   return (
-    <Stack p={2}>
+    <>
+   
+   {/*  <Stack p={2}>
       <Stack pt={0.5} spacing={2}>
         <Stack direction={"row"} justifyContent={"space-between"}>
           <Typography variant="h5">Departamentos</Typography>
 
-          <ButtomCustom
+          <button
             startIcon={<AddCircleOutlineIcon />}
-            fn={handleOpenQueueModal}
+            onClick={handleOpenQueueModal}
           >
             Adicionar Departamento
-          </ButtomCustom>
+          </button>
         </Stack>
         <Paper sx={{ width: "100%", overflow: "hidden" }}>
           <TableContainer sx={{ maxHeight: `calc(100vh - 180px)` }}>
@@ -260,7 +246,8 @@ const Queues = () => {
         onClose={handleCloseQueueModal}
         queueId={selectedQueue?.id}
       />
-    </Stack>
+    </Stack> */}
+    </>
   );
 };
 

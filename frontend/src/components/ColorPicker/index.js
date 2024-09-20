@@ -1,9 +1,11 @@
 import React, { useState } from "react";
-import { Dialog } from "@mui/material";
-import { GithubPicker } from "react-color";
 
-const ColorPicker = ({ onChange, currentColor, handleClose, open }) => {
+import { GithubPicker } from "react-color";
+import { Dialog } from "../ui/dialog";
+
+const ColorPicker = ({ onChange, currentColor, handleClose}) => {
   const [selectedColor, setSelectedColor] = useState(currentColor);
+  const [open, setOpen] = useState(false);
   const colors = [
     "#B80000",
     "#DB3E00",
@@ -60,11 +62,11 @@ const ColorPicker = ({ onChange, currentColor, handleClose, open }) => {
 
   const handleChange = (color) => {
     setSelectedColor(color.hex);
-    handleClose();
+    setOpen(false);
   };
 
   return (
-    <Dialog onClose={handleClose} open={open} maxWidth="xs" fullWidth>
+    <Dialog open={open}>
       <GithubPicker
         width={"100%"}
         triangle="hide"

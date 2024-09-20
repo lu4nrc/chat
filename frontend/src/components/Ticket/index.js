@@ -25,26 +25,23 @@ const Ticket = () => {
   const [ticket, setTicket] = useState({});
   useEffect(() => {
     setLoading(true);
-    const delayDebounceFn = setTimeout(() => {
-      const fetchTicket = async () => {
-        try {
-          const { data } = await api.get("/tickets/" + ticketId);
-          setContact(data.contact);
-          setTicket(data);
-          setLoading(false);
-        } catch (err) {
-          setLoading(false);
-          const errorMsg =
-          err.response?.data?.message || err.response.data.error;
+
+    const fetchTicket = async () => {
+      try {
+        const { data } = await api.get("/tickets/" + ticketId);
+        setContact(data.contact);
+        setTicket(data);
+        setLoading(false);
+      } catch (err) {
+        setLoading(false);
+        const errorMsg = err.response?.data?.message || err.response.data.error;
         toast({
           variant: "destructive",
           title: errorMsg,
         });
-        }
-      };
-      fetchTicket();
-    }, 500);
-    return () => clearTimeout(delayDebounceFn);
+      }
+    };
+    fetchTicket();
   }, [ticketId, navigate]);
 
   useEffect(() => {

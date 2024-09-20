@@ -1,4 +1,3 @@
-import { Box, IconButton, Typography } from "@mui/material";
 import { Pause, Play } from "@phosphor-icons/react";
 import { useWavesurfer } from "@wavesurfer/react";
 import { useCallback, useRef, useState } from "react";

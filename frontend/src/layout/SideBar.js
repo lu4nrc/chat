@@ -48,7 +48,7 @@ const SideBar = ({ user }) => {
   }, [whatsApps]); */
 
   return (
-    <nav className="flex flex-col items-center border-r  gap-4 px-2 sm:py-5 bg-muted">
+    <nav className="flex flex-col items-center border-r  h-screen gap-4 px-2 sm:py-5 bg-muted">
       {user.profile === "admin" && (
         <Tooltip>
           <TooltipTrigger asChild>
@@ -102,8 +102,7 @@ const SideBar = ({ user }) => {
         <TooltipContent side="right">Contatos</TooltipContent>
       </Tooltip>
 
-      {/*  
-     <Tooltip>
+      <Tooltip>
         <TooltipTrigger asChild>
           <Link
             to="/search"
@@ -114,13 +113,11 @@ const SideBar = ({ user }) => {
           </Link>
         </TooltipTrigger>
         <TooltipContent side="right">Pesquisar</TooltipContent>
-      </Tooltip> 
-      */}
+      </Tooltip>
 
       {user.profile === "admin" && (
         <>
-          {/*
-           <Tooltip>
+          <Tooltip>
             <TooltipTrigger asChild>
               <Link
                 to="/panel"
@@ -131,8 +128,7 @@ const SideBar = ({ user }) => {
               </Link>
             </TooltipTrigger>
             <TooltipContent side="right">Painel</TooltipContent>
-          </Tooltip> 
-          */}
+          </Tooltip>
 
           <Tooltip>
             <TooltipTrigger asChild>
@@ -146,22 +142,6 @@ const SideBar = ({ user }) => {
             </TooltipTrigger>
             <TooltipContent side="right">Configurações</TooltipContent>
           </Tooltip>
-
-          {/* //TODO: Lista de transmissao */}
-          {/*               <Tooltip>
-                <TooltipTrigger asChild>
-                  <Link
-                    to="/transmission"
-                    className="flex h-9 w-9 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:text-foreground md:h-9 md:w-9 aria-[current=page]:bg-primary aria-[current=page]:text-white"
-                  >
-                    <Ratio className="h-6 w-6" />
-                    <span className="sr-only">Listas de transmissão</span>
-                  </Link>
-                </TooltipTrigger>
-                <TooltipContent side="right">
-                  Listas de transmissão
-                </TooltipContent>
-              </Tooltip> */}
         </>
       )}
 

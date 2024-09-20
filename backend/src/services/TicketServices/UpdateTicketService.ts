@@ -59,7 +59,7 @@ const UpdateTicketService = async ({
       if (userId) {
         userName = (await ShowUserService(userId))?.name;
       }
-      var phrase = `_Chamado transferido de *${ticket.user?.name.trim()} ${ticket.queue?.name.trim() ?? ""}* para *${userName?.trim()} ${queueName.trim()}* - ${parseInitialDate(new Date())}_`;
+      var phrase = `_Atendimento transferido de *${ticket.user?.name.trim()} ${ticket.queue?.name.trim() ?? ""}* para *${userName?.trim()} ${queueName.trim()}* - ${parseInitialDate(new Date())}_`;
       CreateMessageServiceCustom({ messageData: { body: phrase, ticketId: ticket.id, contactId: ticket.contactId, fromMe: true, read: true } })
     }
   }

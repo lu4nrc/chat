@@ -76,7 +76,6 @@ const SevenDays = () => {
       setLoading(true);
       try {
         const { data } = await api.get("/dashboard/seven");
-        console.log(data)
         setHours(data.today);
         setUsersData(data.users);
         setQueuesData(data.queues);

@@ -1,22 +1,7 @@
 import React, { useEffect, useReducer, useState } from "react";
 import openSocket from "../../services/socket-io";
 
-import {
-  IconButton,
-  InputAdornment,
-  Stack,
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableRow,
-  TextField,
-  Typography,
-  TableContainer,
-  Paper,
-} from "@mui/material";
 
-import SearchIcon from "@mui/icons-material/Search";
 
 import { toast } from "react-toastify";
 import ConfirmationModal from "../../components/ConfirmationModal";
@@ -26,9 +11,8 @@ import toastError from "../../errors/toastError";
 import api from "../../services/api";
 import { i18n } from "../../translate/i18n";
 
-import QuestionAnswerIcon from "@mui/icons-material/QuestionAnswer";
+
 import { PencilSimple, Trash } from "@phosphor-icons/react";
-import ButtomCustom from "../../components/Shared/Buttons/ButtomCustom";
 
 const reducer = (state, action) => {
   if (action.type === "LOAD_QUICK_ANSWERS") {
@@ -74,22 +58,7 @@ const reducer = (state, action) => {
   }
 };
 
-/* const useStyles = styled((theme) => ({
-  mainPaper: {
-    border: "none",
-    boxShadow: "none",
-    margin: "0rem 1rem",
-    flex: 1,
-    padding: theme.spacing(1),
-    overflowY: "scroll",
-    ...theme.scrollbarStyles,
-
-  },
-})); */
-
 const QuickAnswers = () => {
-  /*   const classes = useStyles(); */
-
   const [loading, setLoading] = useState(false);
   const [pageNumber, setPageNumber] = useState(1);
   const [searchParam, setSearchParam] = useState("");
@@ -118,11 +87,11 @@ const QuickAnswers = () => {
           setLoading(false);
         } catch (err) {
           const errorMsg =
-          err.response?.data?.message || err.response.data.error;
-        toast({
-          variant: "destructive",
-          title: errorMsg,
-        });
+            err.response?.data?.message || err.response.data.error;
+          toast({
+            variant: "destructive",
+            title: errorMsg,
+          });
         }
       };
       fetchQuickAnswers();
@@ -180,12 +149,11 @@ const QuickAnswers = () => {
         },
       });
     } catch (err) {
-      const errorMsg =
-      err.response?.data?.message || err.response.data.error;
-    toast({
-      variant: "destructive",
-      title: errorMsg,
-    });
+      const errorMsg = err.response?.data?.message || err.response.data.error;
+      toast({
+        variant: "destructive",
+        title: errorMsg,
+      });
     }
     setDeletingQuickAnswers(null);
     setSearchParam("");
@@ -205,9 +173,12 @@ const QuickAnswers = () => {
   };
 
   return (
-    <Stack p={2}>
-      <Stack pt={0.5} spacing={2}>
-        <Typography variant="h5">Respostas Rápidas</Typography>
+    <div className="flex gap-1">
+      {/*    <Stack pt={0.5} spacing={2}>
+        <h2 className="text-2xl font-semibold leading-none tracking-tight text-foreground">
+          Respostas Rápidas
+        </h2>
+
         <Stack direction={"row"} justifyContent={"space-between"}>
           <TextField
             size="small"
@@ -224,16 +195,16 @@ const QuickAnswers = () => {
             }}
           />
           <Stack justifyContent={"center"}>
-            <ButtomCustom
+            <button
               startIcon={<QuestionAnswerIcon />}
-              fn={handleOpenQuickAnswersModal}
+              onClick={handleOpenQuickAnswersModal}
             >
               {i18n.t("quickAnswers.buttons.add")}
-            </ButtomCustom>
+            </button>
           </Stack>
         </Stack>
 
-        {/* <Stack variant="outlined" onScroll={handleScroll}> */}
+      
         <Paper sx={{ width: "100%", overflow: "hidden" }}>
           <TableContainer sx={{ maxHeight: `calc(100vh - 230px)` }}>
             <Table size="small" stickyHeader>
@@ -305,9 +276,8 @@ const QuickAnswers = () => {
         onClose={handleCloseQuickAnswersModal}
         aria-labelledby="form-dialog-title"
         quickAnswerId={selectedQuickAnswers && selectedQuickAnswers.id}
-      ></QuickAnswersModal>
-    </Stack>
-    /*  </Stack> */
+      ></QuickAnswersModal> */}
+    </div>
   );
 };
 

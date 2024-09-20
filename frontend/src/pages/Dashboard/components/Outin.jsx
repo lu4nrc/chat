@@ -32,7 +32,6 @@ const chartConfig = {
 };
 
 export default function Outin({ outinData, loading }) {
-  console.log("outinData", outinData);
 
   if (loading) {
     return <div>Carregando dados...</div>;

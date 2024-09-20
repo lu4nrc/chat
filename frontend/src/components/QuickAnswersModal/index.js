@@ -4,17 +4,7 @@ import { Field, Form, Formik } from "formik";
 import { toast } from "react-toastify";
 import * as Yup from "yup";
 
-import {
-  Button,
-  CircularProgress,
-  Dialog,
-  DialogActions,
-  DialogContent,
-  DialogTitle,
-  Stack,
-  TextField,
-  Typography,
-} from "@mui/material";
+
 
 import { i18n } from "../../translate/i18n";
 
@@ -114,7 +104,7 @@ const QuickAnswersModal = ({
 
   return (
     <div /* className={classes.root} */>
-      <Dialog
+     {/*  <Dialog
         open={open}
         onClose={handleClose}
         maxWidth="sm"
@@ -202,7 +192,7 @@ const QuickAnswersModal = ({
             </Form>
           )}
         </Formik>
-      </Dialog>
+      </Dialog> */}
     </div>
   );
 };

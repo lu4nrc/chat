@@ -16,9 +16,9 @@ import { i18n } from "../../translate/i18n";
 
 import * as Yup from "yup";
 import { Formik, Form, Field, ErrorMessage } from "formik";
-import { toast } from "react-toastify";
+
 import api from "../../services/api";
-import toastError from "../../errors/toastError";
+
 import QueueSelect from "../QueueSelect";
 import { Switch } from "../ui/switch";
 import { Textarea } from "../ui/textarea";

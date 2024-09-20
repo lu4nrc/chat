@@ -27,7 +27,7 @@ import { Tooltip, TooltipContent, TooltipTrigger } from "../ui/tooltip";
 import { cn } from "@/lib/utils";
 import { useToast } from "@/hooks/use-toast";
 
-const TicketListItem = memo(({ ticket, setFilter }) => {
+const TicketListItem = ({ ticket, setFilter }) => {
   const { toast } = useToast();
   let { ticketId } = useParams();
 
@@ -151,7 +151,7 @@ const TicketListItem = memo(({ ticket, setFilter }) => {
         }`}</TooltipContent>
       </Tooltip>
 
-      <div className="flex flex-col w-full  md:w-[370px] justify-center  min-w-0 border-b py-4 pr-1 ">
+      <div className="flex flex-col w-full  md:w-[370px] justify-center  min-w-0 border-b py-4 pr-4">
         <div className="flex gap-1 justify-between">
           <p className="font-medium leading-3 text-base truncate text-foreground">
             {currentTicket.contact.name}
@@ -282,6 +282,6 @@ const TicketListItem = memo(({ ticket, setFilter }) => {
       </div>
     </div>
   );
-});
+};
 
 export default TicketListItem;

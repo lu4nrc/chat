@@ -17,9 +17,9 @@ import { Loader2, MessageSquarePlus, Pen, Smile, Trash } from "lucide-react";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { CardContent } from "@mui/material";
+
 import { Input } from "@/components/ui/input";
-import { Can } from "@/components/Can";
+
 
 const reducer = (state, action) => {
   if (action.type === "LOAD_CONTACTS") {
@@ -183,7 +183,6 @@ const Contacts = () => {
   };
 
   const handleimportContact = async () => {
-    console.log("aqui");
     try {
       await api.post("/contacts/import");
       navigate.go(0);

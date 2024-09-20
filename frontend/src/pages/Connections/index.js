@@ -183,7 +183,7 @@ const Connections = () => {
           </Button>
         )}
         {whatsApp.status === "OPENING" && (
-          <Button>{i18n.t("connections.buttons.connecting")}</Button>
+          <Button onClick={() => handleRequestNewQrCode(whatsApp.id)}>{i18n.t("connections.buttons.connecting")}</Button>
         )}
       </>
     );

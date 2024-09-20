@@ -29,7 +29,7 @@ export default function ContactDrawer({ contact }) {
   }
 
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
+    <Dialog  open={open} onOpenChange={setOpen} >
       <DialogTrigger asChild>
         <Avatar className="h-12 w-12" alt="contact_image">
           <AvatarImage src={contact.profilePicUrl} alt="@contact" />

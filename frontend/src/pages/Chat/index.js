@@ -8,7 +8,7 @@ const Chat = () => {
     <div className="grid md:grid-cols-[320px_1fr] lg:grid-cols-[420px_1fr]">
       <TicketsManager />
 
-      <Outlet />
+     <Outlet />
       {/*       ) : (
         <div className="hidden md:flex flex-col items-center justify-center h-full bg-muted">
           <img

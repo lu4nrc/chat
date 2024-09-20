@@ -5,19 +5,31 @@ import NewTicketModal from "../NewTicketModal";
 import TicketsList from "../TicketsList";
 
 import { AuthContext } from "../../context/Auth/AuthContext";
-import TicketsQueueSelect from "../TicketsQueueSelect";
+//import TicketsQueueSelect from "../TicketsQueueSelect"; //!Corrigir Selecionar filas
 
 import { Button } from "../ui/button";
-import { LoaderCircle } from "lucide-react";
+import { BotOff, LoaderCircle, Wifi } from "lucide-react";
 import { Input } from "../ui/input";
 import { Switch } from "../ui/switch";
 import { Tooltip, TooltipContent, TooltipTrigger } from "../ui/tooltip";
+import { WhatsAppsContext } from "../../context/WhatsApp/WhatsAppsContext";
+import { cn } from "@/lib/utils";
 
 const TicketsManager = () => {
+  const { whatsApps, loading } = useContext(WhatsAppsContext);
   const [newTicketModalOpen, setNewTicketModalOpen] = useState(false);
   const [showAllTickets, setShowAllTickets] = useState(false);
-  const searchInputRef = useRef();
+
   const [filter, setFilter] = useState("");
+
+  const checkConnections = (connectionsArray) => {
+    // Retorna false se algum objeto no array tiver um status diferente de "CONNECTED"
+    return connectionsArray.every((connection) => {
+      return connection.status === "CONNECTED";
+    });
+  };
+
+  const allConnected = checkConnections(whatsApps);
 
   const { user } = useContext(AuthContext);
   const [openCount, setOpenCount] = useState(0);
@@ -54,8 +66,6 @@ const TicketsManager = () => {
                 modalOpen={newTicketModalOpen}
                 onClose={(e) => setNewTicketModalOpen(false)}
               />
-
-              <span className="sr-only">Dashboard</span>
             </div>
           </TooltipTrigger>
           <TooltipContent side="right">Nova conversa</TooltipContent>
@@ -85,13 +95,29 @@ const TicketsManager = () => {
             {showAllTickets ? "Somente os meus" : "Mostrar todos"}
           </TooltipContent>
         </Tooltip>
-        <TicketsQueueSelect
+        {/*//! Preciso corrigir isso!
+         <TicketsQueueSelect
           selectedQueueIds={selectedQueueIds}
           userQueues={user?.queues}
           onChange={(values) => setSelectedQueueIds(values)}
-        />
+        /> */}
       </div>
-
+      {!allConnected && (
+        <div
+          className={cn(
+            "bg-orange-200 w-full py-6 px-2 flex items-center gap-2"
+          )}
+        >
+          <Wifi className="bg-orange-100 rounded-full p-[4px] text-primary w-12 h-9" />
+          <div>
+            <p className="text-sm font-semibold">Conexão Perdida</p>
+            <p className="text-sm opacity-90">
+              Por favor, verifique a página de conexões para restabelecer a
+              comunicação.
+            </p>
+          </div>
+        </div>
+      )}
       <div>
         <div className="grid grid-cols-2 m-1 gap-2 bg-muted rounded-full overflow-hidden">
           <Button
@@ -119,6 +145,7 @@ const TicketsManager = () => {
         </div>
 
         <TicketsList
+          allConnected={allConnected}
           filter={filter}
           setFilter={setFilter}
           status="open"

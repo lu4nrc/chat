@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import api from "../../services/api";
-import { Autocomplete, Stack, TextField, Typography } from "@mui/material";
+
 
 const Tags = ({ contact }) => {
   const [dataUsers, setDataUsers] = useState([]);
@@ -44,7 +44,8 @@ const Tags = ({ contact }) => {
   };
 
   return (
-    <Stack spacing={1}>
+    <>
+    {/*  <Stack spacing={1}>
       {dataUsers ? (
         <Stack>
           <Typography
@@ -149,7 +150,8 @@ const Tags = ({ contact }) => {
       ) : (
         <p>Loading...</p>
       )}
-    </Stack>
+    </Stack> */}
+    </>
   );
 };
 

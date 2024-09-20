@@ -1,27 +1,10 @@
 import React, { useEffect, useState } from "react";
 import openSocket from "../../services/socket-io";
 
-import Typography from "@mui/material/Typography";
-
-import Select from "@mui/material/Select";
-import TextField from "@mui/material/TextField";
-
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
-import Table from "@mui/material/Table";
-import TableBody from "@mui/material/TableBody/TableBody";
-import TableCell from "@mui/material/TableCell";
-import { TimePicker } from "@mui/x-date-pickers/TimePicker";
-
-import TableHead from "@mui/material/TableHead";
-import TableRow from "@mui/material/TableRow";
-
-import ListItem from "@mui/material/ListItem";
-
-import { Button, Card, Stack, styled } from "@mui/material";
-import Checkbox from "@mui/material/Checkbox";
 import { registerLocale } from "react-datepicker";
-import toastError from "../../errors/toastError";
+
 import api from "../../services/api";
 import { i18n } from "../../translate/i18n.js";
 
@@ -32,26 +15,18 @@ import Queues from "../Queues";
 import QuickAnswers from "../QuickAnswers";
 import Tags from "../Tags";
 import Users from "../Users";
-import { useOutletContext } from "react-router-dom";
+
 import { useToast } from "@/hooks/use-toast";
+import { Label } from "@/components/ui/label";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 registerLocale("pt-br", ptBR);
-
-/* const StyledTimePicker = styled(TimePicker)(({ theme }) => ({
-  "& .MuiInputBase-root": {
-    height: 34,
-    maxWidth: 110,
-  },
-})); */
-
-const TabPanel = (props) => {
-  const { children, index, value, ...other } = props;
-  return (
-    <Card role="tabpanel" hidden={value !== index} {...other} elevation={0}>
-      {value === index && <div>{children}</div>}
-    </Card>
-  );
-};
 
 const Settings = () => {
   const [settings, setSettings] = useState([]);
@@ -149,25 +124,19 @@ const Settings = () => {
     };
   }, []);
 
-  const handleChangeSetting = async (e) => {
-    const selectedValue = e.target.value;
-    const settingKey = e.target.name;
-
+  const handleChangeSetting = async (selectedValue, settingKey) => {
     try {
       await api.put(`/settings/${settingKey}`, {
         value: selectedValue,
       });
-      toast.success(i18n.t("settings.success"), {
-        style: {
-          backgroundColor: "#D4EADD",
-          color: "#64A57B",
-        },
+      toast({
+        variant: "success",
+        title: "Configurações atualizadas com sucesso!",
       });
     } catch (err) {
-      const errorMsg = err.response?.data?.message || err.response.data.error;
       toast({
         variant: "destructive",
-        title: errorMsg,
+        title: "Algo deu errado",
       });
     }
   };
@@ -199,37 +168,8 @@ const Settings = () => {
             <TabsTrigger value="quickresponses">Respostas Rápidas</TabsTrigger>
             <TabsTrigger value="api">Api</TabsTrigger>
           </TabsList>
-      
-          <TabsContent value="openinghours">
-            {" "}
-            <Stack p={2}>
-              <Stack pt={0.5} spacing={2}>
-                <Stack spacing={1}>
-                  <Typography variant="subtitle1">
-                    Mensagem de ausência
-                  </Typography>
 
-                  <Stack direction={"row"} spacing={2}>
-                    <TextField
-                      defaultValue={openingHours.message}
-                      onChange={handleMessage}
-                      placeholder={i18n.t("scheduleModal.labels.description")}
-                      fullWidth
-                      multiline
-                      maxRows={2}
-                      minRows={2}
-                    />
-                    <Button
-                      variant="contained"
-                      onClick={() => updateOpeningHours()}
-                    >
-                      Salvar horário
-                    </Button>
-                  </Stack>
-                </Stack>
-              </Stack>
-            </Stack>
-          </TabsContent>
+          <TabsContent value="openinghours"></TabsContent>
           <TabsContent value="user">
             <Users />
           </TabsContent>
@@ -242,81 +182,67 @@ const Settings = () => {
           <TabsContent value="quickresponses">
             <QuickAnswers />
           </TabsContent>
-          <TabsContent value="api">
-            {" "}
-            <Stack direction={"row"} spacing={2} p={2} alignItems={"end"}>
-              <Stack flex={1}>
-                <Typography variant="body2">
-                  {i18n.t("settings.settings.userCreation.name")}
-                </Typography>
-                <Select
-                  margin="dense"
-                  variant="outlined"
-                  native
-                  id="userCreation-setting"
-                  name="userCreation"
-                  value={
-                    settings &&
-                    settings.length > 0 &&
-                    getSettingValue("userCreation")
-                  }
-                  /* className={classes.settingOption} */
-                  onChange={handleChangeSetting}
-                >
-                  <option value="enabled">
+          <TabsContent value="api" className="grid grid-cols-3  gap-2 ">
+            <div className="grid w-full items-center gap-1.5 relative pb-5">
+              <Label htmlFor="name">
+                {i18n.t("settings.settings.userCreation.name")}
+              </Label>
+              <Select
+                id="userCreation-setting"
+                name="userCreation"
+                onValueChange={(selectedValue) =>
+                  handleChangeSetting(selectedValue, "userCreation")
+                }
+              >
+                <SelectTrigger className="w-full">
+                  <SelectValue placeholder="Selecione o tipo de usuário" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="enabled">
                     {i18n.t("settings.settings.userCreation.options.enabled")}
-                  </option>
-                  <option value="disabled">
+                  </SelectItem>
+                  <SelectItem value="disabled">
                     {i18n.t("settings.settings.userCreation.options.disabled")}
-                  </option>
-                </Select>
-              </Stack>
-              <Stack flex={1}>
-                <Typography variant="body2">
-                  {i18n.t("settings.settings.createTicket.name")}
-                </Typography>
-                <Select
-                  margin="dense"
-                  variant="outlined"
-                  native
-                  id="ticketCreate-setting"
-                  name="ticketCreate"
-                  value={
-                    settings &&
-                    settings.length > 0 &&
-                    getSettingValue("ticketCreate")
-                  }
-                  /* className={classes.settingOption} */
-                  onChange={handleChangeSetting}
-                >
-                  <option value="enabled">
-                    {i18n.t("settings.settings.createTicket.options.enabled")}
-                  </option>
-                  <option value="disabled">
-                    {i18n.t("settings.settings.createTicket.options.disabled")}
-                  </option>
-                </Select>
-              </Stack>
+                  </SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
 
-              <Stack flex={1}>
-                <TextField
-                  id="api-token-setting"
-                  readOnly
-                  label="Token Api"
-                  margin="dense"
-                  variant="outlined"
-                  fullWidth
-                  value={
-                    settings &&
-                    settings.length > 0 &&
-                    getSettingValue("userApiToken")
-                  }
-                />
-              </Stack>
-            </Stack>
+            <div className="grid w-full items-center gap-1.5 relative pb-5">
+              <Label htmlFor="name">
+                {i18n.t("settings.settings.createTicket.name")}
+              </Label>
+              <Select
+                id="ticketCreate-setting"
+                name="ticketCreate"
+                onValueChange={(selectedValue) =>
+                  handleChangeSetting(selectedValue, "ticketCreate")
+                }
+              >
+                <SelectTrigger className="w-full">
+                  <SelectValue placeholder="Criação de atendimento" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="enabled">
+                    {i18n.t("settings.settings.createTicket.options.enabled")}
+                  </SelectItem>
+                  <SelectItem value="disabled">
+                    {i18n.t("settings.settings.createTicket.options.disabled")}
+                  </SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div className="grid w-full items-center gap-1.5 relative pb-5">
+              <Label htmlFor="name">Token Api</Label>
+              <p className="text-muted-foreground bg-muted py-2 text-center border w-full rounded-sm text-sm">
+                {settings &&
+                  settings.length > 0 &&
+                  getSettingValue("userApiToken")}
+              </p>
+            </div>
           </TabsContent>
         </Tabs>
-      
       </div>
     </div>
   );

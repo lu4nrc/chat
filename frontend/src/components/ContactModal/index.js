@@ -3,20 +3,11 @@ import React, { useEffect, useRef, useState } from "react";
 import { toast } from "react-toastify";
 import * as Yup from "yup";
 
-import DeleteOutlineIcon from "@mui/icons-material/DeleteOutline";
-import Button from "@mui/material/Button";
-import CircularProgress from "@mui/material/CircularProgress";
-import Dialog from "@mui/material/Dialog";
-import DialogActions from "@mui/material/DialogActions";
-import DialogContent from "@mui/material/DialogContent";
-import DialogTitle from "@mui/material/DialogTitle";
-import IconButton from "@mui/material/IconButton";
-import TextField from "@mui/material/TextField";
-import Typography from "@mui/material/Typography";
+
 
 import { i18n } from "../../translate/i18n";
 
-import { Stack } from "@mui/material";
+
 import toastError from "../../errors/toastError";
 import api from "../../services/api";
 import { useToast } from "@/hooks/use-toast";
@@ -108,7 +99,8 @@ const ContactModal = ({ open, onClose, contactId, initialValues, onSave }) => {
   };
 
   return (
-    <Stack>
+    <>
+      {/*    <Stack>
       <Dialog open={open} onClose={handleClose} maxWidth="lg" scroll="paper">
         <DialogTitle id="form-dialog-title">
           {contactId
@@ -129,9 +121,7 @@ const ContactModal = ({ open, onClose, contactId, initialValues, onSave }) => {
           {({ values, errors, touched, isSubmitting }) => (
             <Form>
               <DialogContent dividers>
-                {/*                 <Typography variant="subtitle1" gutterBottom>
-                  {i18n.t("contactModal.form.mainInfo")}
-                </Typography> */}
+            
                 <Stack spacing={1}>
                   <Stack direction={"row"} spacing={1}>
                     <Stack flex={1} spacing={0.5}>
@@ -278,7 +268,8 @@ const ContactModal = ({ open, onClose, contactId, initialValues, onSave }) => {
           )}
         </Formik>
       </Dialog>
-    </Stack>
+    </Stack>  */}
+    </>
   );
 };
 

@@ -85,7 +85,6 @@ export const store = async (req: Request, res: Response): Promise<Response> => {
     userId,
     isOutbound
   });
-console.log("AQUI create")
   const io = getIO();
   io.to(ticket.status).emit("ticket", {
     action: "update",

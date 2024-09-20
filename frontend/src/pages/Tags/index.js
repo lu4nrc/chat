@@ -1,24 +1,24 @@
 import React, { useEffect } from "react";
 import { toast } from "react-toastify";
 
-import Add from "@mui/icons-material/Add";
-import {
-  Button,
-  Chip,
-  IconButton,
-  List,
-  ListItem,
-  Stack,
-  Typography,
-  useTheme,
-} from "@mui/material";
-import { PencilSimpleLine, Trash } from "@phosphor-icons/react";
 import TagModal from "../../components/TagModal";
-import toastError from "../../errors/toastError";
+
 import api from "../../services/api";
+import { cn } from "@/lib/utils";
+import { Badge } from "@/components/ui/badge";
+import { Edit, Plus, Trash } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { ScrollArea } from "@/components/ui/scroll-area";
 
 const Tags = () => {
-  const theme = useTheme();
   const [userstag, setUserTags] = React.useState([]);
   const [enterprisestags, setEnterprisesTags] = React.useState([]);
   const [customstags, setCustomTags] = React.useState([]);
@@ -38,12 +38,11 @@ const Tags = () => {
         result.data.tags.filter((x) => x?.typetag === "custom") || []
       );
     } catch (err) {
-      const errorMsg =
-      err.response?.data?.message || err.response.data.error;
-    toast({
-      variant: "destructive",
-      title: errorMsg,
-    });
+      const errorMsg = err.response?.data?.message || err.response.data.error;
+      toast({
+        variant: "destructive",
+        title: errorMsg,
+      });
     }
 
     setV(null);
@@ -66,19 +65,30 @@ const Tags = () => {
         },
       });
     } catch (err) {
-      const errorMsg =
-      err.response?.data?.message || err.response.data.error;
-    toast({
-      variant: "destructive",
-      title: errorMsg,
-    });
+      const errorMsg = err.response?.data?.message || err.response.data.error;
+      toast({
+        variant: "destructive",
+        title: errorMsg,
+      });
     }
   };
 
   const TagItem = ({ value }) => {
     return (
-      <Stack direction={"row"} justifyContent={"space-between"} width={"100%"}>
-        <Chip
+      <div className="flex justify-between w-full bg-muted rounded-sm py-2 px-2 mb-1">
+        <Badge
+          className={cn(
+            "",
+            value.typetag === "user"
+              ? ""
+              : value.typetag === "enterprise"
+              ? ""
+              : ""
+          )}
+        >
+          {value.name}
+        </Badge>
+        {/*    <Chip
           label={value.name}
           className={
             value.typetag === "user"
@@ -87,21 +97,21 @@ const Tags = () => {
               ? "classes.chipEnterprise "
               : "classes.chipCustom"
           }
-        />
+        /> */}
 
-        <Stack direction={"row"} spacing={0.5}>
-          <IconButton
+        <div className="flex gap-1">
+          <div
             onClick={() => {
               handleEditTag(value);
             }}
           >
-            <PencilSimpleLine size={18} />
-          </IconButton>
-          <IconButton onClick={() => handleDeleteTag(value.id)}>
+            <Edit size={18} />
+          </div>
+          <div onClick={() => handleDeleteTag(value.id)}>
             <Trash size={18} />
-          </IconButton>
-        </Stack>
-      </Stack>
+          </div>
+        </div>
+      </div>
     );
   };
   const loadTags = async () => {
@@ -115,12 +125,11 @@ const Tags = () => {
         result.data.tags.filter((x) => x?.typetag === "custom") || []
       );
     } catch (err) {
-      const errorMsg =
-      err.response?.data?.message || err.response.data.error;
-    toast({
-      variant: "destructive",
-      title: errorMsg,
-    });
+      const errorMsg = err.response?.data?.message || err.response.data.error;
+      toast({
+        variant: "destructive",
+        title: errorMsg,
+      });
     }
   };
   React.useEffect(() => {
@@ -128,89 +137,62 @@ const Tags = () => {
   }, []);
 
   return (
-    <Stack p={2}>
-      <Stack pt={0.5} spacing={2}>
-        <Stack direction={"row"} justifyContent={"space-between"}>
-          <Typography variant="h5">Atendimentos</Typography>
-          <Button
-            variant="contained"
-            color="primary"
-            onClick={() => setTagOpen(true)}
-          >
-            <Add /> Adicionar Tag
+    <div className="flex gap-1">
+      <div className="pt-1 flex flex-col gap-1 w-full">
+        <div className="flex justify-between">
+          <h2 className="text-2xl font-semibold leading-none tracking-tight text-foreground">
+            Atendimentos
+          </h2>
+          <Button onClick={() => setTagOpen(true)}>
+            <Plus /> Adicionar Tag
           </Button>
-        </Stack>
-        <Stack direction={"row"} spacing={2}>
-          <Stack flex={1} spacing={1}>
-            <Stack>
-              <Typography variant="subtitle1">Usuários</Typography>
-              <Typography variant="body2" color={theme.palette.grey[600]}>
-                Tags referentes aos usuários do sistema
-              </Typography>
-            </Stack>
-
-            <Stack
-              border={"1px solid gray"}
-              borderRadius={1}
-              sx={{ height: "calc(100vh - 240px)", overflow: "auto" }}
-            >
-              <List>
+        </div>
+        <div className="grid grid-cols-3 gap-2">
+          <Card>
+            <CardHeader>
+              <CardTitle>Usuários</CardTitle>
+              <CardDescription>Tags de usuário</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <ScrollArea className="h-[calc(100vh-250px)] w-full ">
                 {userstag.map((value) => (
-                  <ListItem key={value.id}>
-                    <TagItem value={value} />
-                  </ListItem>
+                  <TagItem key={value.id} value={value} />
                 ))}
-              </List>
-            </Stack>
-          </Stack>
-          <Stack flex={1} spacing={1}>
-            <Stack>
-              <Typography variant="subtitle1">Empresas</Typography>
-              <Typography variant="body2" color={theme.palette.grey[600]}>
-                Tags referentes as empresas
-              </Typography>
-            </Stack>
-            <Stack
-              border={"1px solid gray"}
-              borderRadius={1}
-              sx={{ height: "calc(100vh - 240px)", overflow: "auto" }}
-            >
-              <List>
+              </ScrollArea>
+            </CardContent>
+          </Card>
+          <Card>
+            <CardHeader>
+              <CardTitle>Empresas</CardTitle>
+              <CardDescription>Tags de empresas</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <ScrollArea className="h-[calc(100vh-250px)] w-full ">
                 {enterprisestags.map((value) => (
-                  <ListItem key={value.id}>
-                    <TagItem value={value} />
-                  </ListItem>
+                  <TagItem key={value.id} value={value} />
                 ))}
-              </List>
-            </Stack>
-          </Stack>
-          <Stack flex={1} spacing={1}>
-            <Stack>
-              <Typography variant="subtitle1">Personalizadas</Typography>
-              <Typography variant="body2" color={theme.palette.grey[600]}>
-                Tags personalizadas
-              </Typography>
-            </Stack>
+              </ScrollArea>
+            </CardContent>
+          </Card>
 
-            <Stack
-              border={"1px solid gray"}
-              borderRadius={1}
-              sx={{ height: "calc(100vh - 240px)", overflow: "auto" }}
-            >
-              <List>
+          <Card>
+            <CardHeader>
+              <CardTitle>Personalizadas</CardTitle>
+              <CardDescription>Tags personalizadas</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <ScrollArea className="h-[calc(100vh-250px)] w-full ">
                 {customstags.map((value) => (
-                  <ListItem key={value.id}>
-                    <TagItem value={value} />
-                  </ListItem>
+                  <TagItem key={value.id} value={value} />
                 ))}
-              </List>
-            </Stack>
-          </Stack>
+              </ScrollArea>
+            </CardContent>
+          </Card>
 
           <TagModal open={tagOpen} onClose={handleCloseTag} value={v} />
-        </Stack>
-      </Stack>
-    </Stack>
+        </div>
+      </div>
+    </div>
   );
 };
 

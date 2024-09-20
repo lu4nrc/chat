@@ -20,10 +20,20 @@ import { useToast } from "@/hooks/use-toast";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { cn } from "@/lib/utils";
 
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import Outin from "../Dashboard/components/Outin";
+
 const reducer = (state, action) => {
+  //console.log("reducer");
   switch (action.type) {
     case "LOAD_TICKETS":
-      console.log("LOAD_TICKETS");
       const newTickets = action.payload;
 
       newTickets.forEach((ticket) => {
@@ -41,7 +51,6 @@ const reducer = (state, action) => {
       return [...state];
 
     case "RESET_UNREAD":
-      console.log("RESET_UNREAD");
       const ticketId = action.payload;
 
       const resetTicketIndex = state.findIndex((t) => t.id === ticketId);
@@ -52,7 +61,6 @@ const reducer = (state, action) => {
       return [...state];
 
     case "UPDATE_TICKET":
-      console.log("UPDATE_TICKET");
       const updatedTicket = action.payload;
 
       const updateTicketIndex = state.findIndex(
@@ -67,7 +75,6 @@ const reducer = (state, action) => {
       return [...state];
 
     case "UPDATE_TICKET_UNREAD_MESSAGES":
-      console.log("UPDATE_TICKET_UNREAD_MESSAGES");
       const unreadTicket = action.payload;
 
       const unreadTicketIndex = state.findIndex(
@@ -83,7 +90,6 @@ const reducer = (state, action) => {
       return [...state];
 
     case "UPDATE_TICKET_CONTACT":
-      console.log("UPDATE_TICKET_CONTACT");
       const contact = action.payload;
 
       const contactTicketIndex = state.findIndex(
@@ -96,7 +102,6 @@ const reducer = (state, action) => {
       return [...state];
 
     case "DELETE_TICKET":
-      console.log("DELETE_TICKET");
       const deleteTicketId = action.payload;
 
       const deleteTicketIndex = state.findIndex((t) => t.id === deleteTicketId);
@@ -107,7 +112,6 @@ const reducer = (state, action) => {
       return [...state];
 
     case "RESET":
-      console.log("RESET");
       return [];
 
     default:
@@ -120,7 +124,7 @@ const PanelPage = () => {
   const [loading, setLoading] = useState(false);
 
   const [ticketsList, dispatch] = useReducer(reducer, []);
-
+  //console.log(ticketsList);
   const [ByGroup, setByGroup] = useState({
     byQueue: {},
     byUser: {},
@@ -128,7 +132,6 @@ const PanelPage = () => {
     pending: [],
   });
 
-  /* Fetch */
   useEffect(() => {
     setLoading(true);
     const delayDebounceFn = setTimeout(() => {
@@ -137,7 +140,7 @@ const PanelPage = () => {
           const { data } = await api.get("/tickets/allOpen", {});
 
           dispatch({ type: "LOAD_TICKETS", payload: data.tickets });
-
+          //console.log("Fetch...");
           setLoading(false);
         } catch (err) {
           setLoading(false);
@@ -155,57 +158,94 @@ const PanelPage = () => {
     return () => clearTimeout(delayDebounceFn);
   }, []);
 
-  /* Socket */
   useEffect(() => {
     const socket = openSocket();
 
     socket.on("connect", () => {
       socket.emit("joinTickets", "open");
       socket.emit("joinTickets", "pending");
-      socket.emit("joinNotification");
     });
 
     socket.on("ticket", (data) => {
       if (data.action === "updateUnread") {
-        console.log("SOCKET: updateUnread");
-        /*      dispatch({
+        /*     console.log({
+          on: "ticket",
+          action: "updateUnread",
+          dispatch: "RESET_UNREAD",
+          payload: data,
+        }); */
+     /*    dispatch({
           type: "RESET_UNREAD",
           payload: data.ticketId,
         });  */
       }
 
       if (data.action === "update") {
-        console.log("SOCKET: update");
+     /*    console.log({
+          on: "ticket",
+          action: "update",
+          dispatch: "UPDATE_TICKET",
+          payload: data,
+        }); */
         dispatch({
           type: "UPDATE_TICKET",
           payload: data.ticket,
         });
       }
 
-      /*  if (data.action === "update") {
-        //console.log("update: DELETE_TICKET", data);
-        dispatch({ type: "DELETE_TICKET", payload: data.ticket.id });
-      } */
+      if (data.action === "update") {
+      /*   console.log({
+          on: "ticket",
+          action: "update",
+          dispatch: "DELETE_TICKET - OFF",
+          payload: data,
+        }); */
+     // dispatch({ type: "DELETE_TICKET", payload: data.ticket.id }); 
+      }
 
       if (data.action === "delete") {
-        console.log("SOCKET: delete");
+     /*    console.log({
+          on: "ticket",
+          action: "delete",
+          dispatch: "DELETE_TICKET",
+          payload: data,
+        }); */
         dispatch({ type: "DELETE_TICKET", payload: data.ticketId });
       }
     });
 
     socket.on("appMessage", (data) => {
-      if (data.action === "create") {
-        //console.log("create: UPDATE_TICKET_UNREAD_MESSAGES", data);
+      /* console.log("appMessage") */
+      if (data.action === "create" && data.ticket.status === "pending") {
+     /*    console.log({
+          on: "appMessage",
+          action: "create",
+          dispatch: "UPDATE_TICKET_UNREAD_MESSAGES",
+          payload: data,
+        }); */
         dispatch({
           type: "UPDATE_TICKET_UNREAD_MESSAGES",
           payload: data.ticket,
         });
+      } else {
+    /*     console.log({
+          on: "appMessage",
+          status: data.ticket.status,
+          action: "create",
+          dispatch: "UPDATE_TICKET_UNREAD_MESSAGES",
+          payload: data,
+        }); */
       }
     });
 
     socket.on("contact", (data) => {
       if (data.action === "update") {
-        //console.log("update: UPDATE_TICKET_CONTACT", data);
+       /*  console.log({
+          on: "contact",
+          action: "update",
+          dispatch: "UPDATE_TICKET_CONTACT",
+          payload: data,
+        }); */
         dispatch({
           type: "UPDATE_TICKET_CONTACT",
           payload: data.contact,
@@ -221,12 +261,22 @@ const PanelPage = () => {
   /* GroupBy */
   useEffect(() => {
     if (!ticketsList || ticketsList.length === 0) return;
+    //console.log("ticketsList", ticketsList);
     const group = (tickets) => {
       return tickets.reduce(
         (acc, ticket) => {
+          if (ticket.status === "closed") return acc;
+
           const queueName = ticket.queue ? ticket.queue.name : "não atribuído";
           const userName = ticket.user ? ticket.user.name : null;
           const status = ticket.status;
+          const isOutbound = ticket.isOutbound;
+
+          if (isOutbound) {
+            acc.outin.outbound++;
+          } else {
+            acc.outin.inbound++;
+          }
 
           // Agrupando por queue
           if (!acc.byQueue[queueName]) {
@@ -251,12 +301,27 @@ const PanelPage = () => {
 
           return acc;
         },
-        { byQueue: {}, byUser: {}, open: [], pending: [] }
+        {
+          byQueue: {},
+          byUser: {},
+          open: [],
+          pending: [],
+          outin: { outbound: 0, inbound: 0 },
+        }
       );
     };
 
     const groupedData = group(ticketsList);
+   
 
+    groupedData.open.sort(
+      (a, b) => new Date(a.initialDate) - new Date(b.initialDate)
+    );
+    groupedData.pending.sort(
+      (a, b) => new Date(a.createdAt) - new Date(b.createdAt)
+    );
+
+    console.log("GroupBy", groupedData);
     setByGroup(groupedData);
   }, [ticketsList]);
 
@@ -265,7 +330,6 @@ const PanelPage = () => {
   }
   return (
     <>
-      {/* <Lab />  */}
       <div className="w-full h-screen flex flex-col p-2">
         <div className="flex items-center gap-2 pb-2">
           <h1 className="text-2xl font-semibold leading-none tracking-tight text-foreground">
@@ -273,26 +337,60 @@ const PanelPage = () => {
           </h1>
           <Badge className="ml-auto sm:ml-0">Beta</Badge>
         </div>
-        <div className="grid grid-cols-6  gap-2 h-screen">
+        <div className="grid grid-cols-3 grid-rows-[auto_1fr]  gap-2 h-screen">
+          <Card className="col-span-2">
+            <CardHeader>
+              <CardTitle>Aguarde....</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <p></p>
+            </CardContent>
+            <CardFooter>
+              <p></p>
+            </CardFooter>
+          </Card>
+
+          <Outin outinData={ByGroup.outin} />
+
           <ListTicketStatus tickets={ByGroup.pending} status={"pending"} />
 
           <ListTicketStatus tickets={ByGroup.open} status={"open"} />
 
-          <div className="bg-muted rounded-sm">
-            <div>
-              {Object.entries(ByGroup.byQueue).map(([key, value]) => (
-                <QueueListItem name={key} qtd={value} />
-              ))}
-            </div>
-          </div>
-          <div className="bg-muted rounded-sm">
-            {Object.entries(ByGroup.byUser).map(([key, value]) => (
-              <div key={key} className="flex gap-1 justify-between">
-                <p className="text-sm font-medium">{key}</p>
-                <p className="text-xs text-muted-foreground">{value}</p>
+          <Card>
+            <CardHeader>
+              <CardTitle>Dep. e Usuários</CardTitle>
+            </CardHeader>
+            <CardContent className="grid grid-cols-2 gap-1">
+              <div className="flex flex-col gap-1">
+                <p className="text-base font-medium">Departamentos</p>
+               <ScrollArea className="h-[calc(100vh-380px)] w-full">
+                  {Object.entries(ByGroup.byQueue).map(([key, value]) => (
+                    <div
+                      key={key}
+                      className="grid grid-cols-[1fr_auto] justify-between bg-muted p-1 rounded mb-1"
+                    >
+                      <p className="text-sm font-medium truncate">{key}</p>
+                      <p className="text-xs text-muted-foreground">{value}</p>
+                    </div>
+                  ))}
+                </ScrollArea> 
               </div>
-            ))}
-          </div>
+              <div className="flex flex-col gap-1">
+                <p className="text-base font-medium">Usuários</p>
+                <ScrollArea className="h-[calc(100vh-380px)] w-full">
+                  {Object.entries(ByGroup.byUser).map(([key, value]) => (
+                    <div
+                      key={key}
+                      className="grid grid-cols-[1fr_auto] justify-between bg-muted p-1 rounded mb-1"
+                    >
+                      <p className="text-sm font-medium truncate">{key}</p>
+                      <p className="text-xs text-muted-foreground">{value}</p>
+                    </div>
+                  ))}
+                </ScrollArea> 
+              </div>
+            </CardContent>
+          </Card>
         </div>
       </div>
     </>
@@ -304,35 +402,42 @@ export default PanelPage;
 function ListTicketStatus({ tickets, status }) {
   const filteredTickets = tickets.filter((el) => el.status === status);
   const statusName = status === "open" ? "em aberto" : "aguardando";
-  if (filteredTickets.length === 0) {
-    return <p>Nenhum atendimento {statusName}</p>;
-  }
+  /*  if (filteredTickets.length === 0) {
+    return;
+  } */
 
   return (
-    <div className="flex flex-col bg-muted col-span-2 rounded-sm">
-      <div className="flex gap-2">
-        <div
-          className={cn(
-            "flex justify-center items-center p-2 bg-yellow-100 rounded-full",
-            status === "open" ? "bg-sky-100" : "bg-yellow-100"
-          )}
-        >
-          {status === "open" ? (
-            <Headset className="text-sky-500 w-4 h-4" />
-          ) : (
-            <Loader className="text-yellow-500 w-4 h-4" />
-          )}
-        </div>
-        <h2 className="text-xl font-semibold pl-1 py-1">
+    <Card>
+      <CardHeader>
+        <CardTitle className="flex gap-1 items-center">
+          <div
+            className={cn(
+              "flex justify-center items-center p-2 bg-yellow-100 rounded-full",
+              status === "open" ? "bg-sky-100" : "bg-yellow-100"
+            )}
+          >
+            {status === "open" ? (
+              <Headset className="text-sky-500 w-4 h-4" />
+            ) : (
+              <Loader className="text-yellow-500 w-4 h-4" />
+            )}
+          </div>
           {status === "open" ? "Em atendimento" : "Aguardando"}
-        </h2>
-      </div>
-      <ScrollArea className="h-[calc(100vh-150px)] w-full ">
-        {filteredTickets.map((el) => (
-          <ListContactItem key={el.id} ticket={el} status={status} />
-        ))}
-      </ScrollArea>
-    </div>
+          <p className="text-sm">{filteredTickets.length}</p>
+        </CardTitle>
+      </CardHeader>
+      <CardContent>
+       {filteredTickets.length > 0 ? (
+          <ScrollArea className="h-[calc(100vh-370px)] w-full ">
+            {filteredTickets.map((el) => (
+              <ListContactItem key={el.id} ticket={el} status={status} />
+            ))}
+          </ScrollArea>
+        ) : (
+          <p>Não temos atendimentos {statusName}</p>
+        )} 
+      </CardContent>
+    </Card>
   );
 }
 
@@ -379,7 +484,7 @@ function ListContactItem({ ticket, status }) {
   }, [ticket.createdAt, ticket.updatedAt]);
 
   return (
-    <div className="grid grid-cols-[auto_1fr_auto] gap-1 p-1 border-b-muted-foreground">
+    <div className="grid grid-cols-[auto_1fr_auto] gap-1 p-1 bg-muted rounded mb-1">
       <Avatar>
         <AvatarImage src={ticket.contact.profilePicUrl} alt="@shadcn" />
         <AvatarFallback>
@@ -413,17 +518,6 @@ function ListContactItem({ ticket, status }) {
             </p>
           </div>
         </div>
-      </div>
-    </div>
-  );
-}
-
-function QueueListItem({ name, qtd }) {
-  return (
-    <div className="grid  grid-cols-[auto_1fr_auto] gap-1  p-1 border-b-muted-foreground">
-      <div className="flex flex-col">
-        <p className="text-sm font-medium">{name}</p>
-        <p className="text-xs text-muted-foreground">{qtd}</p>
       </div>
     </div>
   );

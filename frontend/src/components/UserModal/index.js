@@ -2,7 +2,7 @@ import React, { useContext, useEffect, useState } from "react";
 import { ErrorMessage, Field, Form, Formik } from "formik";
 import * as Yup from "yup";
 import { i18n } from "../../translate/i18n";
-import { Visibility, VisibilityOff } from "@mui/icons-material";
+
 
 import {
   Dialog,
@@ -19,7 +19,7 @@ import { AuthContext } from "../../context/Auth/AuthContext";
 import toastError from "../../errors/toastError";
 import useWhatsApps from "../../hooks/useWhatsApps";
 import api from "../../services/api";
-import { Can } from "../Can";
+
 import QueueSelect from "../QueueSelect";
 import { Edit } from "lucide-react";
 import { Button } from "../ui/button";

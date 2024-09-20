@@ -117,8 +117,8 @@ const TicketListItem = memo(({ ticket, setFilter, handleSelectTicket }) => {
       )}
       key={currentTicket.id}
       onClick={(e) => {
-        handleSelectTicket(ticket.id)
-       /*  console.log("navigate")
+        handleSelectTicket(ticket.id);
+        /* 
         e.preventDefault();
         navigate(`/tickets/${ticket.id}`); */
       }}

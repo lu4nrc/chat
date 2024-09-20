@@ -1,47 +1,15 @@
 import React, { useEffect, useReducer, useRef, useState } from "react";
 
-import Badge from "@mui/material/Badge";
-import Dialog from "@mui/material/Dialog";
-import TextField from "@mui/material/TextField";
+
 import { toast } from "react-toastify";
 
-import DialogTitle from "@mui/material/DialogTitle";
-import IconButton from "@mui/material/IconButton";
-import Typography from "@mui/material/Typography";
 
-import BottomNavigation from "@mui/material/BottomNavigation";
-import BottomNavigationAction from "@mui/material/BottomNavigationAction";
 
-import Add from "@mui/icons-material/Add";
-import ArrowForwardIos from "@mui/icons-material/ArrowForwardIos";
-import ChatIcon from "@mui/icons-material/Chat";
-import Check from "@mui/icons-material/Check";
-import Clear from "@mui/icons-material/Clear";
-import Link from "@mui/icons-material/Link";
-import Person from "@mui/icons-material/Person";
-import RecentActorsIcon from "@mui/icons-material/RecentActors";
-import Settings from "@mui/icons-material/Settings";
-import Avatar from "@mui/material/Avatar";
-import List from "@mui/material/List";
-import ListItem from "@mui/material/ListItem";
-import ListItemAvatar from "@mui/material/ListItemAvatar";
-import ListItemText from "@mui/material/ListItemText";
-import Paper from "@mui/material/Paper";
+
 import { i18n } from "../../translate/i18n";
 
-import InputBase from "@mui/material/InputBase";
 
-import SearchIcon from "@mui/icons-material/Search";
-import {
-  Box,
-  Checkbox,
-  Chip,
-  InputAdornment,
-  ListItemSecondaryAction,
-  Stack,
-  Tooltip,
-  useTheme,
-} from "@mui/material";
+
 import TransmissionImage from "../../assets/transmission.svg";
 import { getBackendUrl } from "../../config";
 import toastError from "../../errors/toastError";
@@ -115,7 +83,7 @@ const reducer = (state, action) => {
   }
 };
 const TransmissionModal = ({ open, onClose, transmission }) => {
-  const theme = useTheme();
+ 
   const isMounted = useRef(true);
   const listRef = React.createRef();
   const hiddenFileInput = React.useRef(null);
@@ -352,7 +320,8 @@ const TransmissionModal = ({ open, onClose, transmission }) => {
     }
   }, [contactsSelected, msgs, transmissionName]);
   return (
-    <Dialog open={open} onClose={handleClose} fullWidth={true} maxWidth={"md"}>
+    <>
+    {/* <Dialog open={open} onClose={handleClose} fullWidth={true} maxWidth={"md"}>
       {step !== 2 ? (
         <>
           <DialogTitle id="form-dialog-title" variant="h4">
@@ -364,7 +333,7 @@ const TransmissionModal = ({ open, onClose, transmission }) => {
           <Stack>
             {step === 0 ? (
               <>
-                {/* +++++++++ STEP 1 +++++++++++++++++ */}
+                
                 <Stack
                   p={1}
                   direction={"row"}
@@ -375,7 +344,7 @@ const TransmissionModal = ({ open, onClose, transmission }) => {
                     border: `1px solid ${theme.palette.grey[300]}`,
                   }}
                 >
-                  {/* Left */}
+                  
                   <Stack flex={1} spacing={0.5} p={1} borderRadius={1}>
                     <Typography variant="h5" fontWeight={"bold"}>
                       {" "}
@@ -501,7 +470,7 @@ const TransmissionModal = ({ open, onClose, transmission }) => {
                     </List>
                   </Stack>
 
-                  {/* Right */}
+                 
                   <Stack flex={1} spacing={0.5} p={1} borderRadius={1}>
                     <Stack direction={"row"} spacing={2}>
                       <Typography variant="h5" fontWeight={"bold"}>
@@ -607,7 +576,7 @@ const TransmissionModal = ({ open, onClose, transmission }) => {
                                 });
                               }}
                             >
-                              {/*                               <Checkbox
+                                                           <Checkbox
                                 checked={
                                   allContacts
                                     ? true
@@ -618,7 +587,7 @@ const TransmissionModal = ({ open, onClose, transmission }) => {
                                         return false;
                                       })
                                 }
-                              /> */}
+                              /> 
                             </IconButton>
                           </ListItemSecondaryAction>
                         </ListItem>
@@ -628,7 +597,7 @@ const TransmissionModal = ({ open, onClose, transmission }) => {
                 </Stack>
               </>
             ) : (
-              /* +++++++++ STEP 2 +++++++++++++++++ */
+             
               <Stack
                 p={1}
                 direction={"row"}
@@ -640,7 +609,7 @@ const TransmissionModal = ({ open, onClose, transmission }) => {
                 }}
               >
                 <Stack flexDirection={"column"} flex={1} spacing={1}>
-                  {/*  + Box Message */}
+                  
                   <Box
                     ref={listRef}
                     sx={{
@@ -654,7 +623,7 @@ const TransmissionModal = ({ open, onClose, transmission }) => {
                     {msgs.map((msg, key) => {
                       return (
                         <>
-                          {/* Message */}
+                         
                           <Stack key={key} p={1}>
                             {msg.type !== "img" ? (
                               <Stack
@@ -762,7 +731,7 @@ const TransmissionModal = ({ open, onClose, transmission }) => {
                   </Stack>
                 </Stack>
 
-                {/*                <InputBase
+                                <InputBase
                     onKeyDown={(event) => {
                       if (event.key === "Enter") {
                         event.preventDefault();
@@ -774,7 +743,7 @@ const TransmissionModal = ({ open, onClose, transmission }) => {
                     style={{ width: 350 }}
                     sx={{ ml: 1, flex: 1 }}
                     placeholder="Digite uma mensagem ou envie algum arquivo"
-                  /> */}
+                  /> 
                 <Stack flex={1} position={"relative"} p={2}>
                   <Tooltip
                     sx={{ position: "absolute", right: 0 }}
@@ -823,10 +792,10 @@ const TransmissionModal = ({ open, onClose, transmission }) => {
           </Stack>
         </>
       ) : (
-        /* FIM */
+       
         <></>
       )}
-      <Paper /* className={classes.bottomNavigation} */ elevation={3}>
+      <Paper elevation={3}>
         <BottomNavigation
           showLabels
           value={value}
@@ -864,22 +833,23 @@ const TransmissionModal = ({ open, onClose, transmission }) => {
           >
             <ArrowForwardIos color={step === 1 ? "primary" : "disabled"} />
           </div>
-          {/*          <BottomNavigationAction
+                  <BottomNavigationAction
             label="Configurações"
             icon={<Settings />}
             onClick={() => setStep(2)}
             disabled={enableSteps[2]}
-          /> */}
+          />
           <BottomNavigationAction
             label="Salvar"
             disabled={enableSteps[3]}
-            /* className={!enableSteps[3] ? classes.saveButton : null} */
+             className={!enableSteps[3] ? classes.saveButton : null}
             icon={<Check />}
             onClick={save}
           />
         </BottomNavigation>
       </Paper>
-    </Dialog>
+    </Dialog> */}
+    </>
   );
 };
 

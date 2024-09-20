@@ -1,7 +1,6 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import openSocket from "../../services/socket-io";
-
 import { i18n } from "../../translate/i18n";
 import api from "../../services/api";
 import { useToast } from "../use-toast";
@@ -13,17 +12,18 @@ const useAuth = () => {
   const [isAuth, setIsAuth] = useState(false);
   const [loading, setLoading] = useState(true);
   const [user, setUser] = useState({});
+  
+  // Setup interceptors
   api.interceptors.request.use(
     (config) => {
       const token = localStorage.getItem("token");
       if (token) {
         config.headers["Authorization"] = `Bearer ${JSON.parse(token)}`;
-        setIsAuth(true);
       }
       return config;
     },
     (error) => {
-      Promise.reject(error);
+      return Promise.reject(error);
     }
   );
 
@@ -40,8 +40,8 @@ const useAuth = () => {
         if (data) {
           localStorage.setItem("token", JSON.stringify(data.token));
           api.defaults.headers.Authorization = `Bearer ${data.token}`;
+          return api(originalRequest);
         }
-        return api(originalRequest);
       }
       if (error?.response?.status === 401) {
         localStorage.removeItem("token");
@@ -55,8 +55,8 @@ const useAuth = () => {
 
   useEffect(() => {
     const token = localStorage.getItem("token");
-    (async () => {
-      if (token) {
+    if (token) {
+      (async () => {
         try {
           const { data } = await api.post("/auth/refresh_token");
           api.defaults.headers.Authorization = `Bearer ${data.token}`;
@@ -70,9 +70,11 @@ const useAuth = () => {
             title: errorMsg,
           });
         }
-      }
-      setLoading(false);
-    })();
+        setLoading(false);
+      })();
+    } else {
+      setLoading(false); // Ensure loading state is set to false when no token is found
+    }
   }, []);
 
   useEffect(() => {
@@ -102,16 +104,15 @@ const useAuth = () => {
       toast({
         variant: "success",
         title: i18n.t("auth.toasts.success"),
-        //description: "Se até o Domínio Web tem bug, quem sou eu pra não ter? 😅🖥️",
       });
       navigate("/tickets");
-      setLoading(false);
     } catch (err) {
       const errorMsg = err.response?.data?.message || err.response.data.error;
       toast({
         variant: "destructive",
         title: errorMsg,
       });
+    } finally {
       setLoading(false);
     }
   };
@@ -124,26 +125,25 @@ const useAuth = () => {
       setUser({});
       localStorage.removeItem("token");
       api.defaults.headers.Authorization = undefined;
-      setLoading(false);
-      clearInterval(interval);
       navigate("/login");
     } catch (err) {
       toast({
         variant: "destructive",
         title: "Ops, Algo deu errado!",
-        //description: "Friday, February 10, 2023 at 5:57 PM",
       });
+    } finally {
       setLoading(false);
     }
   };
 
   useEffect(() => {
     if (user.id) {
-      const intervalInMilliseconds = 8 * 60 * 60 * 1000; // 8 horas em milissegundos, valor anterior 60000 em segundos 60
+      const intervalInMilliseconds = 8 * 60 * 60 * 1000; // 8 horas
       interval = setInterval(async () => {
         await api.put(`/users/time/${user.id}`);
       }, intervalInMilliseconds);
     }
+    return () => clearInterval(interval); // Clear interval on component unmount
   }, [user.id]);
 
   return { isAuth, user, loading, handleLogin, handleLogout };

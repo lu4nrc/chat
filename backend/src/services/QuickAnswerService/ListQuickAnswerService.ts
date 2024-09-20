@@ -18,19 +18,19 @@ const ListQuickAnswerService = async ({
 }: Request): Promise<Response> => {
   const whereCondition = {
     message: Sequelize.where(
-      Sequelize.fn("LOWER", Sequelize.col("message")),
+      Sequelize.fn("LOWER", Sequelize.col("shortcut")),
       "LIKE",
       `%${searchParam.toLowerCase().trim()}%`
     )
   };
-  const limit = 20;
+  const limit = 10;
   const offset = limit * (+pageNumber - 1);
 
   const { count, rows: quickAnswers } = await QuickAnswer.findAndCountAll({
     where: whereCondition,
     limit,
     offset,
-    order: [["message", "ASC"]]
+    order: [["shortcut", "ASC"]]
   });
 
   const hasMore = count > offset + quickAnswers.length;

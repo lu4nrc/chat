@@ -3,22 +3,8 @@ import { toast } from "react-toastify";
 import { Field, Form, Formik } from "formik";
 import * as Yup from "yup";
 
-import {
-  Button,
-  CircularProgress,
-  Dialog,
-  DialogActions,
-  DialogTitle,
-  IconButton,
-  InputAdornment,
-  MenuItem,
-  Select,
-  Stack,
-  TextField,
-  Typography,
-} from "@mui/material";
 
-import { Visibility, VisibilityOff } from "@mui/icons-material";
+
 
 import { i18n } from "../../translate/i18n";
 
@@ -26,7 +12,7 @@ import { AuthContext } from "../../context/Auth/AuthContext";
 import toastError from "../../errors/toastError";
 import useWhatsApps from "../../hooks/useWhatsApps";
 import api from "../../services/api";
-import { Can } from "../Can";
+
 import QueueSelect from "../QueueSelect";
 import { useToast } from "@/hooks/use-toast";
 

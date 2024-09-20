@@ -1,4 +1,4 @@
-import { Navigate, createBrowserRouter, useRoutes } from "react-router-dom";
+import { Navigate, createBrowserRouter, Route, Routes } from "react-router-dom";
 import LoggedInLayout from "../layout";
 import Dashboard from "../pages/Dashboard/";
 
@@ -13,9 +13,6 @@ import Queues from "../pages/Queues/";
 import { AuthProvider, useAuthContext } from "../context/Auth/AuthContext";
 import { WhatsAppsProvider } from "../context/WhatsApp/WhatsAppsContext";
 import Transmission from "../pages/Transmission";
-import { LocalizationProvider } from "@mui/x-date-pickers";
-
-import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 
 import "dayjs/locale/pt-br";
 import ErrorPage from "../pages/error";
@@ -30,10 +27,14 @@ import Chat from "../pages/Chat";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 
-const PrivateRoute = ({ element }) => {
+const PrivateRoute = ({ children }) => {
   const { isAuth } = useAuthContext();
-
-  return isAuth ? element : <Navigate to="/login" replace />;
+  
+  if (!isAuth) {
+    return <Navigate to="/login" replace />;
+  }
+  
+  return children;
 };
 
 const router = createBrowserRouter([
@@ -51,15 +52,12 @@ const router = createBrowserRouter([
     element: (
       <AuthProvider>
         <ThemeProvider defaultTheme="dark" storageKey="vite-ui-theme">
-          <LocalizationProvider
-            dateAdapter={AdapterDayjs}
-            adapterLocale="pt-br"
-          >
-            <ToastContainer /> {/* Remover em breve react-toastify*/}
-            <TooltipProvider>
-              <PrivateRoute element={<LoggedInLayout />} />
-            </TooltipProvider>
-          </LocalizationProvider>
+          <ToastContainer /> {/* Remover em breve react-toastify*/}
+          <TooltipProvider>
+            <PrivateRoute>
+              <LoggedInLayout />
+            </PrivateRoute>
+          </TooltipProvider>
         </ThemeProvider>
       </AuthProvider>
     ),
@@ -71,7 +69,11 @@ const router = createBrowserRouter([
       },
       {
         path: "/tickets",
-        element: <Chat />,
+        element: (
+          <WhatsAppsProvider>
+            <Chat />
+          </WhatsAppsProvider>
+        ),
         children: [
           {
             path: ":ticketId",
@@ -104,20 +106,19 @@ const router = createBrowserRouter([
         element: <QuickAnswers />,
       },
       {
-        path: "/Settings",
+        path: "/settings",
         element: <Settings />,
       },
       {
-        path: "/Queues",
+        path: "/queues",
         element: <Queues />,
       },
-
       {
-        path: "/Transmission",
+        path: "/transmission",
         element: <Transmission />,
       },
       {
-        path: "/Panel",
+        path: "/panel",
         element: <PanelPage />,
       },
       {

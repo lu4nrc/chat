@@ -1,8 +1,6 @@
-import Menu from "@mui/material/Menu";
-import MenuItem from "@mui/material/MenuItem";
+
 import React, { useContext, useEffect, useRef, useState } from "react";
 import { AuthContext } from "../../context/Auth/AuthContext";
-import toastError from "../../errors/toastError";
 import api from "../../services/api";
 
 import ConfirmationModal from "../ConfirmationModal";

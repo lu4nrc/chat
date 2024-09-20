@@ -41,6 +41,7 @@ import { Separator } from "@/components/ui/separator";
 import { Badge } from "@/components/ui/badge";
 import Media from "./components/media";
 import PizzaQueuesCard from "./components/pizzaQueuesCard";
+import Outin from "./components/Outin";
 
 const chartConfig = {
   total: {
@@ -72,6 +73,7 @@ const FourteenDays = () => {
   const [usersData, setUsersData] = useState();
   const [mediaData, setMediaData] = useState();
   const [queuesData, setQueuesData] = useState();
+  const [outin, setOutin] = useState();
 
   useEffect(() => {
     (async () => {
@@ -84,6 +86,7 @@ const FourteenDays = () => {
         setQueuesData(data.queues);
         setMediaData(data.media);
         setStatus(data.status);
+        setOutin(data.outin);
         setLoading(false);
       } catch (err) {
         setLoading(false);
@@ -94,119 +97,116 @@ const FourteenDays = () => {
   return (
     <div class="w-full m-auto grid grid-cols-1 md:grid-cols-8 gap-1 md:gap-3">
     <div className="col-span-1  md:col-span-2">
-      <Media mediaData={mediaData} loading={loading} />
-    </div>
+     <Outin outinData={outin} loading={loading}/>
+   </div> 
 
-    <div class="col-span-1 md:col-span-4 row-span-2 ">
-      {hours && (
-        <Card className="h-full">
-          <CardHeader className="flex flex-row items-center">
-            <CardTitle>
-              Atendimentos (Período de 14 dias)<Badge>{status.total}</Badge>
-            </CardTitle>
-          </CardHeader>
+   <div class="col-span-1 md:col-span-4 row-span-2 ">
+     {hours && (
+       <Card className="h-full">
+         <CardHeader className="flex flex-row items-center">
+           <CardTitle>
+             Atendimentos (Período de 14 dias)<Badge>{status.total}</Badge>
+           </CardTitle>
+         </CardHeader>
 
-          <CardContent className="flex">
-            {status && (
-              <div className="flex flex-col gap-1">
-                <div className="flex flex-col">
-                  <div className="text-sm text-chart2">Aguardando</div>
-                  <div className="flex items-baseline gap-1 text-2xl font-bold tabular-nums leading-none">
-                    {status.pending}
-                  </div>
-                </div>
+         <CardContent className="flex">
+           {status && (
+             <div className="flex flex-col gap-1">
+               <div className="flex flex-col">
+                 <div className="text-sm text-chart2">Aguardando</div>
+                 <div className="flex items-baseline gap-1 text-2xl font-bold tabular-nums leading-none">
+                   {status.pending}
+                 </div>
+               </div>
 
-                <Separator
-                  orientation="vertical"
-                  className="mx-2 h-5 w-px"
-                />
+               <Separator orientation="vertical" className="mx-2 h-5 w-px" />
 
-                <div className="flex flex-col gap-1">
-                  <div className="text-sm text-chart1">Atendendo</div>
-                  <div className="flex items-baseline gap-1 text-2xl font-bold tabular-nums leading-none">
-                    {status.open}
-                  </div>
-                </div>
-                <Separator
-                  orientation="vertical"
-                  className="mx-2 h-5 w-px"
-                />
-                <div className="flex flex-col gap-1">
-                  <div className="text-sm text-chart3">Fechados</div>
-                  <div className="flex items-baseline gap-1 text-2xl font-bold tabular-nums leading-none">
-                    {status.closed}
-                  </div>
-                </div>
-              </div>
-            )}
-            <ChartContainer className="h-[200px] w-full" config={chartConfig}>
-              <LineChart
-                accessibilityLayer
-                data={hours}
-                margin={{
-                  top: 20,
-                  left: 12,
-                  right: 12,
-                }}
-              >
-                <CartesianGrid vertical={false} />
-                <XAxis
-                  dataKey="date"
-                  tickLine={false}
-                  axisLine={false}
-                  tickMargin={8}
-                  tickFormatter={(value) => {
-                    const date = new Date(value + "T00:00:00Z"); // Força a data a ser interpretada como UTC
-                    return date.toLocaleDateString("pt-BR", {
-                      weekday: "short",
-                      timeZone: "UTC", // Garante que o fuso horário UTC seja usado
-                    });
-                  }}
-                />
-                <ChartTooltip
-                  cursor={false}
-                  content={<ChartTooltipContent indicator="line" />}
-                />
+               <div className="flex flex-col gap-1">
+                 <div className="text-sm text-chart1">Atendendo</div>
+                 <div className="flex items-baseline gap-1 text-2xl font-bold tabular-nums leading-none">
+                   {status.open}
+                 </div>
+               </div>
+               <Separator orientation="vertical" className="mx-2 h-5 w-px" />
+               <div className="flex flex-col gap-1">
+                 <div className="text-sm text-chart3">Fechados</div>
+                 <div className="flex items-baseline gap-1 text-2xl font-bold tabular-nums leading-none">
+                   {status.closed}
+                 </div>
+               </div>
+             </div>
+           )}
+           <ChartContainer className="h-[200px] w-full" config={chartConfig}>
+             <LineChart
+               accessibilityLayer
+               data={hours}
+               margin={{
+                 top: 20,
+                 left: 12,
+                 right: 12,
+               }}
+             >
+               <CartesianGrid vertical={false} />
+               <XAxis
+                 dataKey="date"
+                 tickLine={false}
+                 axisLine={false}
+                 tickMargin={8}
+                 tickFormatter={(value) => {
+                   const date = new Date(value + "T00:00:00Z"); // Força a data a ser interpretada como UTC
+                   return date.toLocaleDateString("pt-BR", {
+                     weekday: "short",
+                     timeZone: "UTC", // Garante que o fuso horário UTC seja usado
+                   });
+                 }}
+               />
+               <ChartTooltip
+                 cursor={false}
+                 content={<ChartTooltipContent indicator="line" />}
+               />
 
-                <Line
-                  name="Total"
-                  dataKey="total"
-                  type="natural"
-                  stroke="var(--color-total)"
-                  strokeWidth={2}
-                  dot={{
-                    fill: "var(--color-total)",
-                  }}
-                  activeDot={{
-                    r: 6,
-                  }}
-                >
-                  <LabelList
-                    position="top"
-                    offset={12}
-                    className="fill-foreground"
-                    fontSize={12}
-                  />
-                </Line>
-              </LineChart>
-            </ChartContainer>
-          </CardContent>
-        </Card>
-      )}
-    </div>
+               <Line
+                 name="Total"
+                 dataKey="total"
+                 type="natural"
+                 stroke="var(--color-total)"
+                 strokeWidth={2}
+                 dot={{
+                   fill: "var(--color-total)",
+                 }}
+                 activeDot={{
+                   r: 6,
+                 }}
+               >
+                 <LabelList
+                   position="top"
+                   offset={12}
+                   className="fill-foreground"
+                   fontSize={12}
+                 />
+               </Line>
+             </LineChart>
+           </ChartContainer>
+         </CardContent>
+       </Card>
+     )}
+   </div>
 
-    <div className="col-span-1  md:col-span-2 row-span-2 ">
-      <PizzaQueuesCard queuesData={queuesData} loading={loading} />
-    </div>
+   <div className="col-span-1  md:col-span-2 row-span-2 ">
+     <PizzaQueuesCard queuesData={queuesData} loading={loading} />
+   </div>
 
-    <div class="col-span-1 md:col-span-4 ">
-      <UsersCard usersData={usersData} loading={loading} />
-    </div>
+   <div className="col-span-1  md:col-span-2">
+     <Media mediaData={mediaData} loading={loading} />
+   </div>
+   <div class="col-span-1 md:col-span-4 ">
+     <UsersCard usersData={usersData} loading={loading} />
+   </div>
 
-    <div class="col-span-1 md:col-span-4">
-      <QueuesCard queuesData={queuesData} loading={loading} />
-    </div>
-  </div>
+   <div class="col-span-1 md:col-span-4">
+     <QueuesCard queuesData={queuesData} loading={loading} />
+   </div>
+ </div>
   );
 };
 

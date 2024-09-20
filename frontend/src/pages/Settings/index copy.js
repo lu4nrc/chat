@@ -1,31 +1,17 @@
 import React, { useEffect, useState } from "react";
 import openSocket from "../../services/socket-io";
 
-import Typography from "@mui/material/Typography";
 
-import Select from "@mui/material/Select";
-import TextField from "@mui/material/TextField";
-import { toast } from "react-toastify";
 
-import Table from "@mui/material/Table";
-import TableBody from "@mui/material/TableBody/TableBody";
-import TableCell from "@mui/material/TableCell";
-import { TimePicker } from "@mui/x-date-pickers/TimePicker";
 
-import TableHead from "@mui/material/TableHead";
-import TableRow from "@mui/material/TableRow";
 
-import ListItem from "@mui/material/ListItem";
 
-import { Button, Card, Stack, styled} from "@mui/material";
-import Checkbox from "@mui/material/Checkbox";
 import { registerLocale } from "react-datepicker";
-import toastError from "../../errors/toastError";
+
 import api from "../../services/api";
 import { i18n } from "../../translate/i18n.js";
 
-import Tab from "@mui/material/Tab";
-import Tabs from "@mui/material/Tabs";
+
 
 import { CopySimple } from "@phosphor-icons/react";
 import ptBR from "date-fns/locale/pt-BR";
@@ -39,12 +25,7 @@ import { useToast } from "@/hooks/use-toast";
 
 registerLocale("pt-br", ptBR);
 
-/* const StyledTimePicker = styled(TimePicker)(({ theme }) => ({
-  "& .MuiInputBase-root": {
-    height: 34,
-    maxWidth: 110,
-  },
-})); */
+
 
 const TabPanel = (props) => {
   const { children, index, value, ...other } = props;

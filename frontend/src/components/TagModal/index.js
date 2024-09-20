@@ -3,19 +3,8 @@ import * as Yup from "yup";
 import { Formik, Form, Field } from "formik";
 import { toast } from "react-toastify";
 
-import Button from "@mui/material/Button";
-import TextField from "@mui/material/TextField";
-import Dialog from "@mui/material/Dialog";
-import DialogActions from "@mui/material/DialogActions";
-import DialogContent from "@mui/material/DialogContent";
-import DialogTitle from "@mui/material/DialogTitle";
-import Typography from "@mui/material/Typography";
-import CircularProgress from "@mui/material/CircularProgress";
-import MenuItem from "@mui/material/MenuItem";
-
 import api from "../../services/api";
 import toastError from "../../errors/toastError";
-import { Stack } from "@mui/material";
 
 const ContactSchema = Yup.object().shape({
   name: Yup.string()
@@ -66,18 +55,17 @@ const TagModal = ({ open, onClose, value }) => {
         },
       });
     } catch (err) {
-      const errorMsg =
-      err.response?.data?.message || err.response.data.error;
-    toast({
-      variant: "destructive",
-      title: errorMsg,
-    });
+      const errorMsg = err.response?.data?.message || err.response.data.error;
+      toast({
+        variant: "destructive",
+        title: errorMsg,
+      });
     }
   };
 
   return (
     <div /* className={classes.root} */>
-      <Dialog open={open} onClose={handleClose} maxWidth="lg" scroll="paper">
+      {/*  <Dialog open={open} onClose={handleClose} maxWidth="lg" scroll="paper">
         <DialogTitle id="form-dialog-title">
           {tag?.id ? "Editar" : "Criar"}
         </DialogTitle>
@@ -151,13 +139,13 @@ const TagModal = ({ open, onClose, value }) => {
                   color="primary"
                   disabled={isSubmitting}
                   variant="contained"
-                  /* className={classes.btnWrapper} */
+                
                 >
                   Salvar
                   {isSubmitting && (
                     <CircularProgress
                       size={24}
-                      /* className={classes.buttonProgress} */
+                   
                     />
                   )}
                 </Button>
@@ -165,7 +153,7 @@ const TagModal = ({ open, onClose, value }) => {
             </Form>
           )}
         </Formik>
-      </Dialog>
+      </Dialog> */}
     </div>
   );
 };

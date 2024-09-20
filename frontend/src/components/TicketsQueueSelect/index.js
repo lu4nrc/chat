@@ -1,14 +1,4 @@
-import Button from "@mui/material/Button";
-import Checkbox from "@mui/material/Checkbox";
-import Dialog from "@mui/material/Dialog";
-import DialogActions from "@mui/material/DialogActions";
-import DialogContent from "@mui/material/DialogContent";
-import DialogTitle from "@mui/material/DialogTitle";
-import FormControl from "@mui/material/FormControl";
-import IconButton from "@mui/material/IconButton";
-import ListItemText from "@mui/material/ListItemText";
-import MenuItem from "@mui/material/MenuItem";
-import Select from "@mui/material/Select";
+
 import { Stack } from "@phosphor-icons/react";
 import React, { useState } from "react";
 import { i18n } from "../../translate/i18n";
@@ -35,7 +25,7 @@ const TicketsQueueSelect = ({
 
   return (
     <>
-      <IconButton onClick={handleClickOpen} color="primary">
+  {/*     <IconButton onClick={handleClickOpen} color="primary">
       <Stack size={24} />
       </IconButton>
       <Dialog open={open} onClose={handleClose}>
@@ -58,7 +48,7 @@ const TicketsQueueSelect = ({
                   vertical: "top",
                   horizontal: "left",
                 },
-                /* getcontentanchorel: null, */
+               
               }}
               renderValue={() => i18n.t("ticketsQueueSelect.placeholder")}
             >
@@ -88,7 +78,7 @@ const TicketsQueueSelect = ({
           <Button onClick={handleClose}>Cancelar</Button>
           <Button onClick={handleClose}>Ok</Button>
         </DialogActions>
-      </Dialog>
+      </Dialog> */}
     </>
   );
 };

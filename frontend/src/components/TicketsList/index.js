@@ -7,6 +7,10 @@ import TicketsListSkeleton from "../TicketsListSkeleton";
 import { AuthContext } from "../../context/Auth/AuthContext";
 import useTickets from "../../hooks/useTickets";
 import { useNavigate } from "react-router-dom";
+import { ScrollArea } from "../ui/scroll-area";
+import InfiniteScroll from "../ui/InfiniteScroll";
+import { Loader2 } from "lucide-react";
+import { cn } from "@/lib/utils";
 
 const reducer = (state, action) => {
   if (action.type === "LOAD_TICKETS") {
@@ -99,15 +103,16 @@ const TicketsList = (props) => {
     activeTab,
     filter,
     setFilter,
+    allConnected,
   } = props;
 
   const [pageNumber, setPageNumber] = useState(1);
   const [ticketsList, dispatch] = useReducer(reducer, []);
+  console.log("ticketsList: ",ticketsList);
   const { user } = useContext(AuthContext);
   const navigate = useNavigate();
 
   useEffect(() => {
-    console.log("RESET");
     dispatch({ type: "RESET" });
     setPageNumber(1);
   }, [status, searchParam, dispatch, showAll, selectedQueueIds]);
@@ -121,7 +126,6 @@ const TicketsList = (props) => {
   });
 
   useEffect(() => {
-    console.log("LOAD_TICKETS");
     if (!status && !searchParam) return;
     dispatch({
       type: "LOAD_TICKETS",
@@ -141,7 +145,6 @@ const TicketsList = (props) => {
       ticket.queueId && selectedQueueIds.indexOf(ticket.queueId) === -1;
 
     socket.on("connect", () => {
-      console.log("connect");
       if (status) {
         socket.emit("joinTickets", status);
       } else {
@@ -150,9 +153,7 @@ const TicketsList = (props) => {
     });
 
     socket.on("ticket", (data) => {
-      console.log("ticket");
       if (data.action === "updateUnread") {
-        console.log("action: updateUnread");
         dispatch({
           type: "RESET_UNREAD",
           payload: data.ticketId,
@@ -160,7 +161,6 @@ const TicketsList = (props) => {
       }
 
       if (data.action === "update" && shouldUpdateTicket(data.ticket)) {
-        console.log("update && shouldUpdateTicket(data.ticket");
         dispatch({
           type: "UPDATE_TICKET",
           payload: data.ticket,
@@ -168,18 +168,15 @@ const TicketsList = (props) => {
       }
 
       if (data.action === "update" && notBelongsToUserQueues(data.ticket)) {
-        console.log("update && notBelongsToUserQueues(data.ticket)");
         dispatch({ type: "DELETE_TICKET", payload: data.ticket.id });
       }
 
       if (data.action === "delete") {
-        console.log("delete");
         dispatch({ type: "DELETE_TICKET", payload: data.ticketId });
       }
     });
 
     socket.on("appMessage", (data) => {
-      console.log("appMessage");
       if (data.action === "create" && shouldUpdateTicket(data.ticket)) {
         dispatch({
           type: "UPDATE_TICKET_UNREAD_MESSAGES",
@@ -189,7 +186,6 @@ const TicketsList = (props) => {
     });
 
     socket.on("contact", (data) => {
-      console.log("contact");
       if (data.action === "update") {
         dispatch({
           type: "UPDATE_TICKET_CONTACT",
@@ -214,17 +210,6 @@ const TicketsList = (props) => {
     setPageNumber((prevState) => prevState + 1);
   };
 
-  const handleScroll = (e) => {
-    if (!hasMore || loading) return;
-
-    const { scrollTop, scrollHeight, clientHeight } = e.currentTarget;
-
-    if (scrollHeight - (scrollTop + 100) < clientHeight) {
-      e.currentTarget.scrollTop = scrollTop - 100;
-      loadMore();
-    }
-  };
-
   const mensagensFiltradas = ticketsList.filter((mensagem) => {
     if (!filter) {
       return true; // Retorna true para manter todas as mensagens
@@ -236,8 +221,10 @@ const TicketsList = (props) => {
 
   return (
     <div
-      className="overflow-auto h-[calc(100vh-145px)]"
-      onScroll={handleScroll}
+      className={cn(
+        "overflow-auto ",
+        allConnected ? "h-[calc(100vh-137px)]" : "h-[calc(100vh-255px)]"
+      )}
     >
       {mensagensFiltradas.length === 0 && !loading ? (
         <h3 className="text-center p-4">
@@ -254,7 +241,18 @@ const TicketsList = (props) => {
           />
         ))
       )}
-      {loading && <TicketsListSkeleton />}
+      <InfiniteScroll
+        hasMore={hasMore}
+        isLoading={loading}
+        next={loadMore}
+        threshold={0.5}
+      >
+        {hasMore && (
+          <div className="flex justify-center items-center ">
+            <Loader2 className=" h-8 w-8 text-primary animate-spin" />
+          </div>
+        )}
+      </InfiniteScroll>
     </div>
   );
 };

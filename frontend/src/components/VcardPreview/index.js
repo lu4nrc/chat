@@ -1,23 +1,18 @@
 import React, { useContext, useEffect, useState } from "react";
 import { useNavigate, useOutletContext } from "react-router-dom";
-import toastError from "../../errors/toastError";
-import api from "../../services/api";
 
-import Avatar from "@mui/material/Avatar";
-import Grid from "@mui/material/Grid";
-import Typography from "@mui/material/Typography";
+import api from "../../services/api";
 
 import { AuthContext } from "../../context/Auth/AuthContext";
 
-import { Button, Divider } from "@mui/material";
 import { useToast } from "@/hooks/use-toast";
+import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
+import { Button } from "../ui/button";
 
 const VcardPreview = ({ contact, numbers }) => {
-  const { toast } = useToast()
+  const { toast } = useToast();
   const navigate = useNavigate();
   const { user } = useContext(AuthContext);
-
-
 
   const [selectedContact, setContact] = useState({
     name: "",
@@ -39,11 +34,11 @@ const VcardPreview = ({ contact, numbers }) => {
           setContact(data);
         } catch (err) {
           const errorMsg =
-          err.response?.data?.message || err.response.data.error;
-        toast({
-          variant: "destructive",
-          title: errorMsg,
-        });
+            err.response?.data?.message || err.response.data.error;
+          toast({
+            variant: "destructive",
+            title: errorMsg,
+          });
         }
       };
       fetchContacts();
@@ -60,12 +55,11 @@ const VcardPreview = ({ contact, numbers }) => {
       });
       navigate(`/tickets/${ticket.id}`);
     } catch (err) {
-      const errorMsg =
-      err.response?.data?.message || err.response.data.error;
-    toast({
-      variant: "destructive",
-      title: errorMsg,
-    });
+      const errorMsg = err.response?.data?.message || err.response.data.error;
+      toast({
+        variant: "destructive",
+        title: errorMsg,
+      });
     }
   };
 
@@ -77,24 +71,23 @@ const VcardPreview = ({ contact, numbers }) => {
         }}
       >
         <div>
-          <div style={{ display: "flex", padding: "10px" }}>
-            <Avatar src={selectedContact.profilePicUrl} />
-            <Typography
+          <div className="flex p-4 border-b-2">
+            <Avatar className="h-12 w-12" alt="contact_image">
+              <AvatarImage src={selectedContact.profilePicUrl} alt="@contact" />
+              <AvatarFallback>HC</AvatarFallback>
+            </Avatar>
+
+            <p
               style={{ marginTop: "12px", marginLeft: "10px" }}
               variant="subtitle1"
               color="primary"
               gutterBottom
             >
               {selectedContact.name}
-            </Typography>
+            </p>
           </div>
-          <Divider />
-          <Button
-            fullWidth
-            color="primary"
-            onClick={handleNewChat}
-            disabled={!selectedContact.number}
-          >
+         
+          <Button onClick={handleNewChat} disabled={!selectedContact.number}>
             Enviar mensagem
           </Button>
         </div>
