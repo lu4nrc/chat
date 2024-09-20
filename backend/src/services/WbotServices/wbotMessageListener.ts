@@ -326,8 +326,8 @@ const handleMessage = async (
     )
       return;
 
-    const isRating = /^[1-5]$/.test(msg.body);
-    const rating = isRating ? parseInt(msg.body, 10) : null;
+  /*   const isRating = /^[1-5]$/.test(msg.body);
+    const rating = isRating ? parseInt(msg.body, 10) : null; */
 
     const ticket = await FindOrCreateTicketService(
       contact,
@@ -335,15 +335,15 @@ const handleMessage = async (
       unreadMessages,
       groupContact,
       false,
-      rating
+      //rating
     );
 
-    if (isRating) {
+ /*    if (isRating) {
       msg.reply(
         "> \u200B Mensagem automática \n Obrigado por avaliar nosso atendimento."
       );
       ticket.update({ status: "closed" });
-    }
+    } */
 
     if (msg.hasMedia) {
       await verifyMediaMessage(msg, ticket, contact);
