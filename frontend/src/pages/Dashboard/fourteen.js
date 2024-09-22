@@ -75,7 +75,7 @@ const FourteenDays = () => {
   const [mediaData, setMediaData] = useState();
   const [queuesData, setQueuesData] = useState();
   const [outin, setOutin] = useState();
-  console.log(hours);
+  
 
   useEffect(() => {
     (async () => {

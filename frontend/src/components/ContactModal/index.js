@@ -88,13 +88,13 @@ const ContactModal = ({
   const handleSaveContact = async (values) => {
     try {
       if (contactId) {
-        // await api.put(`/contacts/${contactId}`, values);
-        console.log(values);
+      await api.put(`/contacts/${contactId}`, values);
+       // console.log(values);
         handleClose();
       } else {
         const { data } = await api.post("/contacts", values);
         if (onSave) {
-          // onSave(data);
+         onSave(data);
         }
         handleClose();
       }
@@ -151,7 +151,7 @@ const ContactModal = ({
                     <PhoneInputUi
                       value={values.number} // Passa o valor atual do campo
                       onChange={(value) => {
-                        console.log(value);
+                        //console.log(value);
                         setFieldValue("number", value);
                       }} // Atualiza o estado de Formik
                     />

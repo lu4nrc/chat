@@ -223,7 +223,8 @@ const TicketsList = (props) => {
     <div
       className={cn(
         "overflow-auto ",
-        allConnected ? "h-[calc(100vh-137px)]" : "h-[calc(100vh-255px)]"
+        /* allConnected ? "h-[calc(100vh-137px)]" : "h-[calc(100vh-255px)]" */
+        "h-[calc(100vh-137px)]"
       )}
     >
       {mensagensFiltradas.length === 0 && !loading ? (

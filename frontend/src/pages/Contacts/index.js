@@ -148,7 +148,7 @@ const Contacts = () => {
   };
 
   const handleOpenContactModal = () => {
-    console.log("handleOpenContactModal");
+    //console.log("handleOpenContactModal");
     setSelectedContactId(null);
     setContactModalOpen(true);
   };

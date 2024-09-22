@@ -112,7 +112,7 @@ const UserModal = ({ userId, open, setOpen }) => {
 
         imageUrl = response.data.imageUrl; // URL retornada pelo backend
       }
-      console.log(imageUrl);
+      //console.log(imageUrl);
       if (userId) {
         // Editando usuário existente
         await api.put(`/users/${userId}`, { ...userData, imageUrl });

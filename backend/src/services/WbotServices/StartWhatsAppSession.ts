@@ -17,9 +17,9 @@ export const StartWhatsAppSession = async (
   });
 
   try {
-    console.log({ locale: "StartWhatsAppSession.ts:", whatsapp: whatsapp?.dataValues.name });
+   // console.log({ locale: "StartWhatsAppSession.ts:", whatsapp: whatsapp?.dataValues.name });
     const wbot = await initWbot(whatsapp);
-    console.log({ locale: "StartWhatsAppSession.ts", wbot: wbot ? true : false, whatsapp: whatsapp?.dataValues.name });
+   // console.log({ locale: "StartWhatsAppSession.ts", wbot: wbot ? true : false, whatsapp: whatsapp?.dataValues.name });
     wbotMessageListener(wbot);
     wbotMonitor(wbot, whatsapp);
   } catch (err: any) {

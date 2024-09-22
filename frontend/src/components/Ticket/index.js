@@ -19,7 +19,7 @@ import { useToast } from "@/hooks/use-toast";
 const Ticket = () => {
   const [activeRating] = useOutletContext();
 
-  console.log(activeRating);
+  //console.log(activeRating);
   const { ticketId } = useParams();
   const navigate = useNavigate();
 

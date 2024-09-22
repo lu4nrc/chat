@@ -319,7 +319,7 @@ const PanelPage = () => {
       (a, b) => new Date(a.createdAt) - new Date(b.createdAt)
     );
 
-    console.log("GroupBy", groupedData);
+   
     setByGroup(groupedData);
   }, [ticketsList]);
 
