@@ -128,7 +128,7 @@ const TicketsManager = () => {
             {openCount ? (
               <span className="ml-2">{openCount}</span>
             ) : (
-              <LoaderCircle className="mr-2 h-4 w-4 animate-spin" />
+              0
             )}
           </Button>
           <Button
@@ -139,7 +139,7 @@ const TicketsManager = () => {
             {pendingCount ? (
               <span className="ml-2">{pendingCount}</span>
             ) : (
-              <LoaderCircle className="mr-2 h-4 w-4 animate-spin" />
+              0
             )}
           </Button>
         </div>
