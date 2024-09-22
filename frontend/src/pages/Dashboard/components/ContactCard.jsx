@@ -92,7 +92,7 @@ const ContactCard = ({ queuesData, loading }) => {
         </div>
       </CardHeader>
       <CardContent className="flex justify-center flex-col items-center  h-full text-muted-foreground">
-        <TrafficCone className="text-orange-500  w-6 h-6" /> Em manunteção!
+        <TrafficCone className="text-orange-500  w-6 h-6" /> Em manutenção!
         {/*         <div className="grid grid-cols-3 md:grid-cols-[1fr_70px_100px_90px]  gap-x-2 py-2 items-center  border-b">
           <div className="text-sm text-muted-foreground">Contato</div>
           <div className="text-sm text-muted-foreground text-center ">

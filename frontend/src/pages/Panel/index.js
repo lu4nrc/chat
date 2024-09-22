@@ -340,7 +340,7 @@ const PanelPage = () => {
             <CardHeader>
               <CardTitle className="flex gap-1 items-center">
                 <TrafficCone className="text-orange-500  w-4 h-4" />
-                Em manunteção!
+                Em manutenção!
               </CardTitle>
             </CardHeader>
             <CardContent>
