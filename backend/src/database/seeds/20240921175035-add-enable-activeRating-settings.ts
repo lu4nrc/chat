@@ -6,6 +6,7 @@ module.exports = {
       "Settings",
       [
         {
+          
           key: "activeRating",
           value: "enabled",
           createdAt: new Date(),
