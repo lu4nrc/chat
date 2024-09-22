@@ -30,14 +30,15 @@ const FindOrCreateTicketService = async (
     await ticket.update({ unreadMessages });
   }
 
-  /* if (rating && ticket?.status === "waitingRating") {
+  if (rating && ticket?.status === "waitingRating") {
     await ticket.update({ rating });
-  } */
+    return ticket
+  }
 
- /*  if (!rating && ticket?.status === "waitingRating") {
+  if (!rating && ticket?.status === "waitingRating") {
     await ticket.update({ status: "closed" });
     ticket = null;
-  } */
+  }
 
   // if (!ticket && groupContact) {
 

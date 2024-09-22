@@ -8,6 +8,7 @@ import useWhatsApps from "../../hooks/useWhatsApps";
 import api from "../../services/api";
 import { i18n } from "../../translate/i18n";
 import ButtonWithSpinner from "../ButtonWithSpinner";
+import toastError from "@/errors/toastError";
 
 
 const filterOptions = createFilterOptions({
@@ -63,12 +64,10 @@ const TransferTicketModal = ({
           setLoading(false);
         } catch (err) {
           setLoading(false);
-          const errorMsg =
-          err.response?.data?.message || err.response.data.error;
-        toast({
-          variant: "destructive",
-          title: errorMsg,
-        });
+          toast({
+            variant: "destructive",
+            title: toastError(err),
+          });
         }
       };
 
@@ -113,12 +112,10 @@ const TransferTicketModal = ({
       navigate(`/tickets`);
     } catch (err) {
       setLoading(false);
-      const errorMsg =
-      err.response?.data?.message || err.response.data.error;
-    toast({
-      variant: "destructive",
-      title: errorMsg,
-    });
+      toast({
+        variant: "destructive",
+        title: toastError(err),
+      });
     }
   };
 

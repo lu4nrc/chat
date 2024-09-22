@@ -3,10 +3,7 @@ import React, { useEffect, useRef, useState } from "react";
 
 import * as Yup from "yup";
 
-
-
 import { i18n } from "../../translate/i18n";
-
 
 import toastError from "../../errors/toastError";
 import api from "../../services/api";
@@ -22,7 +19,7 @@ const ContactSchema = Yup.object().shape({
 });
 
 const ContactModal = ({ open, onClose, contactId, initialValues, onSave }) => {
-  const { toast } = useToast()
+  const { toast } = useToast();
   const isMounted = useRef(true);
   const initialState = {
     name: "",
@@ -50,18 +47,15 @@ const ContactModal = ({ open, onClose, contactId, initialValues, onSave }) => {
       if (!contactId) return;
 
       try {
-        
         const { data } = await api.get(`/contacts/${contactId}`);
         if (isMounted.current) {
           setContact(data);
         }
       } catch (err) {
-        const errorMsg =
-        err.response?.data?.message || err.response.data.error;
-      toast({
-        variant: "destructive",
-        title: errorMsg,
-      });
+        toast({
+          variant: "destructive",
+          title: toastError(err),
+        });
       }
     };
 
@@ -85,19 +79,16 @@ const ContactModal = ({ open, onClose, contactId, initialValues, onSave }) => {
         }
         handleClose();
       }
-      toast.success(i18n.t("contactModal.success"), {
-        style: {
-          backgroundColor: "#D4EADD",
-          color: "#64A57B",
-        },
+      toast({
+        variant: "success",
+        title: "Sucesso!",
+        description: i18n.t("contactModal.success"),
       });
     } catch (err) {
-      const errorMsg =
-      err.response?.data?.message || err.response.data.error;
-    toast({
-      variant: "destructive",
-      title: errorMsg,
-    });
+      toast({
+        variant: "destructive",
+        title: toastError(err),
+      });
     }
   };
 
@@ -133,7 +124,7 @@ const ContactModal = ({ open, onClose, contactId, initialValues, onSave }) => {
                         Nome
                       </Typography>
                       <Field
-                      size="small"
+                        size="small"
                         as={TextField}
                         name="name"
                         fullWidth
@@ -150,7 +141,7 @@ const ContactModal = ({ open, onClose, contactId, initialValues, onSave }) => {
                         Número do Whatsapp
                       </Typography>
                       <Field
-                      size="small"
+                        size="small"
                         as={TextField}
                         fullWidth
                         name="number"
@@ -167,7 +158,7 @@ const ContactModal = ({ open, onClose, contactId, initialValues, onSave }) => {
                       Email
                     </Typography>
                     <Field
-                    size="small"
+                      size="small"
                       as={TextField}
                       name="email"
                       error={touched.email && Boolean(errors.email)}
@@ -198,7 +189,7 @@ const ContactModal = ({ open, onClose, contactId, initialValues, onSave }) => {
                                   Nome do campo
                                 </Typography>
                                 <Field
-                                size="small"
+                                  size="small"
                                   as={TextField}
                                   name={`extraInfo[${index}].name`}
                                   variant="outlined"
@@ -211,7 +202,7 @@ const ContactModal = ({ open, onClose, contactId, initialValues, onSave }) => {
                                   Resposta
                                 </Typography>
                                 <Field
-                                size="small"
+                                  size="small"
                                   as={TextField}
                                   name={`extraInfo[${index}].value`}
                                   variant="outlined"

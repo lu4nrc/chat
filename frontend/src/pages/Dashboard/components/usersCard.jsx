@@ -1,4 +1,3 @@
-import { Button } from "@/components/ui/button";
 import {
   Card,
   CardContent,
@@ -7,11 +6,10 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import React, { useState } from "react";
-import { ArrowUpRight, File } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { intervalToDuration } from "date-fns";
+
 import {
   Select,
   SelectContent,
@@ -25,7 +23,7 @@ import {
 import ModalProfileCors from "@/components/ModalProfileCors";
 
 const UsersCard = ({ usersData, loading }) => {
-  const [sortKey, setSortKey] = useState("open");
+  const [sortKey, setSortKey] = useState("total");
 
   function convertMinToHour(min) {
     if (min) {
@@ -53,14 +51,12 @@ const UsersCard = ({ usersData, loading }) => {
   if (usersData) {
     sortedUsers = [...usersData].sort((a, b) => {
       switch (sortKey) {
-        case "open":
-          return b.open - a.open;
-        case "pending":
-          return b.pending - a.pending;
-        case "closed":
-          return b.closed - a.closed;
+        case "total":
+          return b.total - a.total;
         case "media":
           return b.m_time_avg - a.m_time_avg;
+        case "rating":
+          return b.rating.value / b.rating.qtd - a.rating.value / a.rating.qtd;
         default:
           return 0;
       }
@@ -77,7 +73,7 @@ const UsersCard = ({ usersData, loading }) => {
         <CardHeader className="flex flex-row items-center">
           <div className="grid gap-2">
             <CardTitle>Atendentes</CardTitle>
-            <CardDescription>Detalhamento de atendimentos</CardDescription>
+            <CardDescription>Detalhamento por atendentes</CardDescription>
           </div>
           <div className="ml-auto flex gap-2">
             <Select onValueChange={handleSortChange}>
@@ -87,25 +83,24 @@ const UsersCard = ({ usersData, loading }) => {
               <SelectContent>
                 <SelectGroup>
                   <SelectLabel>Status</SelectLabel>
-                   {/* <SelectItem value="open">Atendendo</SelectItem> */}
-                  <SelectItem value="closed">Fechados</SelectItem>
+                  <SelectItem value="total">Total</SelectItem>
                   <SelectItem value="media">Tempo Médio</SelectItem>
-                  <SelectItem value="pending">Avaliação</SelectItem> 
+                  <SelectItem value="rating">Avaliação</SelectItem>
                 </SelectGroup>
               </SelectContent>
             </Select>
           </div>
         </CardHeader>
         <CardContent className="flex-1 flex flex-col">
-          <div className="grid grid-cols-3 md:grid-cols-4 gap-4 py-2 items-center  border-b">
+          <div className="grid grid-cols-3 md:grid-cols-[1fr_70px_100px_90px]  gap-x-2 py-2 items-center  border-b">
             <div className="text-sm text-muted-foreground">Atendentes</div>
-            <div className="text-sm text-muted-foreground text-center">
-              Fechados
+            <div className="text-sm text-muted-foreground text-center ">
+              Total
             </div>
-            <div className="text-sm text-muted-foreground  hidden md:block">
+            <div className="text-sm text-muted-foreground   text-center">
               Tempo Médio
             </div>
-            <div className="text-sm text-muted-foreground text-center">
+            <div className="text-sm text-muted-foreground text-center ">
               Avaliação
             </div>
           </div>
@@ -114,24 +109,24 @@ const UsersCard = ({ usersData, loading }) => {
               return (
                 <div
                   key={el.id}
-                  className="grid grid-cols-3 md:grid-cols-4 gap-x-2 gap-y-4 items-center border-b"
+                  className="grid md:grid-cols-[1fr_70px_100px_90px]  gap-x-2 items-center border-b"
                 >
-                  <div className="flex gap-2 items-center">
+                  <div className="flex gap-2 items-center py-1">
                     <ModalProfileCors imageUrl={el.imageUrl} />
                     <div className="text-sm font-medium">{el.user_name}</div>
                   </div>
 
-                  <div className="flex items-center justify-center">
-                    <Badge className="font-medium  bg-chart3/20 text-emerald-700 ">
-                      {el.closed}
-                    </Badge>
+                  <div className="flex items-center justify-center ">
+                    <Badge>{el.total}</Badge>
                   </div>
-                  <div className="hidden md:block">
-                    {convertMinToHour(el.m_time_avg)}
+                  <div className="flex justify-center items-center">
+                    <p className="text-center text-sm ">{convertMinToHour(el.m_time_avg)}</p>
                   </div>
-                  <div className="flex items-center justify-center">
-                    <Badge className="font-medium  bg-chart1/20 text-sky-700 hover:text-white">
-                      {el.open}
+                  <div className="flex items-center justify-center ">
+                    <Badge>
+                      {el.rating.qtd
+                        ? (el.rating.value / el.rating.qtd).toFixed(1)
+                        : "-"}
                     </Badge>
                   </div>
                 </div>

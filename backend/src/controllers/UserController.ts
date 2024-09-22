@@ -46,6 +46,7 @@ export const store = async (req: Request, res: Response): Promise<Response> => {
     throw new AppError("ERR_NO_PERMISSION", 403);
   }
 
+
   const user = await CreateUserService({
     email,
     password,
@@ -89,6 +90,7 @@ export const update = async (
 
   const { userId } = req.params;
   const userData = req.body;
+
 
   const user = await UpdateUserService({ userData, userId });
 

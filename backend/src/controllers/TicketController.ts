@@ -122,7 +122,20 @@ export const update = async (
 
     if (farewellMessage) {
       await SendWhatsAppMessage({
-        body: formatBody(farewellMessage, ticket.contact),
+        body: formatBody(
+          `> \u200B Mensagem automática \n ${farewellMessage} \n 1 - 😩 Muito ruim \n 2 - 😞 Ruim \n 3 - 😐 Regular \n 4 - 😊 Bom \n 5 - 🤩 Muito bom`,
+          ticket.contact
+        ),
+        ticket
+      });
+    }
+
+    if (!farewellMessage) {
+      await SendWhatsAppMessage({
+        body: formatBody(
+          "> \u200B Mensagem automática \n Como você avalia meu atendimento? \n 1 - 😩 Muito ruim \n 2 - 😞 Ruim \n 3 - 😐 Regular \n 4 - 😊 Bom \n 5 - 🤩 Muito bom",
+          ticket.contact
+        ),
         ticket
       });
     }

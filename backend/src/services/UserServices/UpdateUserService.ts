@@ -23,7 +23,8 @@ interface Response {
   name: string;
   email: string;
   profile: string;
-  status:string;
+  status: string;
+  imageUrl: string;
 }
 
 const UpdateUserService = async ({
@@ -39,7 +40,15 @@ const UpdateUserService = async ({
     password: Yup.string()
   });
 
-  const { email, password, profile, name, queueIds = [], whatsappId } = userData;
+  const {
+    email,
+    password,
+    profile,
+    name,
+    queueIds = [],
+    whatsappId,
+    imageUrl
+  } = userData;
 
   try {
     await schema.validate({ email, password, profile, name });
@@ -52,6 +61,7 @@ const UpdateUserService = async ({
     password,
     profile,
     name,
+    imageUrl,
     whatsappId: whatsappId ? whatsappId : null
   });
 

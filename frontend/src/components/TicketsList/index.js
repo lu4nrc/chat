@@ -108,7 +108,7 @@ const TicketsList = (props) => {
 
   const [pageNumber, setPageNumber] = useState(1);
   const [ticketsList, dispatch] = useReducer(reducer, []);
-  console.log("ticketsList: ",ticketsList);
+  //console.log("ticketsList: ",ticketsList);
   const { user } = useContext(AuthContext);
   const navigate = useNavigate();
 

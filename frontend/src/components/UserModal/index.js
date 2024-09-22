@@ -3,7 +3,6 @@ import { ErrorMessage, Field, Form, Formik } from "formik";
 import * as Yup from "yup";
 import { i18n } from "../../translate/i18n";
 
-
 import {
   Dialog,
   DialogClose,
@@ -52,11 +51,13 @@ const UserModal = ({ userId, open, setOpen }) => {
     email: "",
     password: "",
     profile: "user",
+    imageUrl: "",
   };
 
   const { user: loggedInUser } = useContext(AuthContext);
 
   const [user, setUser] = useState(initialState);
+
   const [selectedQueueIds, setSelectedQueueIds] = useState([]);
 
   const [whatsappId, setWhatsappId] = useState(false);
@@ -69,6 +70,7 @@ const UserModal = ({ userId, open, setOpen }) => {
 
       try {
         const { data } = await api.get(`/users/${userId}`);
+
         setUser((prevState) => {
           return { ...prevState, ...data };
         });
@@ -76,11 +78,9 @@ const UserModal = ({ userId, open, setOpen }) => {
         setSelectedQueueIds(userQueueIds);
         setWhatsappId(data.whatsappId ? data.whatsappId : "");
       } catch (err) {
-        const errorMsg = err.response?.data?.message || err.response.data.error;
-
         toast({
           variant: "destructive",
-          title: errorMsg,
+          title: toastError(err),
         });
       }
     };
@@ -98,7 +98,7 @@ const UserModal = ({ userId, open, setOpen }) => {
     const userData = { ...values, queueIds: ids };
 
     try {
-      let imageUrl = "";
+      let imageUrl = userData.imageUrl;
 
       if (values.image) {
         const formData = new FormData();
@@ -112,7 +112,7 @@ const UserModal = ({ userId, open, setOpen }) => {
 
         imageUrl = response.data.imageUrl; // URL retornada pelo backend
       }
-
+      console.log(imageUrl);
       if (userId) {
         // Editando usuário existente
         await api.put(`/users/${userId}`, { ...userData, imageUrl });
@@ -128,15 +128,11 @@ const UserModal = ({ userId, open, setOpen }) => {
         description:
           "Parabéns! Seu usuário foi criado com sucesso. Agora já pode aproveitar todas as funcionalidades. Bem-vindo a bordo!",
       });
-      setOpen(false);
+      // setOpen(false);
     } catch (err) {
-      const errorMsg = err.response?.data?.message || err.response.data.error;
-      const errorType = err.response?.data?.type || err.response.data.type;
       toast({
         variant: "destructive",
-        title: errorMsg,
-        description:
-          "Parece que esse e-mail já está sendo usado. Talvez você possa tentar outro?",
+        title: toastError(err),
       });
     }
   };
@@ -233,6 +229,7 @@ const UserModal = ({ userId, open, setOpen }) => {
                 <Select
                   id="profile-selection"
                   name="profile"
+                  defaultValue={user.profile}
                   onValueChange={(value) => {
                     setFieldValue("profile", value);
                   }}
@@ -288,7 +285,7 @@ const UserModal = ({ userId, open, setOpen }) => {
                   {userId
                     ? `${i18n.t("userModal.buttons.okEdit")}`
                     : `${i18n.t("userModal.buttons.okAdd")}`}
-                  {isSubmitting && "aguardando.."}
+                  {isSubmitting && "salvando.."}
                 </Button>
               </div>
             </Form>

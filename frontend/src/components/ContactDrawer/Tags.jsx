@@ -1,5 +1,7 @@
 import React, { useEffect, useState } from "react";
 import api from "../../services/api";
+import toastError from "@/errors/toastError";
+import { useToast } from "@/hooks/use-toast";
 
 
 const Tags = ({ contact }) => {
@@ -7,6 +9,7 @@ const Tags = ({ contact }) => {
   const [dataEnterprise, setDataEnterprise] = useState([]);
   const [dataCustom, setDataCustom] = useState([]);
   const [, setSelectTag] = useState([]);
+  const { toast } = useToast()
 
   useEffect(() => {
     const fetchData = async () => {
@@ -39,7 +42,10 @@ const Tags = ({ contact }) => {
     try {
       await api.put(`/contacts/${contact.id}`, updatedContact);
     } catch (err) {
-      console.error("Error saving contact:", err);
+      toast({
+        variant: "destructive",
+        title: toastError(err),
+      });
     }
   };
 

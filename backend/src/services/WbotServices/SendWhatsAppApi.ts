@@ -6,54 +6,47 @@ import GetDefaultWhatsApp from "../../helpers/GetDefaultWhatsApp";
 import { getWbot } from "../../libs/wbot";
 import Contact from "../../models/Contact";
 interface Request {
-    media?: Express.Multer.File;
-    contact: Contact;
-    body?: string;
+  media?: Express.Multer.File;
+  contact: Contact;
+  body?: string;
 }
 
 export const SendWhatsAppApiMedia = async ({
-    media,
-    contact,
-
+  media,
+  contact
 }: Request): Promise<void> => {
-    try {
-        const defaultWhatsapp = await GetDefaultWhatsApp();
-        const wbot = getWbot(defaultWhatsapp.id);
-        const newMedia = MessageMedia.fromFilePath(media!.path);
-        await wbot.sendMessage(
-            `${contact.number}@${contact.isGroup ? "g" : "c"}.us`,
-            newMedia,
-            {
-                sendAudioAsVoice: true,
-                wbotType: "api"
-            }
-        );
-    } catch (err) {
-
-        throw new AppError("ERR_SENDING_WAPP_MSG");
-    }
+  try {
+    const defaultWhatsapp = await GetDefaultWhatsApp();
+    const wbot = getWbot(defaultWhatsapp.id);
+    const newMedia = MessageMedia.fromFilePath(media!.path);
+    await wbot.sendMessage(
+      `${contact.number}@${contact.isGroup ? "g" : "c"}.us`,
+      newMedia,
+      {
+        sendAudioAsVoice: true
+      }
+    );
+  } catch (err) {
+    throw new AppError("ERR_SENDING_WAPP_MSG");
+  }
 };
-
 
 export const SendWhatsAppApiMessage = async ({
-    contact,
-    body
+  contact,
+  body
 }: Request): Promise<void> => {
-    try {
-        const defaultWhatsapp = await GetDefaultWhatsApp();
-        const wbot = getWbot(defaultWhatsapp.id);
-        var hasBody = formatBody(body as string, contact)
-        await wbot.sendMessage(
-            `${contact.number}@${contact.isGroup ? "g" : "c"}.us`,
-            hasBody,
-            {
-                sendAudioAsVoice: true,
-                wbotType: "api"
-            }
-        );
-    } catch (err) {
-
-        throw new AppError("ERR_SENDING_WAPP_MSG");
-    }
+  try {
+    const defaultWhatsapp = await GetDefaultWhatsApp();
+    const wbot = getWbot(defaultWhatsapp.id);
+    var hasBody = formatBody(body as string, contact);
+    await wbot.sendMessage(
+      `${contact.number}@${contact.isGroup ? "g" : "c"}.us`,
+      hasBody,
+      {
+        sendAudioAsVoice: true
+      }
+    );
+  } catch (err) {
+    throw new AppError("ERR_SENDING_WAPP_MSG");
+  }
 };
-

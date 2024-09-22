@@ -19,21 +19,21 @@ import ErrorPage from "../pages/error";
 
 import Search from "../pages/Search";
 import PanelPage from "../pages/Panel";
-import { ToastContainer } from "react-toastify";
+
 import ThemeProvider from "@/components/theme/theme-provider";
 import Ticket from "@/components/Ticket";
-import "react-toastify/dist/ReactToastify.css";
+
 import Chat from "../pages/Chat";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 
 const PrivateRoute = ({ children }) => {
   const { isAuth } = useAuthContext();
-  
+
   if (!isAuth) {
     return <Navigate to="/login" replace />;
   }
-  
+
   return children;
 };
 
@@ -52,7 +52,6 @@ const router = createBrowserRouter([
     element: (
       <AuthProvider>
         <ThemeProvider defaultTheme="dark" storageKey="vite-ui-theme">
-          <ToastContainer /> {/* Remover em breve react-toastify*/}
           <TooltipProvider>
             <PrivateRoute>
               <LoggedInLayout />

@@ -41,6 +41,9 @@ import { Separator } from "@/components/ui/separator";
 import { Badge } from "@/components/ui/badge";
 import Media from "./components/media";
 import PizzaQueuesCard from "./components/pizzaQueuesCard";
+import toastError from "@/errors/toastError";
+import Outin from "./components/Outin";
+import ContactCard from "./components/ContactCard";
 
 const chartConfig = {
   total: {
@@ -180,21 +183,23 @@ function getRandomInt(min, max) {
 const Today = () => {
   const [loading, setLoading] = useState();
   const [hours, setHours] = useState();
-  const [status, setStatus] = useState();
+
   const [usersData, setUsersData] = useState();
   const [mediaData, setMediaData] = useState();
   const [queuesData, setQueuesData] = useState();
+  const [outin, setOutin] = useState();
+  console.log(usersData);
 
   useEffect(() => {
     (async () => {
       setLoading(true);
       try {
         const { data } = await api.get("/dashboard/today");
-        setHours(data.today);
         setUsersData(data.users);
+        setHours(data.today);
         setQueuesData(data.queues);
         setMediaData(data.media);
-        setStatus(data.status);
+        setOutin(data.outin);
         setLoading(false);
       } catch (err) {
         setLoading(false);
@@ -203,50 +208,12 @@ const Today = () => {
   }, []);
 
   return (
-    <div class="w-full m-auto grid grid-cols-1 md:grid-cols-7 gap-2 md:gap-5">
-      <div className="col-span-1  md:col-span-2">
-        {status && (
-          <Card className="h-full">
-            <div className="pt-2 pl-2 flex flex-col gap-2">
-              <div className="flex gap-2">
-                <CardTitle>Resumo</CardTitle>
-                <Badge>{status.total}</Badge>
-              </div>
-              <CardDescription>
-                Detalhamento de atendimentos por departamento
-              </CardDescription>
-            </div>
-
-            <CardContent className="flex flex-row  p-4">
-              <div className="grid flex-1 auto-rows-min gap-0.5">
-                <div className="text-sm text-chart2">Aguardando</div>
-                <div className="flex items-baseline gap-1 text-2xl font-bold tabular-nums leading-none">
-                  {status.pending}
-                </div>
-              </div>
-
-              <Separator orientation="vertical" className="mx-2 h-10 w-px" />
-              <div className="flex w-full items-center gap-2">
-                <div className="grid flex-1 auto-rows-min gap-0.5">
-                  <div className="text-sm text-chart1">Atendendo</div>
-                  <div className="flex items-baseline gap-1 text-2xl font-bold tabular-nums leading-none">
-                    {status.open}
-                  </div>
-                </div>
-                <Separator orientation="vertical" className="mx-2 h-10 w-px" />
-                <div className="grid flex-1 auto-rows-min gap-0.5">
-                  <div className="text-sm text-chart3">Fechados</div>
-                  <div className="flex items-baseline gap-1 text-2xl font-bold tabular-nums leading-none">
-                    {status.closed}
-                  </div>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        )}
+    <div class="w-full m-auto grid grid-cols-1 md:grid-cols-8 gap-1 md:gap-3">
+      <div className="col-span-1  md:col-span-2  h-[200px]">
+        <Outin outinData={outin} loading={loading} />
       </div>
 
-      <div class="col-span-1 md:col-span-3 row-span-2 ">
+      <div class="col-span-1 md:col-span-4 row-span-2">
         {hours && (
           <Card className="h-full">
             <CardHeader className="flex flex-row items-center">
@@ -301,46 +268,6 @@ const Today = () => {
                       fontSize={12}
                     />
                   </Line>
-                  {/*                   <Line
-                    name="Aguardando"
-                    dataKey="pending"
-                    type="natural"
-                    stroke="var(--color-pending)"
-                    strokeWidth={2}
-                    dot={{
-                      fill: "var(--color-pending)",
-                    }}
-                    activeDot={{
-                      r: 6,
-                    }}
-                  >
-                    <LabelList
-                      position="top"
-                      offset={12}
-                      className="fill-foreground"
-                      fontSize={12}
-                    />
-                  </Line> */}
-                  {/*                   <Line
-                    name="Fechados"
-                    dataKey="closed"
-                    type="natural"
-                    stroke="var(--color-closed)"
-                    strokeWidth={2}
-                    dot={{
-                      fill: "var(--color-closed)",
-                    }}
-                    activeDot={{
-                      r: 6,
-                    }}
-                  >
-                    <LabelList
-                      position="top"
-                      offset={12}
-                      className="fill-foreground"
-                      fontSize={12}
-                    />
-                  </Line> */}
                 </LineChart>
               </ChartContainer>
             </CardContent>
@@ -358,9 +285,13 @@ const Today = () => {
         {usersData && <UsersCard usersData={usersData} loading={loading} />}
       </div>
 
-      <div class="col-span-1 md:col-span-4">
-        <QueuesCard queuesData={queuesData} loading={loading} />
+      <div class="col-span-1 md:col-span-3">
+         <QueuesCard queuesData={queuesData} loading={loading} />  
       </div>
+      <div class="col-span-1 md:col-span-2">
+     <ContactCard queuesData={queuesData} loading={loading} />  
+      </div>
+  
     </div>
   );
 };

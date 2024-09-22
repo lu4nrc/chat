@@ -1,9 +1,6 @@
 import { Field, Form, Formik } from "formik";
 import React, { useEffect, useRef, useState } from "react";
-import { toast } from "react-toastify";
 import * as Yup from "yup";
-
-
 
 import { i18n } from "../../translate/i18n";
 
@@ -46,10 +43,9 @@ const QueueModal = ({ open, onClose, queueId }) => {
           return { ...prevState, ...data };
         });
       } catch (err) {
-        const errorMsg = err.response?.data?.message || err.response.data.error;
         toast({
           variant: "destructive",
-          title: errorMsg,
+          title: toastError(err),
         });
       }
     })();
@@ -75,18 +71,17 @@ const QueueModal = ({ open, onClose, queueId }) => {
       } else {
         await api.post("/queue", values);
       }
-      toast.success("Departamento salvo com sucesso", {
-        style: {
-          backgroundColor: "#D4EADD",
-          color: "#64A57B",
-        },
+      toast({
+        variant: "success",
+        title: "Sucesso!",
+        description: "Departamento salvo com sucesso",
       });
+
       handleClose();
     } catch (err) {
-      const errorMsg = err.response?.data?.message || err.response.data.error;
       toast({
         variant: "destructive",
-        title: errorMsg,
+        title: toastError(err),
       });
     }
   };

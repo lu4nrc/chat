@@ -10,16 +10,15 @@ import { Tooltip, TooltipContent, TooltipTrigger } from "../ui/tooltip";
 import { Check, EllipsisVertical, LoaderCircle, RotateCcw } from "lucide-react";
 import { Button } from "../ui/button";
 import { useToast } from "@/hooks/use-toast";
+import toastError from "@/errors/toastError";
 
-const TicketActionButtons = ({ ticket }) => {
+const TicketActionButtons = ({ ticket, activeRating }) => {
   const { toast } = useToast();
   const navigate = useNavigate();
 
   const [loading, setLoading] = useState(false);
 
   const { user } = useContext(AuthContext);
-
-
 
   const handleUpdateTicketStatus = async (status, userId) => {
     setLoading(true);
@@ -37,10 +36,9 @@ const TicketActionButtons = ({ ticket }) => {
       }
     } catch (err) {
       setLoading(false);
-      const errorMsg = err.response?.data?.message || err.response.data.error;
       toast({
         variant: "destructive",
-        title: errorMsg,
+        title: toastError(err),
       });
     }
   };
@@ -69,7 +67,12 @@ const TicketActionButtons = ({ ticket }) => {
                 {/*//! Aqui resolve muita coisa */}
                 <div
                   onClick={() =>
-                    handleUpdateTicketStatus("closed", user?.id)
+                    handleUpdateTicketStatus(
+                      activeRating.value === "disabled"
+                        ? "closed"
+                        : "waitingRating",
+                      user?.id
+                    )
                   }
                   className="flex h-9 w-9 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:text-foreground"
                 >

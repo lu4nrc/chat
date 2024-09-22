@@ -12,14 +12,12 @@ interface Request {
   body: string;
   ticket: Ticket;
   quotedMsg?: Message;
-  wbotType?: string;
 }
 
 const SendWhatsAppMessage = async ({
   body,
   ticket,
-  quotedMsg,
-  wbotType
+  quotedMsg
 }: Request): Promise<WbotMessage> => {
   let quotedMsgSerializedId: string | undefined;
   if (quotedMsg) {
@@ -33,11 +31,12 @@ const SendWhatsAppMessage = async ({
       formatBody(body, ticket.contact),
       {
         quotedMessageId: quotedMsgSerializedId,
-        linkPreview: false,
-        wbotType: wbotType
+        linkPreview: false
       }
     );
-    await ticket.update({ lastMessage: body });
+    if (!body.startsWith("> \u200B")) {
+      await ticket.update({ lastMessage: body });
+    }
     return sentMessage;
   } catch (err) {
     logger.error(err);

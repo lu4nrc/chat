@@ -8,6 +8,7 @@ import { AuthContext } from "../../context/Auth/AuthContext";
 import { useToast } from "@/hooks/use-toast";
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
 import { Button } from "../ui/button";
+import toastError from "@/errors/toastError";
 
 const VcardPreview = ({ contact, numbers }) => {
   const { toast } = useToast();
@@ -33,11 +34,9 @@ const VcardPreview = ({ contact, numbers }) => {
           const { data } = await api.post("/contact", contactObj);
           setContact(data);
         } catch (err) {
-          const errorMsg =
-            err.response?.data?.message || err.response.data.error;
           toast({
             variant: "destructive",
-            title: errorMsg,
+            title: toastError(err),
           });
         }
       };
@@ -55,10 +54,9 @@ const VcardPreview = ({ contact, numbers }) => {
       });
       navigate(`/tickets/${ticket.id}`);
     } catch (err) {
-      const errorMsg = err.response?.data?.message || err.response.data.error;
       toast({
         variant: "destructive",
-        title: errorMsg,
+        title: toastError(err),
       });
     }
   };

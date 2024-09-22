@@ -1,14 +1,16 @@
 import React, { useEffect, useState } from "react";
-import { toast } from "react-toastify";
+
 
 import api from "../../services/api";
 
 import toastError from "../../errors/toastError";
 
 import TransmissionModal from "../../components/TransmissionModal";
+import { useToast } from "@/hooks/use-toast";
+
 
 const Transmission = () => {
-  /* const classes = useStyles(); */
+  const toast = useToast()
   const [loading, setLoading] = useState(false);
   const [transmissionId, setTransmissionId] = useState(null);
   const [sendLoading, setSendLoading] = useState(false);
@@ -22,10 +24,9 @@ const Transmission = () => {
       setTransmissions(data);
       setLoading(false);
     } catch (err) {
-      const errorMsg = err.response?.data?.message || err.response.data.error;
       toast({
         variant: "destructive",
-        title: errorMsg,
+        title: toastError(err),
       });
     }
   };
@@ -62,10 +63,9 @@ const Transmission = () => {
       });
       fetchContacts();
     } catch (err) {
-      const errorMsg = err.response?.data?.message || err.response.data.error;
       toast({
         variant: "destructive",
-        title: errorMsg,
+        title: toastError(err),
       });
     }
   };
@@ -99,10 +99,9 @@ const Transmission = () => {
         });
       }
     } catch (err) {
-      const errorMsg = err.response?.data?.message || err.response.data.error;
       toast({
         variant: "destructive",
-        title: errorMsg,
+        title: toastError(err),
       });
     }
     setSendLoading(false);

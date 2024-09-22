@@ -1,10 +1,11 @@
 import React, { useState, useEffect, useRef } from "react";
 import * as Yup from "yup";
 import { Formik, Form, Field } from "formik";
-import { toast } from "react-toastify";
+
 
 import api from "../../services/api";
-import toastError from "../../errors/toastError";
+import { useToast } from "@/hooks/use-toast";
+import toastError from "@/errors/toastError";
 
 const ContactSchema = Yup.object().shape({
   name: Yup.string()
@@ -15,6 +16,7 @@ const ContactSchema = Yup.object().shape({
 
 const TagModal = ({ open, onClose, value }) => {
   const isMounted = useRef(true);
+  const toast = useToast()
 
   const initialState = {
     name: "",
@@ -48,17 +50,15 @@ const TagModal = ({ open, onClose, value }) => {
       }
 
       handleClose();
-      toast.success(`Tag ${tag.id ? "updated" : "added"}`, {
-        style: {
-          backgroundColor: "#D4EADD",
-          color: "#64A57B",
-        },
+      toast({
+        variant: "success",
+        title: "Sucesso!",
+        description: `Tag ${tag.id ? "updated" : "added"}`,
       });
     } catch (err) {
-      const errorMsg = err.response?.data?.message || err.response.data.error;
       toast({
         variant: "destructive",
-        title: errorMsg,
+        title: toastError(err),
       });
     }
   };

@@ -4,6 +4,7 @@ import openSocket from "../../services/socket-io";
 import { i18n } from "../../translate/i18n";
 import api from "../../services/api";
 import { useToast } from "../use-toast";
+import toastError from "@/errors/toastError";
 
 var interval = null;
 const useAuth = () => {
@@ -63,11 +64,9 @@ const useAuth = () => {
           setIsAuth(true);
           setUser(data.user);
         } catch (err) {
-          const errorMsg =
-            err.response?.data?.message || err.response.data.error;
           toast({
             variant: "destructive",
-            title: errorMsg,
+            title: toastError(err),
           });
         }
         setLoading(false);
@@ -107,10 +106,9 @@ const useAuth = () => {
       });
       navigate("/tickets");
     } catch (err) {
-      const errorMsg = err.response?.data?.message || err.response.data.error;
       toast({
         variant: "destructive",
-        title: errorMsg,
+        title: toastError(err),
       });
     } finally {
       setLoading(false);

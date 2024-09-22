@@ -23,12 +23,10 @@ const MessageOptionsMenu = ({ message }) => {
     try {
       await api.delete(`/messages/${message.id}`);
     } catch (err) {
-      const errorMsg =
-      err.response?.data?.message || err.response.data.error;
-    toast({
-      variant: "destructive",
-      title: errorMsg,
-    });
+      toast({
+        variant: "destructive",
+        title: toastError(err),
+      });
     }
   };
 

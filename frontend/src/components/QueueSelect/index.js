@@ -1,13 +1,15 @@
 import React, { useEffect, useState } from "react";
 
-import { toast } from "react-toastify";
+
 import api from "../../services/api";
 import MultipleSelector from "../ui/multiple-selector";
 import { Label } from "../ui/label";
+import { useToast } from "@/hooks/use-toast";
 
 const QueueSelect = ({ selectedQueueIds, onChange }) => {
   const [queues, setQueues] = useState(null);
   const [queuesSelected, setQueuesSelected] = useState(selectedQueueIds);
+  const toast = useToast()
 
   useEffect(() => {
     (async () => {

@@ -2,7 +2,7 @@ import React, { useEffect, useReducer, useState } from "react";
 
 import openSocket from "../../services/socket-io";
 
-import { Edit, Trash, Search, Loader2 } from "lucide-react";
+import { Edit, Trash, Search } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
 import ConfirmationModal from "../../components/ConfirmationModal";
@@ -14,8 +14,6 @@ import { Table, TableCell, TableRow } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import toastError from "@/errors/toastError";
-import InfiniteScroll from "@/components/ui/InfiniteScroll";
-import { ScrollArea } from "@/components/ui/scroll-area";
 
 const reducer = (state, action) => {
   if (action.type === "LOAD_USERS") {
@@ -174,75 +172,7 @@ const Users = () => {
           className="w-full max-w-md"
         />
       </div>
-
-      <div className="border overflow-hidden rounded-lg">
-        <div className="flex w-full bg-muted flex-col gap-2 border-b border-muted">
-          <div className="grid grid-cols-5 text-muted-foreground">
-            <h4 className=" py-2 pl-2 text-sm font-medium leading-none">
-              Nome
-            </h4>
-            <h4 className=" py-2  text-sm font-medium leading-none">Email</h4>
-            <h4 className=" py-2 text-sm font-medium text-center leading-none">
-              Perfil
-            </h4>
-            <h4 className=" py-2 text-sm font-medium text-center leading-none">
-              Conexão Padrão
-            </h4>
-            <h4 className=" py-2 text-sm font-medium text-center leading-none">
-              Ações
-            </h4>
-          </div>
-        </div>
-        <ScrollArea className="h-[calc(100vh-300px)] w-full">
-          <div className=" w-full  overflow-y-auto">
-            <div className="flex w-full flex-col items-center">
-              {users.map((user) => (
-                <div
-                  className="grid grid-cols-5 w-full border-b py-1  items-center"
-                  key={user.id}
-                >
-                  <div className="text-center">{user.name}</div>
-                  <div className="text-center">{user.email}</div>
-                  <div className="text-center">{user.profile}</div>
-                  <div className="text-center">{user.whatsapp?.name}</div>
-                  <div className="text-center flex justify-center space-x-2">
-                    <Button
-                      variant="ghost"
-                      onClick={() => handleEditUser(user)}
-                      size="sm"
-                    >
-                      <Edit className="h-4 w-4" />
-                    </Button>
-                    <Button
-                      variant="ghost"
-                      onClick={() => {
-                        setConfirmModalOpen(true);
-                        setDeletingUser(user);
-                      }}
-                      size="sm"
-                    >
-                      <Trash className="h-4 w-4" />
-                    </Button>
-                  </div>
-                </div>
-              ))}
-
-           {/*    <InfiniteScroll
-                hasMore={hasMore}
-                isLoading={loading}
-                next={next}
-                threshold={1}
-              >
-                {hasMore && (
-                  <Loader2 className="my-4 h-8 w-8 text-primary animate-spin" />
-                )}
-              </InfiniteScroll> */}
-            </div>
-          </div>
-        </ScrollArea>
-      </div>
-
-     {/*  <div className="overflow-hidden">
+      <div className="overflow-hidden">
         <Table>
           <thead>
             <TableRow>
@@ -286,7 +216,7 @@ const Users = () => {
             {loading && <TableRowSkeleton columns={4} />}
           </tbody>
         </Table>
-      </div> */}
+      </div>
       <ConfirmationModal
         title={
           deletingUser &&

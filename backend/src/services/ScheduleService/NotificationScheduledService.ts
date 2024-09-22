@@ -52,8 +52,7 @@ const NotificationScheduledService = async (): Promise<void> => {
             );
             await SendWhatsAppMessage({
               body: phrase,
-              ticket,
-              wbotType: "reminder"
+              ticket
             });
           })
         );

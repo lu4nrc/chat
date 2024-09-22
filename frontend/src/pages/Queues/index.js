@@ -2,9 +2,6 @@ import React, { useEffect, useReducer, useState } from "react";
 
 import openSocket from "../../services/socket-io";
 
-
-
-
 import { PencilSimple, Trash } from "@phosphor-icons/react";
 import ConfirmationModal from "../../components/ConfirmationModal";
 import QueueModal from "../../components/QueueModal";
@@ -12,6 +9,8 @@ import TableRowSkeleton from "../../components/TableRowSkeleton";
 import api from "../../services/api";
 import { i18n } from "../../translate/i18n";
 import { useToast } from "@/hooks/use-toast";
+import toastError from "@/errors/toastError";
+import Maintenance from "@/components/Maintenance";
 
 const reducer = (state, action) => {
   if (action.type === "LOAD_QUEUES") {
@@ -75,10 +74,9 @@ const Queues = () => {
 
         setLoading(false);
       } catch (err) {
-        const errorMsg = err.response?.data?.message || err.response.data.error;
         toast({
           variant: "destructive",
-          title: errorMsg,
+          title: toastError(err),
         });
         setLoading(false);
       }
@@ -126,17 +124,15 @@ const Queues = () => {
   const handleDeleteQueue = async (queueId) => {
     try {
       await api.delete(`/queue/${queueId}`);
-      toast.success(i18n.t("Queue deleted successfully!"), {
-        style: {
-          backgroundColor: "#D4EADD",
-          color: "#64A57B",
-        },
+      toast({
+        variant: "success",
+        title: "Sucesso!",
+        description: i18n.t("Queue deleted successfully!"),
       });
     } catch (err) {
-      const errorMsg = err.response?.data?.message || err.response.data.error;
       toast({
         variant: "destructive",
-        title: errorMsg,
+        title: toastError(err),
       });
     }
     setSelectedQueue(null);
@@ -144,8 +140,8 @@ const Queues = () => {
 
   return (
     <>
-   
-   {/*  <Stack p={2}>
+    <Maintenance/>
+      {/*  <Stack p={2}>
       <Stack pt={0.5} spacing={2}>
         <Stack direction={"row"} justifyContent={"space-between"}>
           <Typography variant="h5">Departamentos</Typography>

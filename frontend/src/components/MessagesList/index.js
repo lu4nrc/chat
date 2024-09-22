@@ -181,11 +181,9 @@ const MessagesList = ({ ticketId, isGroup }) => {
           setLoading(false);
         } catch (err) {
           setLoading(false);
-          const errorMsg =
-            err.response?.data?.message || err.response.data.error;
           toast({
             variant: "destructive",
-            title: errorMsg,
+            title: toastError(err),
           });
         }
       };

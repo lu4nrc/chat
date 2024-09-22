@@ -404,6 +404,13 @@ const messages = {
               disabled: "Desativado",
             },
           },
+          rating: {
+            name: "Avaliação de atendimento",
+            options: {
+              enabled: "Ativado",
+              disabled: "Desativado",
+            },
+          },
           openingHours:{
             update:"Horário de atendimento atualizado com sucesso."
           }

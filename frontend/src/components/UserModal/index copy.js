@@ -1,10 +1,6 @@
 import React, { useContext, useEffect, useState } from "react";
-import { toast } from "react-toastify";
 import { Field, Form, Formik } from "formik";
 import * as Yup from "yup";
-
-
-
 
 import { i18n } from "../../translate/i18n";
 
@@ -42,7 +38,7 @@ const UserModal = ({ open, onClose, userId }) => {
   const [showPassword, setShowPassword] = useState(false);
   const [whatsappId, setWhatsappId] = useState(false);
   const { loading, whatsApps } = useWhatsApps();
-  const { toast } = useToast()
+  const { toast } = useToast();
 
   useEffect(() => {
     const fetchUser = async () => {
@@ -56,12 +52,10 @@ const UserModal = ({ open, onClose, userId }) => {
         setSelectedQueueIds(userQueueIds);
         setWhatsappId(data.whatsappId ? data.whatsappId : "");
       } catch (err) {
-        const errorMsg =
-        err.response?.data?.message || err.response.data.error;
-      toast({
-        variant: "destructive",
-        title: errorMsg,
-      });
+        toast({
+          variant: "destructive",
+          title: toastError(err),
+        });
       }
     };
 
@@ -81,14 +75,16 @@ const UserModal = ({ open, onClose, userId }) => {
       } else {
         await api.post("/users", userData);
       }
-      toast.success("Usuário salvo");
+      toast({
+        variant: "success",
+        title: "Sucesso!",
+        description: "Usuário salvo",
+      });
     } catch (err) {
-      const errorMsg =
-      err.response?.data?.message || err.response.data.error;
-    toast({
-      variant: "destructive",
-      title: errorMsg,
-    });
+      toast({
+        variant: "destructive",
+        title: toastError(err),
+      });
     }
     handleClose();
   };
@@ -102,7 +98,6 @@ const UserModal = ({ open, onClose, userId }) => {
         fullWidth
         scroll="paper"
       >
-        
         <DialogTitle id="form-dialog-title">
           {userId
             ? `${i18n.t("userModal.title.edit")}`
@@ -126,7 +121,7 @@ const UserModal = ({ open, onClose, userId }) => {
                   <Stack spacing={0.5} flex={1}>
                     <Typography variant="subtitle2">Nome</Typography>
                     <Field
-                    size="small"
+                      size="small"
                       as={TextField}
                       autoFocus
                       name="name"
@@ -140,7 +135,7 @@ const UserModal = ({ open, onClose, userId }) => {
                   <Stack spacing={0.5} flex={1}>
                     <Typography variant="subtitle2">Senha</Typography>
                     <Field
-                    size="small"
+                      size="small"
                       as={TextField}
                       name="password"
                       variant="outlined"
@@ -172,7 +167,7 @@ const UserModal = ({ open, onClose, userId }) => {
                   <Stack spacing={0.5} flex={2}>
                     <Typography variant="subtitle2">Email</Typography>
                     <Field
-                    size="small"
+                      size="small"
                       as={TextField}
                       name="email"
                       error={touched.email && Boolean(errors.email)}
@@ -190,7 +185,7 @@ const UserModal = ({ open, onClose, userId }) => {
                       yes={() => (
                         <>
                           <Field
-                          size="small"
+                            size="small"
                             as={Select}
                             defaultValue=""
                             name="profile"
@@ -211,7 +206,6 @@ const UserModal = ({ open, onClose, userId }) => {
                   perform="user-modal:editQueues"
                   yes={() => (
                     <QueueSelect
-                    
                       defaultValue=""
                       selectedQueueIds={selectedQueueIds}
                       onChange={(values) => setSelectedQueueIds(values)}
@@ -228,7 +222,7 @@ const UserModal = ({ open, onClose, userId }) => {
                           Conexão padrão
                         </Typography>
                         <Field
-                        size="small"
+                          size="small"
                           as={Select}
                           value={whatsappId}
                           onChange={(e) => setWhatsappId(e.target.value)}

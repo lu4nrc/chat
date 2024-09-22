@@ -1,27 +1,42 @@
 import { Field, FieldArray, Form, Formik } from "formik";
 import React, { useEffect, useRef, useState } from "react";
-import { toast } from "react-toastify";
 import * as Yup from "yup";
 
-
-
 import { i18n } from "../../translate/i18n";
-
 
 import toastError from "../../errors/toastError";
 import api from "../../services/api";
 import { useToast } from "@/hooks/use-toast";
+import {
+  Dialog,
+  DialogClose,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "../ui/dialog";
+import { Button } from "../ui/button";
+import { Label } from "../ui/label";
+import { Input } from "../ui/input";
+import { PhoneInputUi } from "../ui/phone-input";
 
 const ContactSchema = Yup.object().shape({
   name: Yup.string()
     .min(2, "Muito curto!")
     .max(50, "Muito longo!")
     .required("Obrigatório"),
-  number: Yup.string().min(8, "Muito curto!").max(50, "Muito longo!"),
   email: Yup.string().email("Email inválido"),
 });
 
-const ContactModal = ({ open, onClose, contactId, initialValues, onSave }) => {
+const ContactModal = ({
+  open,
+  onOpenChange,
+  contactId,
+  initialValues,
+  onSave,
+}) => {
   const isMounted = useRef(true);
   const initialState = {
     name: "",
@@ -55,10 +70,9 @@ const ContactModal = ({ open, onClose, contactId, initialValues, onSave }) => {
           setContact(data);
         }
       } catch (err) {
-        const errorMsg = err.response?.data?.message || err.response.data.error;
         toast({
           variant: "destructive",
-          title: errorMsg,
+          title: toastError(err),
         });
       }
     };
@@ -67,104 +81,86 @@ const ContactModal = ({ open, onClose, contactId, initialValues, onSave }) => {
   }, [contactId, open, initialValues]);
 
   const handleClose = () => {
-    onClose();
+    onOpenChange(false);
     setContact(initialState);
   };
 
   const handleSaveContact = async (values) => {
     try {
       if (contactId) {
-        await api.put(`/contacts/${contactId}`, values);
+        // await api.put(`/contacts/${contactId}`, values);
+        console.log(values);
         handleClose();
       } else {
         const { data } = await api.post("/contacts", values);
         if (onSave) {
-          onSave(data);
+          // onSave(data);
         }
         handleClose();
       }
-      toast.success(i18n.t("contactModal.success"), {
-        style: {
-          backgroundColor: "#D4EADD",
-          color: "#64A57B",
-        },
+      toast({
+        variant: "success",
+        title: "Sucesso!",
+        description: i18n.t("contactModal.success"),
       });
     } catch (err) {
-      const errorMsg = err.response?.data?.message || err.response.data.error;
       toast({
         variant: "destructive",
-        title: errorMsg,
+        title: toastError(err),
       });
     }
   };
 
   return (
-    <>
-      {/*    <Stack>
-      <Dialog open={open} onClose={handleClose} maxWidth="lg" scroll="paper">
-        <DialogTitle id="form-dialog-title">
-          {contactId
-            ? `${i18n.t("contactModal.title.edit")}`
-            : "Adicionar contato"}
-        </DialogTitle>
-        <Formik
-          initialValues={contact}
-          enableReinitialize={true}
-          validationSchema={ContactSchema}
-          onSubmit={(values, actions) => {
-            setTimeout(() => {
-              handleSaveContact(values);
-              actions.setSubmitting(false);
-            }, 400);
-          }}
-        >
-          {({ values, errors, touched, isSubmitting }) => (
-            <Form>
-              <DialogContent dividers>
-            
-                <Stack spacing={1}>
-                  <Stack direction={"row"} spacing={1}>
-                    <Stack flex={1} spacing={0.5}>
-                      <Typography fontWeight={"bold"} variant="body2">
-                        Nome
-                      </Typography>
-                      <Field
-                        size="small"
-                        as={TextField}
-                        name="name"
-                        fullWidth
-                        autoFocus
-                        error={touched.name && Boolean(errors.name)}
-                        helperText={touched.name && errors.name}
-                        variant="outlined"
-                        margin="dense"
-                        className={""}
-                      />
-                    </Stack>
-                    <Stack flex={1} spacing={0.5}>
-                      <Typography fontWeight={"bold"} variant="body2">
-                        Número do Whatsapp
-                      </Typography>
-                      <Field
-                        size="small"
-                        as={TextField}
-                        fullWidth
-                        name="number"
-                        error={touched.number && Boolean(errors.number)}
-                        helperText={touched.number && errors.number}
-                        placeholder="5563912344321"
-                        variant="outlined"
-                        margin="dense"
-                      />
-                    </Stack>
-                  </Stack>
-                  <Stack spacing={0.5}>
-                    <Typography fontWeight={"bold"} variant="body2">
-                      Email
-                    </Typography>
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent className="sm:max-w-[320px]">
+        <DialogHeader>
+          <DialogTitle>
+            {contactId ? `Editar contato` : "Adicionar contato"}
+          </DialogTitle>
+          <DialogDescription></DialogDescription>
+        </DialogHeader>
+        <div className="flex items-center space-x-2">
+          <Formik
+            initialValues={contact}
+            enableReinitialize={true}
+            validationSchema={ContactSchema}
+            onSubmit={(values, actions) => {
+              setTimeout(() => {
+                handleSaveContact(values);
+                actions.setSubmitting(false);
+              }, 400);
+            }}
+          >
+            {({ values, errors, touched, isSubmitting, setFieldValue }) => (
+              <Form>
+                <div className="grid  gap-2">
+                  <div className="grid w-full items-center gap-1.5 relative pb-1">
+                    <Label htmlFor="name">Nome do contato</Label>
+                    <Field
+                      as={Input}
+                      name="name"
+                      fullWidth
+                      error={touched.name && Boolean(errors.name)}
+                      helperText={touched.name && errors.name}
+                    />
+                  </div>
+
+                  <div className="grid w-full items-center gap-1.5">
+                    <Label htmlFor="name">Número do Whatsapp</Label>
+                    <PhoneInputUi
+                      value={values.number} // Passa o valor atual do campo
+                      onChange={(value) => {
+                        console.log(value);
+                        setFieldValue("number", value);
+                      }} // Atualiza o estado de Formik
+                    />
+                  </div>
+                  <div className="grid w-full items-center gap-1.5">
+                    <Label htmlFor="name">Email</Label>
                     <Field
                       size="small"
-                      as={TextField}
+                      as={Input}
                       name="email"
                       error={touched.email && Boolean(errors.email)}
                       helperText={touched.email && errors.email}
@@ -172,104 +168,28 @@ const ContactModal = ({ open, onClose, contactId, initialValues, onSave }) => {
                       margin="dense"
                       variant="outlined"
                     />
-                  </Stack>
-                  <Typography fontWeight={"bold"} variant="body1">
-                    Informações adicionais
-                  </Typography>
-
-                  <FieldArray name="extraInfo">
-                    {({ push, remove }) => (
-                      <>
-                        {values.extraInfo &&
-                          values.extraInfo.length > 0 &&
-                          values.extraInfo.map((info, index) => (
-                            <Stack
-                              justifyContent={"center"}
-                              direction={"row"}
-                              spacing={1}
-                              key={`${index}-info`}
-                            >
-                              <Stack spacing={0.5}>
-                                <Typography fontWeight={"bold"} variant="body2">
-                                  Nome do campo
-                                </Typography>
-                                <Field
-                                  size="small"
-                                  as={TextField}
-                                  name={`extraInfo[${index}].name`}
-                                  variant="outlined"
-                                  margin="dense"
-                                  className={""}
-                                />
-                              </Stack>
-                              <Stack spacing={0.5}>
-                                <Typography fontWeight={"bold"} variant="body2">
-                                  Resposta
-                                </Typography>
-                                <Field
-                                  size="small"
-                                  as={TextField}
-                                  name={`extraInfo[${index}].value`}
-                                  variant="outlined"
-                                  margin="dense"
-                                  className={""}
-                                />
-                              </Stack>
-                              <Stack spacing={0.5} justifyContent={"center"}>
-                                <div></div>
-                                <IconButton
-                                  size="small"
-                                  onClick={() => remove(index)}
-                                >
-                                  <DeleteOutlineIcon />
-                                </IconButton>
-                              </Stack>
-                            </Stack>
-                          ))}
-                        <Stack>
-                          <Button
-                            sx={{ flex: 1, marginTop: 8 }}
-                            variant="outlined"
-                            color="primary"
-                            onClick={() => push({ name: "", value: "" })}
-                          >
-                            {`+ ${i18n.t("contactModal.buttons.addExtraInfo")}`}
-                          </Button>
-                        </Stack>
-                      </>
-                    )}
-                  </FieldArray>
-                </Stack>
-              </DialogContent>
-              <DialogActions>
-                <Button
-                  onClick={handleClose}
-                  disabled={isSubmitting}
-                  variant="text"
-                >
-                  {i18n.t("contactModal.buttons.cancel")}
-                </Button>
-                <Button
-                  type="submit"
-                  color="primary"
-                  disabled={isSubmitting}
-                  variant="contained"
-                  className={""}
-                >
-                  {contactId
-                    ? `${i18n.t("contactModal.buttons.okEdit")}`
-                    : `${i18n.t("contactModal.buttons.okAdd")}`}
-                  {isSubmitting && (
-                    <CircularProgress size={24} className={""} />
-                  )}
-                </Button>
-              </DialogActions>
-            </Form>
-          )}
-        </Formik>
-      </Dialog>
-    </Stack>  */}
-    </>
+                  </div>
+                </div>
+                <div className="flex gap-2 w-full justify-end   col-span-2 pt-2">
+                  <Button
+                    type="submit"
+                    color="primary"
+                    disabled={isSubmitting}
+                    variant="contained"
+                    className={""}
+                  >
+                    {contactId
+                      ? `${i18n.t("contactModal.buttons.okEdit")}`
+                      : `${i18n.t("contactModal.buttons.okAdd")}`}
+                    {isSubmitting && "Salvando.."}
+                  </Button>
+                </div>
+              </Form>
+            )}
+          </Formik>
+        </div>
+      </DialogContent>
+    </Dialog>
   );
 };
 

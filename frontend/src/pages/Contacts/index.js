@@ -1,6 +1,5 @@
 import React, { useContext, useEffect, useReducer, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { toast } from "react-toastify";
 import openSocket from "../../services/socket-io";
 
 import api from "../../services/api";
@@ -19,7 +18,8 @@ import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
 import { Input } from "@/components/ui/input";
-
+import ContactModal from "@/components/ContactModal";
+import { useToast } from "@/hooks/use-toast";
 
 const reducer = (state, action) => {
   if (action.type === "LOAD_CONTACTS") {
@@ -82,6 +82,8 @@ const Contacts = () => {
 
   const [searchParam, setSearchParam] = useState("");
 
+  const toast = useToast()
+
   useEffect(() => {
     dispatch({ type: "RESET" });
     setPageNumber(1);
@@ -133,10 +135,9 @@ const Contacts = () => {
       });
       navigate(`/tickets/${ticket.id}`);
     } catch (err) {
-      const errorMsg = err.response?.data?.message || err.response.data.error;
       toast({
         variant: "destructive",
-        title: errorMsg,
+        title: toastError(err),
       });
     }
     setLoading(false);
@@ -147,6 +148,7 @@ const Contacts = () => {
   };
 
   const handleOpenContactModal = () => {
+    console.log("handleOpenContactModal");
     setSelectedContactId(null);
     setContactModalOpen(true);
   };
@@ -164,17 +166,15 @@ const Contacts = () => {
   const handleDeleteContact = async (contactId) => {
     try {
       await api.delete(`/contacts/${contactId}`);
-      toast.success(i18n.t("contacts.toasts.deleted"), {
-        style: {
-          backgroundColor: "#D4EADD",
-          color: "#64A57B",
-        },
+      toast({
+        variant: "success",
+        title: "Sucesso!",
+        description: i18n.t("contacts.toasts.deleted"),
       });
     } catch (err) {
-      const errorMsg = err.response?.data?.message || err.response.data.error;
       toast({
         variant: "destructive",
-        title: errorMsg,
+        title: toastError(err),
       });
     }
     setDeletingContact(null);
@@ -189,13 +189,20 @@ const Contacts = () => {
     } catch (err) {
       toast({
         variant: "destructive",
-        title: "Erro ao importar",
+        title: toastError(err),
       });
     }
   };
 
   return (
     <div className="h-full flex flex-col gap-2 p-4 sm:px-6 sm:py-2 md:gap-4">
+      <ContactModal
+        open={contactModalOpen}
+        onOpenChange={setContactModalOpen}
+        onClose={handleCloseContactModal}
+        aria-labelledby="form-dialog-title"
+        contactId={selectedContactId}
+      ></ContactModal>
       <div className="flex items-center gap-2">
         <h1 className="text-2xl font-semibold leading-none tracking-tight text-foreground">
           Contatos
@@ -213,7 +220,7 @@ const Contacts = () => {
           <Button onClick={(e) => handleimportContact()}>
             Importar contatos
           </Button>
-          {/* <Button>Novo contato</Button> */}
+          <Button onClick={handleOpenContactModal}>Novo contato</Button>
         </div>
       </div>
 
@@ -265,7 +272,7 @@ const Contacts = () => {
                       <MessageSquarePlus className="h-4 w-4" />
                     </Button>
                     <Button
-                    disabled
+                      disabled
                       variant="ghost"
                       onClick={() => hadleEditContact(contact.id)}
                     >
@@ -274,7 +281,7 @@ const Contacts = () => {
 
                     {user.profile === "admin" && (
                       <Button
-                      disabled
+                        disabled
                         variant="ghost"
                         onClick={() => hadleEditContact(contact.id)}
                       >

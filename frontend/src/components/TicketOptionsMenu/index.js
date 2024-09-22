@@ -15,6 +15,7 @@ import {
 import { ChevronDown, EllipsisVertical, Trash } from "lucide-react";
 import { useOutletContext } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
+import toastError from "@/errors/toastError";
 
 const TicketOptionsMenu = ({ ticket }) => {
   const { toast } = useToast()
@@ -33,12 +34,10 @@ const TicketOptionsMenu = ({ ticket }) => {
     try {
       await api.delete(`/tickets/${ticket.id}`);
     } catch (err) {
-      const errorMsg =
-      err.response?.data?.message || err.response.data.error;
-    toast({
-      variant: "destructive",
-      title: errorMsg,
-    });
+      toast({
+        variant: "destructive",
+        title: toastError(err),
+      });
     }
   };
 

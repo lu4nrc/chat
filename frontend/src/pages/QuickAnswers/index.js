@@ -2,8 +2,6 @@ import React, { useEffect, useReducer, useState } from "react";
 import openSocket from "../../services/socket-io";
 
 
-
-import { toast } from "react-toastify";
 import ConfirmationModal from "../../components/ConfirmationModal";
 import QuickAnswersModal from "../../components/QuickAnswersModal";
 import TableRowSkeleton from "../../components/TableRowSkeleton";
@@ -11,8 +9,9 @@ import toastError from "../../errors/toastError";
 import api from "../../services/api";
 import { i18n } from "../../translate/i18n";
 
-
 import { PencilSimple, Trash } from "@phosphor-icons/react";
+import { useToast } from "@/hooks/use-toast";
+import Maintenance from "@/components/Maintenance";
 
 const reducer = (state, action) => {
   if (action.type === "LOAD_QUICK_ANSWERS") {
@@ -69,6 +68,8 @@ const QuickAnswers = () => {
   const [confirmModalOpen, setConfirmModalOpen] = useState(false);
   const [hasMore, setHasMore] = useState(false);
 
+  const toast = useToast()
+
   useEffect(() => {
     dispatch({ type: "RESET" });
     setPageNumber(1);
@@ -86,11 +87,9 @@ const QuickAnswers = () => {
           setHasMore(data.hasMore);
           setLoading(false);
         } catch (err) {
-          const errorMsg =
-            err.response?.data?.message || err.response.data.error;
           toast({
             variant: "destructive",
-            title: errorMsg,
+            title: toastError(err),
           });
         }
       };
@@ -142,17 +141,15 @@ const QuickAnswers = () => {
   const handleDeleteQuickAnswers = async (quickAnswerId) => {
     try {
       await api.delete(`/quickAnswers/${quickAnswerId}`);
-      toast.success(i18n.t("quickAnswers.toasts.deleted"), {
-        style: {
-          backgroundColor: "#D4EADD",
-          color: "#64A57B",
-        },
+      toast({
+        variant: "success",
+        title: "Sucesso!",
+        description: i18n.t("quickAnswers.toasts.deleted"),
       });
     } catch (err) {
-      const errorMsg = err.response?.data?.message || err.response.data.error;
       toast({
         variant: "destructive",
-        title: errorMsg,
+        title: toastError(err),
       });
     }
     setDeletingQuickAnswers(null);
@@ -173,7 +170,8 @@ const QuickAnswers = () => {
   };
 
   return (
-    <div className="flex gap-1">
+    <div>
+      <Maintenance/>
       {/*    <Stack pt={0.5} spacing={2}>
         <h2 className="text-2xl font-semibold leading-none tracking-tight text-foreground">
           Respostas Rápidas

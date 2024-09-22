@@ -24,6 +24,7 @@ import { Switch } from "../ui/switch";
 import { Textarea } from "../ui/textarea";
 import { Edit } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import toastError from "@/errors/toastError";
 
 const longText = `
 Desmarque esta opção para definir um horário de expediente para os atendimentos.
@@ -50,7 +51,7 @@ const WhatsAppModal = ({ whatsAppId, isEdit }) => {
   };
   const [whatsApp, setWhatsApp] = useState(initialState);
   const [selectedQueueIds, setSelectedQueueIds] = useState([]);
-  const { toast } = useToast()
+  const { toast } = useToast();
 
   useEffect(() => {
     const fetchSession = async () => {
@@ -61,12 +62,10 @@ const WhatsAppModal = ({ whatsAppId, isEdit }) => {
         setWhatsApp(data);
         setSelectedQueueIds(data.queues);
       } catch (err) {
-        const errorMsg =
-        err.response?.data?.message || err.response.data.error;
-      toast({
-        variant: "destructive",
-        title: errorMsg,
-      });
+        toast({
+          variant: "destructive",
+          title: toastError(err),
+        });
       }
     };
     fetchSession();
@@ -82,20 +81,17 @@ const WhatsAppModal = ({ whatsAppId, isEdit }) => {
       } else {
         await api.post("/whatsapp", whatsappData);
       }
-      toast.success(i18n.t("whatsappModal.success"), {
-        style: {
-          backgroundColor: "#D4EADD",
-          color: "#64A57B",
-        },
+      toast({
+        variant: "success",
+        title: "Sucesso!",
+        description: i18n.t("whatsappModal.success"),
       });
       setOpen(false);
     } catch (err) {
-      const errorMsg =
-      err.response?.data?.message || err.response.data.error;
-    toast({
-      variant: "destructive",
-      title: errorMsg,
-    });
+      toast({
+        variant: "destructive",
+        title: toastError(err),
+      });
     }
   };
 

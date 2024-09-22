@@ -3,7 +3,7 @@ import { getWbot } from "../../libs/wbot";
 import Contact from "../../models/Contact";
 import Transmission from "../../models/Transmission";
 import formatBody from "../../helpers/Mustache";
-import { MessageMedia } from "whatsapp-web.js"; 
+import { MessageMedia } from "whatsapp-web.js";
 import { sleep, findSeries } from "modern-async";
 var path = require("path");
 var absolutePath = path.resolve("./public");
@@ -19,7 +19,7 @@ interface ContactCustom {
   id: number;
 }
 const SendTransmissionService = async ({
-  id,
+  id
 }: Request): Promise<Array<any>> => {
   var contactsErr;
   const sendMessage = async (
@@ -29,20 +29,17 @@ const SendTransmissionService = async ({
     try {
       await wbot.sendMessage(
         `${contact.number}@${contact.isGroup ? "g" : "c"}.us`,
-        data,
-        {
-          wbotType: "transmission",
-        }
+        data
       );
-    } catch (e:any) {
+    } catch (e: any) {
       contactsErr.push(` ${contact.name}`);
     }
   };
 
   var transmission = await Transmission.findOne({
     where: {
-      id: id,
-    },
+      id: id
+    }
   });
   const defaultWhatsapp = await GetDefaultWhatsApp();
   const wbot = getWbot(defaultWhatsapp.id);

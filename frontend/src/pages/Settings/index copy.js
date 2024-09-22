@@ -1,17 +1,10 @@
 import React, { useEffect, useState } from "react";
 import openSocket from "../../services/socket-io";
 
-
-
-
-
-
 import { registerLocale } from "react-datepicker";
 
 import api from "../../services/api";
 import { i18n } from "../../translate/i18n.js";
-
-
 
 import { CopySimple } from "@phosphor-icons/react";
 import ptBR from "date-fns/locale/pt-BR";
@@ -22,10 +15,9 @@ import Tags from "../Tags";
 import Users from "../Users";
 import { useOutletContext } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
+import toastError from "@/errors/toastError";
 
 registerLocale("pt-br", ptBR);
-
-
 
 const TabPanel = (props) => {
   const { children, index, value, ...other } = props;
@@ -62,18 +54,15 @@ const Settings = () => {
         await api.put("/openingHours", {
           openingHours: openingHours,
         });
-
-        toast.success(i18n.t("settings.settings.openingHours.update"), {
-          style: {
-            backgroundColor: "#D4EADD",
-            color: "#64A57B",
-          },
+        toast({
+          variant: "success",
+          title: "Sucesso!",
+          description: i18n.t("settings.settings.openingHours.update"),
         });
       } catch (err) {
-        const errorMsg = err.response?.data?.message || err.response.data.error;
         toast({
           variant: "destructive",
-          title: errorMsg,
+          title: toastError(err),
         });
       }
     };
@@ -86,11 +75,9 @@ const Settings = () => {
           const { data } = await api.get("/openinghours");
           setOpeningHours(data);
         } catch (err) {
-          const errorMsg =
-            err.response?.data?.message || err.response.data.error;
           toast({
             variant: "destructive",
-            title: errorMsg,
+            title: toastError(err),
           });
         }
       };
@@ -102,10 +89,9 @@ const Settings = () => {
         const { data } = await api.get("/settings");
         setSettings(data);
       } catch (err) {
-        const errorMsg = err.response?.data?.message || err.response.data.error;
         toast({
           variant: "destructive",
-          title: errorMsg,
+          title: toastError(err),
         });
       }
     };
@@ -140,17 +126,15 @@ const Settings = () => {
       await api.put(`/settings/${settingKey}`, {
         value: selectedValue,
       });
-      toast.success(i18n.t("settings.success"), {
-        style: {
-          backgroundColor: "#D4EADD",
-          color: "#64A57B",
-        },
+      toast({
+        variant: "success",
+        title: "Sucesso!",
+        description: i18n.t("settings.success"),
       });
     } catch (err) {
-      const errorMsg = err.response?.data?.message || err.response.data.error;
       toast({
         variant: "destructive",
-        title: errorMsg,
+        title: toastError(err),
       });
     }
   };
@@ -201,7 +185,7 @@ const Settings = () => {
                     <TableCell align="center">Configurações</TableCell>
                   </TableRow>
                 </TableHead>
-               {/*  <TableBody>
+                {/*  <TableBody>
                   {openingHours?.days?.length
                     ? openingHours?.days.map((day, i) => (
                         <TableRow>

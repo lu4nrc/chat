@@ -25,11 +25,14 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import toastError from "@/errors/toastError";
+import Maintenance from "@/components/Maintenance";
 
 registerLocale("pt-br", ptBR);
 
 const Settings = () => {
   const [settings, setSettings] = useState([]);
+
 
   const [openingHours, setOpeningHours] = useState({});
   const { toast } = useToast();
@@ -54,23 +57,21 @@ const Settings = () => {
         await api.put("/openingHours", {
           openingHours: openingHours,
         });
-
-        toast.success(i18n.t("settings.settings.openingHours.update"), {
-          style: {
-            backgroundColor: "#D4EADD",
-            color: "#64A57B",
-          },
+        toast({
+          variant: "success",
+          title: "Sucesso!",
+          description: i18n.t("settings.settings.openingHours.update"),
         });
       } catch (err) {
-        const errorMsg = err.response?.data?.message || err.response.data.error;
         toast({
           variant: "destructive",
-          title: errorMsg,
+          title: toastError(err),
         });
       }
     };
     update();
   };
+
   useEffect(() => {
     const fetchOpeningHours = async () => {
       const update = async () => {
@@ -78,11 +79,9 @@ const Settings = () => {
           const { data } = await api.get("/openinghours");
           setOpeningHours(data);
         } catch (err) {
-          const errorMsg =
-            err.response?.data?.message || err.response.data.error;
           toast({
             variant: "destructive",
-            title: errorMsg,
+            title: toastError(err),
           });
         }
       };
@@ -94,10 +93,9 @@ const Settings = () => {
         const { data } = await api.get("/settings");
         setSettings(data);
       } catch (err) {
-        const errorMsg = err.response?.data?.message || err.response.data.error;
         toast({
           variant: "destructive",
-          title: errorMsg,
+          title: toastError(err),
         });
       }
     };
@@ -136,7 +134,7 @@ const Settings = () => {
     } catch (err) {
       toast({
         variant: "destructive",
-        title: "Algo deu errado",
+        title: toastError(err),
       });
     }
   };
@@ -169,7 +167,7 @@ const Settings = () => {
             <TabsTrigger value="api">Api</TabsTrigger>
           </TabsList>
 
-          <TabsContent value="openinghours"></TabsContent>
+          <TabsContent value="openinghours"><Maintenance/></TabsContent>
           <TabsContent value="user">
             <Users />
           </TabsContent>
@@ -203,6 +201,30 @@ const Settings = () => {
                   </SelectItem>
                   <SelectItem value="disabled">
                     {i18n.t("settings.settings.userCreation.options.disabled")}
+                  </SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="grid w-full items-center gap-1.5 relative pb-5">
+              <Label htmlFor="activeRating">
+                {i18n.t("settings.settings.rating.name")}
+              </Label>
+              <Select
+                id="activeRating-setting"
+                name="activeRating"
+                onValueChange={(selectedValue) =>
+                  handleChangeSetting(selectedValue, "activeRating")
+                }
+              >
+                <SelectTrigger className="w-full">
+                  <SelectValue placeholder="Selecione o tipo de usuário" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="enabled">
+                    {i18n.t("settings.settings.rating.options.enabled")}
+                  </SelectItem>
+                  <SelectItem value="disabled">
+                    {i18n.t("settings.settings.rating.options.disabled")}
                   </SelectItem>
                 </SelectContent>
               </Select>

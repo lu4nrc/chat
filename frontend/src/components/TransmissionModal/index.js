@@ -1,14 +1,6 @@
 import React, { useEffect, useReducer, useRef, useState } from "react";
 
-
-import { toast } from "react-toastify";
-
-
-
-
 import { i18n } from "../../translate/i18n";
-
-
 
 import TransmissionImage from "../../assets/transmission.svg";
 import { getBackendUrl } from "../../config";
@@ -17,6 +9,7 @@ import api from "../../services/api";
 import formatarNumeroTelefone from "../../utils/numberFormat";
 import MarkdownWrapper from "../MarkdownWrapper";
 import { Clipboard, Paperclip, SealQuestion } from "@phosphor-icons/react";
+import { useToast } from "@/hooks/use-toast";
 
 const handleDate = (date) => {
   var dt = new Date(date);
@@ -83,7 +76,6 @@ const reducer = (state, action) => {
   }
 };
 const TransmissionModal = ({ open, onClose, transmission }) => {
- 
   const isMounted = useRef(true);
   const listRef = React.createRef();
   const hiddenFileInput = React.useRef(null);
@@ -99,6 +91,8 @@ const TransmissionModal = ({ open, onClose, transmission }) => {
   const [loading, setLoading] = useState(false);
   const [allContacts, setAllContacts] = useState(false);
   const [transmissionName, setTransmissionName] = useState("");
+
+  const toast = useToast()
 
   const [enableSteps, setEnableSteps] = useState([false, true, true, true]);
 
@@ -119,12 +113,10 @@ const TransmissionModal = ({ open, onClose, transmission }) => {
           dispatch({ type: "LOAD_CONTACTS", payload: data.contacts });
           setLoading(false);
         } catch (err) {
-          const errorMsg =
-          err.response?.data?.message || err.response.data.error;
-        toast({
-          variant: "destructive",
-          title: errorMsg,
-        });
+          toast({
+            variant: "destructive",
+            title: toastError(err),
+          });
         }
       };
       fetchContacts();
@@ -272,26 +264,21 @@ const TransmissionModal = ({ open, onClose, transmission }) => {
       } else {
         await api.post("/transmission/", formData);
       }
-      toast.success(
-        transmission.id
+      toast({
+        variant: "success",
+        title: "Sucesso!",
+        description: transmission.id
           ? "Lista de transmissão atualizada com sucesso"
           : "Lista de transmissão criada com sucesso",
-        {
-          style: {
-            backgroundColor: "#D4EADD",
-            color: "#64A57B",
-          },
-        }
-      );
+      });
+
       handleClose();
     } catch (err) {
       handleClose();
-      const errorMsg =
-      err.response?.data?.message || err.response.data.error;
-    toast({
-      variant: "destructive",
-      title: errorMsg,
-    });
+      toast({
+        variant: "destructive",
+        title: toastError(err),
+      });
     }
   };
 
@@ -321,7 +308,7 @@ const TransmissionModal = ({ open, onClose, transmission }) => {
   }, [contactsSelected, msgs, transmissionName]);
   return (
     <>
-    {/* <Dialog open={open} onClose={handleClose} fullWidth={true} maxWidth={"md"}>
+      {/* <Dialog open={open} onClose={handleClose} fullWidth={true} maxWidth={"md"}>
       {step !== 2 ? (
         <>
           <DialogTitle id="form-dialog-title" variant="h4">

@@ -22,8 +22,7 @@ import {
 } from "@/components/ui/select";
 
 const QueuesCard = ({ queuesData, loading }) => {
- 
-  const [sortKey, setSortKey] = useState("open");
+  const [sortKey, setSortKey] = useState("rating");
 
   function convertMinToHour(min) {
     if (min) {
@@ -51,14 +50,12 @@ const QueuesCard = ({ queuesData, loading }) => {
   if (queuesData) {
     sortedQueues = [...queuesData].sort((a, b) => {
       switch (sortKey) {
-        case "open":
-          return b.open - a.open;
-        case "pending":
-          return b.pending - a.pending;
-        case "closed":
-          return b.closed - a.closed;
+        case "total":
+          return b.total - a.total;
         case "media":
           return b.mq_time_avg - a.mq_time_avg;
+        case "rating":
+          return b.rating.value / b.rating.qtd - a.rating.value / a.rating.qtd;
         default:
           return 0;
       }
@@ -79,7 +76,7 @@ const QueuesCard = ({ queuesData, loading }) => {
         <div className="grid gap-2">
           <CardTitle>Departamentos</CardTitle>
           <CardDescription>
-            Detalhamento de atendimentos por departamento
+            Detalhamento por departamentos
           </CardDescription>
         </div>
         <div className="ml-auto flex gap-2">
@@ -90,49 +87,51 @@ const QueuesCard = ({ queuesData, loading }) => {
             <SelectContent>
               <SelectGroup>
                 <SelectLabel>Status</SelectLabel>
-                <SelectItem value="open">Atendendo</SelectItem>
-                <SelectItem value="pending">Pendentes</SelectItem>
-                <SelectItem value="closed">Fechados</SelectItem>
+                <SelectItem value="total">Total</SelectItem>
                 <SelectItem value="media">Tempo Médio</SelectItem>
+                <SelectItem value="rating">Avaliação</SelectItem>
               </SelectGroup>
             </SelectContent>
           </Select>
         </div>
       </CardHeader>
       <CardContent className="flex-1 flex flex-col">
-        <div className="grid grid-cols-3 md:grid-cols-5  gap-4 py-2 items-center border-b">
-          <div className="text-sm text-muted-foreground">Atendentes</div>
-          <div className="text-sm text-muted-foreground">Atendendo</div>
-          <div className="text-sm text-muted-foreground hidden md:block ">Pendentes</div>
-          <div className="text-sm text-muted-foreground">Fechados</div>
-          <div className="text-sm text-muted-foreground hidden md:block ">Tempo Médio</div>
+        <div className="grid grid-cols-3 md:grid-cols-[1fr_70px_100px_90px]  gap-x-2 py-2 items-center  border-b">
+          <div className="text-sm text-muted-foreground">Departamentos</div>
+          <div className="text-sm text-muted-foreground text-center ">
+            Total
+          </div>
+          <div className="text-sm text-muted-foreground   text-center">
+            Tempo Médio
+          </div>
+          <div className="text-sm text-muted-foreground text-center ">
+            Avaliação
+          </div>
         </div>
         <ScrollArea className="h-[200px]">
           {sortedQueues.map((el) => {
             return (
               <div
                 key={el.id}
-                className="grid grid-cols-3 md:grid-cols-5 gap-4 py-2 items-center border-b"
+                className="grid md:grid-cols-[1fr_70px_100px_90px]  gap-x-2 py-2 items-center border-b"
               >
                 <div className="text-sm font-medium">{el.queue_name}</div>
 
-                <div>
-                  <Badge className="font-medium bg-chart1/20 text-sky-700 hover:text-white">
-                    {el.open}
-                  </Badge>
+                <div className="flex items-center justify-center ">
+                  <Badge>{el.total}</Badge>
                 </div>
-                <div className="hidden md:block">
-                  <Badge className="font-medium   bg-chart2/20 text-amber-700 hover:text-white">
-                    {el.pending}
-                  </Badge>
+                <div className="flex justify-center items-center">
+                  <p className="text-center text-sm ">
+                    {convertMinToHour(el.mq_time_avg)}
+                  </p>
                 </div>
-                <div>
-                  <Badge className="font-medium bg-chart3/20 text-emerald-700">
-                    {el.closed}
+
+                <div className="flex items-center justify-center ">
+                  <Badge>
+                    {el.rating.qtd
+                      ? (el.rating.value / el.rating.qtd).toFixed(1)
+                      : "-"}
                   </Badge>
-                </div>
-                <div className="text-sm hidden md:block font-medium">
-                  {convertMinToHour(el.mq_time_avg)}
                 </div>
               </div>
             );

@@ -1,10 +1,7 @@
 import React, { useEffect, useRef, useState } from "react";
 
 import { Field, Form, Formik } from "formik";
-import { toast } from "react-toastify";
 import * as Yup from "yup";
-
-
 
 import { i18n } from "../../translate/i18n";
 
@@ -30,7 +27,7 @@ const QuickAnswersModal = ({
   initialValues,
   onSave,
 }) => {
-  const { toast } = useToast()
+  const { toast } = useToast();
   const isMounted = useRef(true);
 
   const initialState = {
@@ -62,12 +59,10 @@ const QuickAnswersModal = ({
           setQuickAnswer(data);
         }
       } catch (err) {
-        const errorMsg =
-        err.response?.data?.message || err.response.data.error;
-      toast({
-        variant: "destructive",
-        title: errorMsg,
-      });
+        toast({
+          variant: "destructive",
+          title: toastError(err),
+        });
       }
     };
 
@@ -91,20 +86,22 @@ const QuickAnswersModal = ({
         }
         handleClose();
       }
-      toast.success(i18n.t("quickAnswersModal.success"));
+      toast({
+        variant: "success",
+        title: "Sucesso!",
+        description: i18n.t("quickAnswersModal.success"),
+      });
     } catch (err) {
-      const errorMsg =
-      err.response?.data?.message || err.response.data.error;
-    toast({
-      variant: "destructive",
-      title: errorMsg,
-    });
+      toast({
+        variant: "destructive",
+        title: toastError(err),
+      });
     }
   };
 
   return (
     <div /* className={classes.root} */>
-     {/*  <Dialog
+      {/*  <Dialog
         open={open}
         onClose={handleClose}
         maxWidth="sm"

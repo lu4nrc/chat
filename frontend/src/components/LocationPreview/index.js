@@ -2,6 +2,7 @@ import React, { useEffect } from "react";
 import { Button } from "../ui/button";
 
 import { useToast } from "@/hooks/use-toast";
+import toastError from "@/errors/toastError";
 
 const LocationPreview = ({ image, link, description }) => {
   const { toast } = useToast();
@@ -12,10 +13,9 @@ const LocationPreview = ({ image, link, description }) => {
     try {
       window.open(link);
     } catch (err) {
-      const errorMsg = err.response?.data?.message || err.response.data.error;
       toast({
         variant: "destructive",
-        title: errorMsg,
+        title: toastError(err),
       });
     }
   };

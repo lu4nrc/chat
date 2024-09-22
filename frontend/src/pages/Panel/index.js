@@ -10,7 +10,7 @@ import {
 import { ptBR } from "date-fns/locale";
 
 import api from "../../services/api";
-import { Headset, Loader, Smile } from "lucide-react";
+import { Headset, Loader, Smile, TrafficCone, Users } from "lucide-react";
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
@@ -29,6 +29,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import Outin from "../Dashboard/components/Outin";
+import toastError from "@/errors/toastError";
 
 const reducer = (state, action) => {
   //console.log("reducer");
@@ -144,11 +145,9 @@ const PanelPage = () => {
           setLoading(false);
         } catch (err) {
           setLoading(false);
-          const errorMsg =
-            err.response?.data?.message || err.response.data.error;
           toast({
             variant: "destructive",
-            title: errorMsg,
+            title: toastError(err),
           });
         }
       };
@@ -174,14 +173,14 @@ const PanelPage = () => {
           dispatch: "RESET_UNREAD",
           payload: data,
         }); */
-     /*    dispatch({
+        /*    dispatch({
           type: "RESET_UNREAD",
           payload: data.ticketId,
         });  */
       }
 
       if (data.action === "update") {
-     /*    console.log({
+        /*    console.log({
           on: "ticket",
           action: "update",
           dispatch: "UPDATE_TICKET",
@@ -194,17 +193,17 @@ const PanelPage = () => {
       }
 
       if (data.action === "update") {
-      /*   console.log({
+        /*   console.log({
           on: "ticket",
           action: "update",
           dispatch: "DELETE_TICKET - OFF",
           payload: data,
         }); */
-     // dispatch({ type: "DELETE_TICKET", payload: data.ticket.id }); 
+        // dispatch({ type: "DELETE_TICKET", payload: data.ticket.id });
       }
 
       if (data.action === "delete") {
-     /*    console.log({
+        /*    console.log({
           on: "ticket",
           action: "delete",
           dispatch: "DELETE_TICKET",
@@ -217,7 +216,7 @@ const PanelPage = () => {
     socket.on("appMessage", (data) => {
       /* console.log("appMessage") */
       if (data.action === "create" && data.ticket.status === "pending") {
-     /*    console.log({
+        /*    console.log({
           on: "appMessage",
           action: "create",
           dispatch: "UPDATE_TICKET_UNREAD_MESSAGES",
@@ -228,7 +227,7 @@ const PanelPage = () => {
           payload: data.ticket,
         });
       } else {
-    /*     console.log({
+        /*     console.log({
           on: "appMessage",
           status: data.ticket.status,
           action: "create",
@@ -240,7 +239,7 @@ const PanelPage = () => {
 
     socket.on("contact", (data) => {
       if (data.action === "update") {
-       /*  console.log({
+        /*  console.log({
           on: "contact",
           action: "update",
           dispatch: "UPDATE_TICKET_CONTACT",
@@ -312,7 +311,6 @@ const PanelPage = () => {
     };
 
     const groupedData = group(ticketsList);
-   
 
     groupedData.open.sort(
       (a, b) => new Date(a.initialDate) - new Date(b.initialDate)
@@ -340,7 +338,10 @@ const PanelPage = () => {
         <div className="grid grid-cols-3 grid-rows-[auto_1fr]  gap-2 h-screen">
           <Card className="col-span-2">
             <CardHeader>
-              <CardTitle>Aguarde....</CardTitle>
+              <CardTitle className="flex gap-1 items-center">
+                <TrafficCone className="text-orange-500  w-4 h-4" />
+                Em manunteção!
+              </CardTitle>
             </CardHeader>
             <CardContent>
               <p></p>
@@ -358,12 +359,14 @@ const PanelPage = () => {
 
           <Card>
             <CardHeader>
-              <CardTitle>Dep. e Usuários</CardTitle>
+              <CardTitle className="flex gap-1 items-center">
+                <Users className="text-primary w-4 h-4" /> Dep. e Usuários
+              </CardTitle>
             </CardHeader>
             <CardContent className="grid grid-cols-2 gap-1">
               <div className="flex flex-col gap-1">
                 <p className="text-base font-medium">Departamentos</p>
-               <ScrollArea className="h-[calc(100vh-380px)] w-full">
+                <ScrollArea className="h-[calc(100vh-380px)] w-full">
                   {Object.entries(ByGroup.byQueue).map(([key, value]) => (
                     <div
                       key={key}
@@ -373,7 +376,7 @@ const PanelPage = () => {
                       <p className="text-xs text-muted-foreground">{value}</p>
                     </div>
                   ))}
-                </ScrollArea> 
+                </ScrollArea>
               </div>
               <div className="flex flex-col gap-1">
                 <p className="text-base font-medium">Usuários</p>
@@ -387,7 +390,7 @@ const PanelPage = () => {
                       <p className="text-xs text-muted-foreground">{value}</p>
                     </div>
                   ))}
-                </ScrollArea> 
+                </ScrollArea>
               </div>
             </CardContent>
           </Card>
@@ -410,24 +413,17 @@ function ListTicketStatus({ tickets, status }) {
     <Card>
       <CardHeader>
         <CardTitle className="flex gap-1 items-center">
-          <div
-            className={cn(
-              "flex justify-center items-center p-2 bg-yellow-100 rounded-full",
-              status === "open" ? "bg-sky-100" : "bg-yellow-100"
-            )}
-          >
-            {status === "open" ? (
-              <Headset className="text-sky-500 w-4 h-4" />
-            ) : (
-              <Loader className="text-yellow-500 w-4 h-4" />
-            )}
-          </div>
+          {status === "open" ? (
+            <Headset className="text-sky-500 w-4 h-4" />
+          ) : (
+            <Loader className="text-yellow-500 w-4 h-4" />
+          )}
           {status === "open" ? "Em atendimento" : "Aguardando"}
           <p className="text-sm">{filteredTickets.length}</p>
         </CardTitle>
       </CardHeader>
       <CardContent>
-       {filteredTickets.length > 0 ? (
+        {filteredTickets.length > 0 ? (
           <ScrollArea className="h-[calc(100vh-370px)] w-full ">
             {filteredTickets.map((el) => (
               <ListContactItem key={el.id} ticket={el} status={status} />
@@ -435,7 +431,7 @@ function ListTicketStatus({ tickets, status }) {
           </ScrollArea>
         ) : (
           <p>Não temos atendimentos {statusName}</p>
-        )} 
+        )}
       </CardContent>
     </Card>
   );

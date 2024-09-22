@@ -97,12 +97,10 @@ const TransferTicketModal = ({ ticketid, ticketWhatsappId }) => {
       actions.setSubmitting(false);
     } catch (err) {
       setLoading(false);
-      const errorMsg =
-      err.response?.data?.message || err.response.data.error;
-    toast({
-      variant: "destructive",
-      title: errorMsg,
-    });
+      toast({
+        variant: "destructive",
+        title: toastError(err),
+      });
       actions.setSubmitting(false);
     }
   };

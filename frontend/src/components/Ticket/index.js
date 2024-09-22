@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from "react";
-import { useNavigate, useParams } from "react-router-dom";
+import { useNavigate, useOutletContext, useParams } from "react-router-dom";
 
-import { toast } from "react-toastify";
 import openSocket from "../../services/socket-io";
 
 import MessageInput from "../MessageInput/";
@@ -15,14 +14,20 @@ import TicketActionButtons from "../TicketActionButtons";
 
 import { Badge } from "../ui/badge";
 import { cn } from "@/lib/utils";
+import { useToast } from "@/hooks/use-toast";
 
 const Ticket = () => {
+  const [activeRating] = useOutletContext();
+
+  console.log(activeRating);
   const { ticketId } = useParams();
   const navigate = useNavigate();
 
   const [loading, setLoading] = useState(true);
   const [contact, setContact] = useState({});
   const [ticket, setTicket] = useState({});
+const toast = useToast()
+
   useEffect(() => {
     setLoading(true);
 
@@ -34,10 +39,9 @@ const Ticket = () => {
         setLoading(false);
       } catch (err) {
         setLoading(false);
-        const errorMsg = err.response?.data?.message || err.response.data.error;
         toast({
           variant: "destructive",
-          title: errorMsg,
+          title: toastError(err),
         });
       }
     };
@@ -55,11 +59,10 @@ const Ticket = () => {
       }
 
       if (data.action === "delete") {
-        toast.success("Ticket deleted sucessfully.", {
-          style: {
-            backgroundColor: "#D4EADD",
-            color: "#64A57B",
-          },
+        toast({
+          variant: "success",
+          title: "Sucesso!",
+          description: "atendimento excluído com sucesso.",
         });
         navigate("/tickets");
       }
@@ -102,7 +105,7 @@ const Ticket = () => {
                   </p>
                 )}
               </div>
-              <TicketActionButtons ticket={ticket} />
+              <TicketActionButtons ticket={ticket} activeRating={activeRating}/>
             </div>
           </div>
           <div className="cursor-pointer flex gap-1 flex-wrap">

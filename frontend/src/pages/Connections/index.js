@@ -1,5 +1,5 @@
 import React, { useState, useCallback, useContext } from "react";
-import { toast } from "react-toastify";
+
 import { format, parseISO } from "date-fns";
 
 import api from "../../services/api";
@@ -33,6 +33,7 @@ import {
   CardTitle,
 } from "../../components/ui/card";
 import QueueSelect from "@/components/QueueSelect";
+import { useToast } from "@/hooks/use-toast";
 
 const CustomToolTip = ({ title, content, children }) => {
   return (
@@ -54,6 +55,8 @@ const Connections = () => {
   const [qrModalOpen, setQrModalOpen] = useState(false);
   const [selectedWhatsApp, setSelectedWhatsApp] = useState(null);
   const [confirmModalOpen, setConfirmModalOpen] = useState(false);
+const toast = useToast()
+
   const confirmationModalInitialState = {
     action: "",
     title: "",
@@ -69,12 +72,10 @@ const Connections = () => {
     try {
       await api.post(`/whatsappsession/${whatsAppId}`);
     } catch (err) {
-      const errorMsg =
-      err.response?.data?.message || err.response.data.error;
-    toast({
-      variant: "destructive",
-      title: errorMsg,
-    });
+      toast({
+        variant: "destructive",
+        title: toastError(err),
+      });
     }
   };
 
@@ -82,12 +83,10 @@ const Connections = () => {
     try {
       await api.put(`/whatsappsession/${whatsAppId}`);
     } catch (err) {
-      const errorMsg =
-      err.response?.data?.message || err.response.data.error;
-    toast({
-      variant: "destructive",
-      title: errorMsg,
-    });
+      toast({
+        variant: "destructive",
+        title: toastError(err),
+      });
     }
   };
 
@@ -117,26 +116,26 @@ const Connections = () => {
       try {
         await api.delete(`/whatsappsession/${confirmModalInfo.whatsAppId}`);
       } catch (err) {
-        const errorMsg =
-        err.response?.data?.message || err.response.data.error;
-      toast({
-        variant: "destructive",
-        title: errorMsg,
-      });
+        toast({
+          variant: "destructive",
+          title: toastError(err),
+        });
       }
     }
 
     if (confirmModalInfo.action === "delete") {
       try {
         await api.delete(`/whatsapp/${confirmModalInfo.whatsAppId}`);
-        toast.success(i18n.t("connections.toasts.deleted"));
+        toast({
+          variant: "success",
+          title: "Sucesso!",
+          description: i18n.t("connections.toasts.deleted"),
+        });
       } catch (err) {
-        const errorMsg =
-        err.response?.data?.message || err.response.data.error;
-      toast({
-        variant: "destructive",
-        title: errorMsg,
-      });
+        toast({
+          variant: "destructive",
+          title: toastError(err),
+        });
       }
     }
 
@@ -183,7 +182,9 @@ const Connections = () => {
           </Button>
         )}
         {whatsApp.status === "OPENING" && (
-          <Button onClick={() => handleRequestNewQrCode(whatsApp.id)}>{i18n.t("connections.buttons.connecting")}</Button>
+          <Button onClick={() => handleRequestNewQrCode(whatsApp.id)}>
+            {i18n.t("connections.buttons.connecting")}
+          </Button>
         )}
       </>
     );

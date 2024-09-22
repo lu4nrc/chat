@@ -4,13 +4,20 @@ import { useNavigate, useOutletContext } from "react-router-dom";
 
 import api from "../../services/api";
 
-
 import { WhatsappLogo } from "@phosphor-icons/react";
 
 import dayjs from "dayjs";
 
 import { useToast } from "@/hooks/use-toast";
-import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import toastError from "@/errors/toastError";
+import Maintenance from "@/components/Maintenance";
 
 const reducer = (state, action) => {
   if (action.type === "LOAD_CONTACTS") {
@@ -100,11 +107,9 @@ const Search = () => {
           setHasMore(data.hasMore);
           setLoading(false);
         } catch (err) {
-          const errorMsg =
-            err.response?.data?.message || err.response.data.error;
           toast({
             variant: "destructive",
-            title: errorMsg,
+            title: toastError(err),
           });
           setLoading(false);
         }
@@ -144,10 +149,9 @@ const Search = () => {
         payload: data.chats,
       });
     } catch (err) {
-      const errorMsg = err.response?.data?.message || err.response.data.error;
       toast({
         variant: "destructive",
-        title: errorMsg,
+        title: toastError(err),
       });
     }
     setLoading(false);
@@ -161,10 +165,9 @@ const Search = () => {
         setUsers(usersData.data.users);
         setQueue(queueData.data);
       } catch (err) {
-        const errorMsg = err.response?.data?.message || err.response.data.error;
         toast({
           variant: "destructive",
-          title: errorMsg,
+          title: toastError(err),
         });
       }
     };
@@ -187,17 +190,7 @@ const Search = () => {
   };
   return (
     <>
-         <Card className="col-span-2 w-full h-screen">
-            <CardHeader>
-              <CardTitle>Manutenção....</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <p></p>
-            </CardContent>
-            <CardFooter>
-              <p></p>
-            </CardFooter>
-          </Card>
+<Maintenance/>
       {/* <Stack p={2} spacing={2}>
    
       <Stack spacing={2}>

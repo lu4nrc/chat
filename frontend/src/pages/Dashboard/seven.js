@@ -42,6 +42,8 @@ import { Badge } from "@/components/ui/badge";
 import Media from "./components/media";
 import PizzaQueuesCard from "./components/pizzaQueuesCard";
 import Outin from "./components/Outin";
+import toastError from "@/errors/toastError";
+import ContactCard from "./components/ContactCard";
 
 const chartConfig = {
   total: {
@@ -105,32 +107,6 @@ const SevenDays = () => {
             </CardHeader>
 
             <CardContent className="flex">
-              {status && (
-                <div className="flex flex-col gap-1">
-                  <div className="flex flex-col">
-                    <div className="text-sm text-chart2">Aguardando</div>
-                    <div className="flex items-baseline gap-1 text-2xl font-bold tabular-nums leading-none">
-                      {status.pending}
-                    </div>
-                  </div>
-
-                  <Separator orientation="vertical" className="mx-2 h-5 w-px" />
-
-                  <div className="flex flex-col gap-1">
-                    <div className="text-sm text-chart1">Atendendo</div>
-                    <div className="flex items-baseline gap-1 text-2xl font-bold tabular-nums leading-none">
-                      {status.open}
-                    </div>
-                  </div>
-                  <Separator orientation="vertical" className="mx-2 h-5 w-px" />
-                  <div className="flex flex-col gap-1">
-                    <div className="text-sm text-chart3">Fechados</div>
-                    <div className="flex items-baseline gap-1 text-2xl font-bold tabular-nums leading-none">
-                      {status.closed}
-                    </div>
-                  </div>
-                </div>
-              )}
               <ChartContainer className="h-[200px] w-full" config={chartConfig}>
                 <LineChart
                   accessibilityLayer
@@ -194,12 +170,15 @@ const SevenDays = () => {
       <div className="col-span-1  md:col-span-2">
         <Media mediaData={mediaData} loading={loading} />
       </div>
-      <div class="col-span-1 md:col-span-4 ">
+      <div class="col-span-1 md:col-span-3 ">
         <UsersCard usersData={usersData} loading={loading} />
       </div>
 
-      <div class="col-span-1 md:col-span-4">
+      <div class="col-span-1 md:col-span-3">
         <QueuesCard queuesData={queuesData} loading={loading} />
+      </div>
+      <div class="col-span-1 md:col-span-2">
+     <ContactCard queuesData={queuesData} loading={loading} />  
       </div>
     </div>
   );

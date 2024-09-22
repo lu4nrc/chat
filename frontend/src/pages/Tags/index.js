@@ -1,5 +1,5 @@
 import React, { useEffect } from "react";
-import { toast } from "react-toastify";
+
 
 import TagModal from "../../components/TagModal";
 
@@ -17,8 +17,12 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import toastError from "@/errors/toastError";
+import { useToast } from "@/hooks/use-toast";
+
 
 const Tags = () => {
+  const toast = useToast()
   const [userstag, setUserTags] = React.useState([]);
   const [enterprisestags, setEnterprisesTags] = React.useState([]);
   const [customstags, setCustomTags] = React.useState([]);
@@ -38,10 +42,9 @@ const Tags = () => {
         result.data.tags.filter((x) => x?.typetag === "custom") || []
       );
     } catch (err) {
-      const errorMsg = err.response?.data?.message || err.response.data.error;
       toast({
         variant: "destructive",
-        title: errorMsg,
+        title: toastError(err),
       });
     }
 
@@ -58,17 +61,15 @@ const Tags = () => {
   const handleDeleteTag = async (id) => {
     try {
       await api.delete(`/tags/${id}`).then(() => loadTags());
-      toast.success("Tag deletada", {
-        style: {
-          backgroundColor: "#D4EADD",
-          color: "#64A57B",
-        },
+      toast({
+        variant: "success",
+        title: "Sucesso!",
+        description: "Tag apagada",
       });
     } catch (err) {
-      const errorMsg = err.response?.data?.message || err.response.data.error;
       toast({
         variant: "destructive",
-        title: errorMsg,
+        title: toastError(err),
       });
     }
   };
@@ -125,10 +126,9 @@ const Tags = () => {
         result.data.tags.filter((x) => x?.typetag === "custom") || []
       );
     } catch (err) {
-      const errorMsg = err.response?.data?.message || err.response.data.error;
       toast({
         variant: "destructive",
-        title: errorMsg,
+        title: toastError(err),
       });
     }
   };

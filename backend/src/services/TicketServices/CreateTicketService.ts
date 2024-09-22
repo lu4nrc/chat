@@ -35,12 +35,10 @@ const CreateTicketService = async ({
     } else if (user.queues && user.queues.length > 0) {
       queueId = user.queues[0].id;
     } else {
-      console.log("Usuário sem filas associadas.");
+      console.log("Usuário sem departamento associadas.");
       queueId = undefined;
     }
   }
-
-  console.log("AQUI: ", queueId);
 
   const durationDate = new Date();
   const { id }: Ticket = await defaultWhatsapp.$create("ticket", {

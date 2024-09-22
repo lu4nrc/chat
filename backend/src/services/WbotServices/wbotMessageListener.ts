@@ -326,24 +326,25 @@ const handleMessage = async (
     )
       return;
 
-  /*   const isRating = /^[1-5]$/.test(msg.body);
-    const rating = isRating ? parseInt(msg.body, 10) : null; */
+    const isRating = /^[1-5]$/.test(msg.body);
 
+    const rating = isRating ? +msg.body : null;
     const ticket = await FindOrCreateTicketService(
       contact,
       wbot.id!,
       unreadMessages,
       groupContact,
       false,
-      //rating
+      rating
     );
 
- /*    if (isRating) {
+    if (ticket.rating) {
       msg.reply(
-        "> \u200B Mensagem automática \n Obrigado por avaliar nosso atendimento."
+        "> \u200B Mensagem automática \nObrigado por avaliar meu atendimento 😄."
       );
       ticket.update({ status: "closed" });
-    } */
+      return;
+    }
 
     if (msg.hasMedia) {
       await verifyMediaMessage(msg, ticket, contact);
@@ -485,60 +486,6 @@ const handleMsgAck = async (msg: WbotMessage, ack: MessageAck) => {
     logger.error(`Error handling message ack. Err: ${err}`);
   }
 };
-
-//?Versão Antiga
-/* const wbotMessageListener = (wbot: Session): void => {
-  const substrings = [
-    "remove_schedule",
-    "reminder",
-    "scheduling",
-    "transmission",
-    "api"
-  ];
-
-
-  wbot.on("message_create", async msg => {
-
-
-  
-    handleMessage(msg, wbot);
-
-    if (substrings.some(v => msg?.wbotType === v)) {
-      if (msg?.wbotType === "api") {
-        var settings = await Setting.findOne({
-          where: { key: "ticketCreate" }
-        });
-        if (settings === null) return;
-        if (settings.value === "enabled") {
-          handleMessage(msg, wbot);
-        }
-      }
-      return;
-    } else {
-    }
-  });
-
-  wbot.on("media_uploaded", async msg => {
-    handleMessage(msg, wbot);
-    if (substrings.some(v => msg?.wbotType === v)) {
-      if (msg?.wbotType === "api") {
-        var settings = await Setting.findOne({
-          where: { key: "ticketCreate" }
-        });
-        if (settings === null) return;
-        if (settings.value === "enabled") {
-          handleMessage(msg, wbot);
-        }
-      }
-      return;
-    } else {
-    }
-  });
-
-  wbot.on("message_ack", async (msg, ack) => {
-    handleMsgAck(msg, ack);
-  });
-}; */
 
 const wbotMessageListener = (wbot: Session): void => {
   wbot.on("message_create", async msg => {

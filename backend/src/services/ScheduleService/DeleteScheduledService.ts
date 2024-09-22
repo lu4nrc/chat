@@ -23,7 +23,7 @@ const DeleteScheduledService = async (id: string, notify: string): Promise<void>
         var whatsappDefault = (await ListWhatsAppsService()).filter((e) => e.isDefault === true);
         await Promise.all(scheduled.externals.map(async (contact) => {
             var ticket: Ticket = await FindOrCreateTicketService(contact, whatsappDefault[0].id, 0, undefined, true);
-            await SendWhatsAppMessage({ body: phrase, ticket,wbotType:"remove_schedule" })
+            await SendWhatsAppMessage({ body: phrase, ticket})
         }))
 
     }

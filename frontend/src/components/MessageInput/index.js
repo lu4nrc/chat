@@ -114,10 +114,9 @@ const MessageInput = ({ ticketStatus }) => {
     try {
       await api.post(`/messages/${ticketId}`, formData);
     } catch (err) {
-      const errorMsg = err.response?.data?.message || err.response.data.error;
       toast({
         variant: "destructive",
-        title: errorMsg,
+        title: toastError(err),
       });
     }
 
@@ -160,10 +159,9 @@ const MessageInput = ({ ticketStatus }) => {
     try {
       await api.post(`/messages/${ticketId}`, message);
     } catch (err) {
-      const errorMsg = err.response?.data?.message || err.response.data.error;
       toast({
         variant: "destructive",
-        title: errorMsg,
+        title: toastError(err),
       });
     }
 
@@ -181,10 +179,9 @@ const MessageInput = ({ ticketStatus }) => {
       setRecording(true);
       setLoading(false);
     } catch (err) {
-      const errorMsg = err.response?.data?.message || err.response.data.error;
       toast({
         variant: "destructive",
-        title: errorMsg,
+        title: toastError(err),
       });
       setLoading(false);
       setRecording(false);
@@ -246,10 +243,9 @@ const MessageInput = ({ ticketStatus }) => {
 
       await api.post(`/messages/${ticketId}`, formData);
     } catch (err) {
-      const errorMsg = err.response?.data?.message || err.response.data.error;
       toast({
         variant: "destructive",
-        title: errorMsg,
+        title: toastError(err),
       });
     }
 
@@ -262,10 +258,9 @@ const MessageInput = ({ ticketStatus }) => {
       await Mp3Recorder.stop().getMp3();
       setRecording(false);
     } catch (err) {
-      const errorMsg = err.response?.data?.message || err.response.data.error;
       toast({
         variant: "destructive",
-        title: errorMsg,
+        title: toastError(err),
       });
     }
   };
