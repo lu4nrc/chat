@@ -102,7 +102,7 @@ const ContactCard = ({ queuesData, loading }) => {
             Tempo Médio
           </div>
         </div>
-        <ScrollArea className="h-[180px]">
+        <ScrollArea className="h-[calc(100vh-600px)]">
           {sortedQueues.map((el) => {
             return (
               <div

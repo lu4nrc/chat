@@ -108,7 +108,7 @@ const QueuesCard = ({ queuesData, loading }) => {
             Avaliação
           </div>
         </div>
-        <ScrollArea className="h-[200px]">
+        <ScrollArea className="h-[calc(100vh-600px)]">
           {sortedQueues.map((el) => {
             return (
               <div

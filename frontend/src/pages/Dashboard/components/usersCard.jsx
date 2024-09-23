@@ -104,7 +104,7 @@ const UsersCard = ({ usersData, loading }) => {
               Avaliação
             </div>
           </div>
-          <ScrollArea className="h-[200px]">
+          <ScrollArea className="h-[calc(100vh-600px)]">
             {sortedUsers.map((el) => {
               return (
                 <div

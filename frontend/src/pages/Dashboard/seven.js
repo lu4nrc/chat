@@ -175,10 +175,10 @@ const SevenDays = () => {
       </div>
 
       <div class="col-span-1 md:col-span-3">
-        <QueuesCard queuesData={queuesData} loading={loading} />
+        {/* <QueuesCard queuesData={queuesData} loading={loading} /> */}
       </div>
       <div class="col-span-1 md:col-span-2">
-     <ContactCard queuesData={queuesData} loading={loading} />  
+     {/* <ContactCard queuesData={queuesData} loading={loading} />   */}
       </div>
     </div>
   );
