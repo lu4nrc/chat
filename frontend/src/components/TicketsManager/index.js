@@ -128,7 +128,7 @@ const TicketsManager = () => {
             {openCount ? (
               <span className="ml-2">{openCount}</span>
             ) : (
-              0
+              <span className="ml-2">0</span>
             )}
           </Button>
           <Button
@@ -139,7 +139,7 @@ const TicketsManager = () => {
             {pendingCount ? (
               <span className="ml-2">{pendingCount}</span>
             ) : (
-              0
+              <span className="ml-2">0</span>
             )}
           </Button>
         </div>
