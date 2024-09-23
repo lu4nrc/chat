@@ -29,6 +29,8 @@ const Chat = () => {
     fetchSession();
   }, []);
 
+  console.log(activeRating)
+
   return (
     <div className="grid md:grid-cols-[320px_1fr] lg:grid-cols-[420px_1fr]">
       <TicketsManager />

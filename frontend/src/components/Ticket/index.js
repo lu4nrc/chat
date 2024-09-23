@@ -17,6 +17,7 @@ import { cn } from "@/lib/utils";
 import { useToast } from "@/hooks/use-toast";
 
 const Ticket = () => {
+  const [activeRating] = useOutletContext();
 
   //console.log(activeRating);
   const { ticketId } = useParams();
@@ -104,7 +105,7 @@ const {toast }= useToast()
                   </p>
                 )}
               </div>
-              <TicketActionButtons ticket={ticket} />
+              <TicketActionButtons ticket={ticket} activeRating={activeRating}/>
             </div>
           </div>
           <div className="cursor-pointer flex gap-1 flex-wrap">

@@ -12,7 +12,7 @@ import { Button } from "../ui/button";
 import { useToast } from "@/hooks/use-toast";
 import toastError from "@/errors/toastError";
 
-const TicketActionButtons = ({ ticket }) => {
+const TicketActionButtons = ({ ticket, activeRating }) => {
   const { toast } = useToast();
   const navigate = useNavigate();
 
@@ -22,51 +22,24 @@ const TicketActionButtons = ({ ticket }) => {
 
   const handleUpdateTicketStatus = async (status, userId) => {
     setLoading(true);
+    try {
+      await api.put(`/tickets/${ticket.id}`, {
+        status: status,
+        userId: userId || null,
+      });
 
-    if (status === "closed") {
-      try {
-        const { data } = await api.get("/settings");
-        const activeRating = data.find(
-          (setting) => setting.key === "activeRating"
-        );
-       
-        await api.put(`/tickets/${ticket.id}`, {
-          status: activeRating.value === "enabled" ? "waitingRating" : status,
-          userId: userId || null,
-        });
-
-        setLoading(false);
-        if (status === "open") {
-          navigate(`/tickets/${ticket.id}`);
-        } else {
-          navigate("/tickets");
-        }
-      } catch (err) {
-        toast({
-          variant: "destructive",
-          title: toastError(err),
-        });
+      setLoading(false);
+      if (status === "open") {
+        navigate(`/tickets/${ticket.id}`);
+      } else {
+        navigate("/tickets");
       }
-    } else {
-      try {
-        await api.put(`/tickets/${ticket.id}`, {
-          status: status,
-          userId: userId || null,
-        });
-
-        setLoading(false);
-        if (status === "open") {
-          navigate(`/tickets/${ticket.id}`);
-        } else {
-          navigate("/tickets");
-        }
-      } catch (err) {
-        setLoading(false);
-        toast({
-          variant: "destructive",
-          title: toastError(err),
-        });
-      }
+    } catch (err) {
+      setLoading(false);
+      toast({
+        variant: "destructive",
+        title: toastError(err),
+      });
     }
   };
 
@@ -92,9 +65,15 @@ const TicketActionButtons = ({ ticket }) => {
             <Tooltip>
               <TooltipTrigger asChild>
                 {/*//! Aqui resolve muita coisa */}
-
                 <div
-                  onClick={() => handleUpdateTicketStatus("closed", user?.id)}
+                  onClick={() =>
+                    handleUpdateTicketStatus(
+                      activeRating.value === "disabled"
+                        ? "closed"
+                        : "waitingRating",
+                      user?.id
+                    )
+                  }
                   className="flex h-9 w-9 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:text-foreground"
                 >
                   <Check className="h-6 w-6" />
