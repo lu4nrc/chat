@@ -92,7 +92,7 @@ const TransmissionModal = ({ open, onClose, transmission }) => {
   const [allContacts, setAllContacts] = useState(false);
   const [transmissionName, setTransmissionName] = useState("");
 
-  const toast = useToast()
+  const { toast } = useToast()
 
   const [enableSteps, setEnableSteps] = useState([false, true, true, true]);
 

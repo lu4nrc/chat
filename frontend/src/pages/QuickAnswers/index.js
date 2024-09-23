@@ -68,7 +68,7 @@ const QuickAnswers = () => {
   const [confirmModalOpen, setConfirmModalOpen] = useState(false);
   const [hasMore, setHasMore] = useState(false);
 
-  const toast = useToast()
+  const { toast } = useToast()
 
   useEffect(() => {
     dispatch({ type: "RESET" });

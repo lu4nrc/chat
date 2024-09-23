@@ -55,7 +55,7 @@ const Connections = () => {
   const [qrModalOpen, setQrModalOpen] = useState(false);
   const [selectedWhatsApp, setSelectedWhatsApp] = useState(null);
   const [confirmModalOpen, setConfirmModalOpen] = useState(false);
-const toast = useToast()
+  const { toast } = useToast()
 
   const confirmationModalInitialState = {
     action: "",

@@ -10,7 +10,7 @@ import { useToast } from "@/hooks/use-toast";
 
 
 const Transmission = () => {
-  const toast = useToast()
+  const { toast } = useToast()
   const [loading, setLoading] = useState(false);
   const [transmissionId, setTransmissionId] = useState(null);
   const [sendLoading, setSendLoading] = useState(false);

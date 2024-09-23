@@ -22,7 +22,7 @@ import { useToast } from "@/hooks/use-toast";
 
 
 const Tags = () => {
-  const toast = useToast()
+  const { toast } = useToast()
   const [userstag, setUserTags] = React.useState([]);
   const [enterprisestags, setEnterprisesTags] = React.useState([]);
   const [customstags, setCustomTags] = React.useState([]);

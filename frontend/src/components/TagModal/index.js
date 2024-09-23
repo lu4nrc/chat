@@ -16,7 +16,7 @@ const ContactSchema = Yup.object().shape({
 
 const TagModal = ({ open, onClose, value }) => {
   const isMounted = useRef(true);
-  const toast = useToast()
+  const { toast } = useToast()
 
   const initialState = {
     name: "",

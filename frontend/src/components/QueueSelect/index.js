@@ -9,7 +9,7 @@ import { useToast } from "@/hooks/use-toast";
 const QueueSelect = ({ selectedQueueIds, onChange }) => {
   const [queues, setQueues] = useState(null);
   const [queuesSelected, setQueuesSelected] = useState(selectedQueueIds);
-  const toast = useToast()
+  const { toast } = useToast()
 
   useEffect(() => {
     (async () => {

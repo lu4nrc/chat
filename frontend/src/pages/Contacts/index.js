@@ -82,7 +82,7 @@ const Contacts = () => {
 
   const [searchParam, setSearchParam] = useState("");
 
-  const toast = useToast()
+  const { toast } = useToast()
 
   useEffect(() => {
     dispatch({ type: "RESET" });

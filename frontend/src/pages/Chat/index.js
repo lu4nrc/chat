@@ -7,7 +7,7 @@ import api from "@/services/api";
 import toastError from "@/errors/toastError";
 import { useToast } from "@/hooks/use-toast";
 const Chat = () => {
-  const toast = useToast();
+  const { toast } = useToast()
   const [activeRating, setActiveRating] = useState();
   
 

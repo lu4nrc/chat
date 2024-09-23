@@ -26,7 +26,7 @@ const Ticket = () => {
   const [loading, setLoading] = useState(true);
   const [contact, setContact] = useState({});
   const [ticket, setTicket] = useState({});
-const toast = useToast()
+const {toast }= useToast()
 
   useEffect(() => {
     setLoading(true);
