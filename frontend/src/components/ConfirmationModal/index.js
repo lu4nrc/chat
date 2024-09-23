@@ -20,6 +20,7 @@ const ConfirmationModal = ({ title, message, onConfirm, btn_title }) => {
   }
 
   return (
+    
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
         <Button variant="ghost">{btn_title}</Button>
