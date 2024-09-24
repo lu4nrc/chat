@@ -50,16 +50,14 @@ const TicketListItem = ({ ticket, setFilter }) => {
   const handleAcepptTicket = async (id) => {
     setLoading(true);
     try {
-      await api.put(`/tickets/${id}`, {
+      var ticketUpdated = await api.put(`/tickets/${id}`, {
         status: "open",
         userId: user?.id,
       });
+      setCurrentTicket(ticketUpdated.data);
     } catch (err) {
       setLoading(false);
-      toast({
-        variant: "destructive",
-        title: toastError(err),
-      });
+      toastError(err);
     }
     if (isMounted.current) {
       setLoading(false);
@@ -113,7 +111,7 @@ const TicketListItem = ({ ticket, setFilter }) => {
       onClick={(e) => {
         handleSelectTicket(ticket.id);
       }}
-      //to={`/tickets/${ticket.id}`}
+      to={`/tickets/${ticket.id}`}
       /*  onClick={(e) => {
         if (currentTicket.status === "pending") spyMessages(ticket.id);
         handleSelectTicket(ticket.id);
