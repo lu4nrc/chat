@@ -1,4 +1,4 @@
-import React, { memo, useContext, useRef, useState } from "react";
+import React, { memo, useContext, useEffect, useRef, useState } from "react";
 
 import {
   endOfDay,
@@ -39,8 +39,13 @@ const TicketListItem = ({ ticket, setFilter }) => {
   const isMounted = useRef(true);
   const { user } = useContext(AuthContext);
   const [currentTicket, setCurrentTicket] = useState(ticket);
-  const openPoppover = false;
   const queueColor = currentTicket.queue?.color || null;
+
+  useEffect(() => {
+		return () => {
+			isMounted.current = false;
+		};
+	}, []);
 
   const handleAcepptTicket = async (id) => {
     setLoading(true);
@@ -62,36 +67,17 @@ const TicketListItem = ({ ticket, setFilter }) => {
     navigate(`/tickets/${id}`);
   };
 
-  /*   const spyMessages = (id) => {
-    navigate(`/tickets/${id}`);
-  }; */
 
   const handleSelectTicket = (id) => {
     setFilter("");
     navigate(`/tickets/${id}`);
   };
-  const [anchorEl, setAnchorEl] = useState(null);
 
-  const handleClick = (event) => {
-    setAnchorEl(event.currentTarget);
-  };
 
-  const handleClose = () => {
-    setAnchorEl(null);
-  };
-/*   function DiffInHours(date1, date2) {
-    const diffInMs =
-      (date2 === null ? new Date().getTime() : new Date(date2).getTime()) -
-      (date1 === null ? new Date().getTime() : new Date(date1).getTime());
-    const diffInHours = Math.floor(diffInMs / (1000 * 60 * 60));
-    const diffInMinutes = Math.floor(diffInMs / (1000 * 60)) % 60;
 
-    const diffTime = new Date(1970, 0, 1, diffInHours, diffInMinutes, 0);
 
-    return diffTime.toLocaleTimeString("pt-BR", { timeStyle: "short" });
-  } */
-  const open = Boolean(anchorEl);
-  const id = openPoppover ? "simple-popover" : undefined;
+
+
 
   function displayDate(date) {
     const parsedDate = parseISO(date); // Converte a data para o formato adequado

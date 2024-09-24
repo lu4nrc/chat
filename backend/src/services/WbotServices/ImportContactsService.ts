@@ -11,7 +11,7 @@ const ImportContactsService = async (userId: number): Promise<void> => {
   try {
     phoneContacts = await wbot.getContacts();
   } catch (err) {
-    logger.error(`Could not get whatsapp contacts from phone. Err: ${err}`);
+    logger.error(`Não foi possível obter os contatos do WhatsApp do telefone. Err: ${err}`);
   }
 
   if (phoneContacts) {
