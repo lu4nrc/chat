@@ -188,7 +188,6 @@ const Today = () => {
   const [mediaData, setMediaData] = useState();
   const [queuesData, setQueuesData] = useState();
   const [outin, setOutin] = useState();
-  console.log(usersData);
 
   useEffect(() => {
     (async () => {

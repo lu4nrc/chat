@@ -40,24 +40,17 @@ const reducer = (state, action) => {
 
   if (action.type === "UPDATE_CONTACTS") {
     const contact = action.payload;
-    const contactIndex = state.findIndex((c) => c.id === contact.id);
 
-    if (contactIndex !== -1) {
-      state[contactIndex] = contact;
-      return [...state];
-    } else {
-      return [contact, ...state];
-    }
+    const updatedState = state.map((c) => (c.id === contact.id ? contact : c));
+
+    // Se o contato não existe, adiciona-o ao início da lista
+    const contactExists = state.some((c) => c.id === contact.id);
+    return contactExists ? updatedState : [contact, ...updatedState];
   }
 
   if (action.type === "DELETE_CONTACT") {
     const contactId = action.payload;
-
-    const contactIndex = state.findIndex((c) => c.id === contactId);
-    if (contactIndex !== -1) {
-      state.splice(contactIndex, 1);
-    }
-    return [...state];
+    return state.filter((contact) => contact.id !== contactId);
   }
 
   if (action.type === "RESET") {
@@ -81,29 +74,61 @@ const Contacts = () => {
   const [contacts, dispatch] = useReducer(reducer, []);
 
   const [searchParam, setSearchParam] = useState("");
+  const [debouncedSearchParam, setDebouncedSearchParam] = useState(searchParam);
 
-  const { toast } = useToast()
+  const { toast } = useToast();
+
+  useEffect(() => {
+    const handler = setTimeout(() => {
+      setDebouncedSearchParam(searchParam);
+    }, 500); // Aguarda 500ms após a última digitação
+
+    return () => {
+      clearTimeout(handler); // Limpa o timeout se o usuário continuar digitando
+    };
+  }, [searchParam]);
 
   useEffect(() => {
     dispatch({ type: "RESET" });
     setPageNumber(1);
-  }, [searchParam]);
+    search();
+  }, [debouncedSearchParam]);
 
-  const next = async () => {
+  const search = async () => {
     setLoading(true);
-
-    setTimeout(async () => {
+    try {
       const { data } = await api.get("/contacts/", {
         params: { searchParam, pageNumber },
       });
-
       dispatch({ type: "LOAD_CONTACTS", payload: data.contacts });
-      setPageNumber((prev) => prev + 1);
-
       setHasMore(data.hasMore);
-
+    } catch (error) {
+      toast({
+        variant: "destructive",
+        title: toastError(error),
+      });
+    } finally {
       setLoading(false);
-    }, 800);
+    }
+  };
+
+  const next = async () => {
+    setLoading(true);
+    try {
+      const { data } = await api.get("/contacts/", {
+        params: { searchParam, pageNumber },
+      });
+      dispatch({ type: "LOAD_CONTACTS", payload: data.contacts });
+      setHasMore(data.hasMore);
+      setPageNumber((prev) => prev + 1);
+    } catch (error) {
+      toast({
+        variant: "destructive",
+        title: toastError(error),
+      });
+    } finally {
+      setLoading(false);
+    }
   };
 
   useEffect(() => {
