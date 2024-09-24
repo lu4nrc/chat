@@ -104,6 +104,7 @@ const TicketsList = (props) => {
     filter,
     setFilter,
     allConnected,
+    sethasMoreManage
   } = props;
 
   const [pageNumber, setPageNumber] = useState(1);
@@ -124,6 +125,8 @@ const TicketsList = (props) => {
     showAll,
     queueIds: JSON.stringify(selectedQueueIds),
   });
+
+  sethasMoreManage(hasMore)
 
   useEffect(() => {
     if (!status && !searchParam) return;
@@ -218,13 +221,12 @@ const TicketsList = (props) => {
   });
 
   if (activeTab !== status) return null;
-
+  console.log("console", allConnected);
   return (
     <div
       className={cn(
         "overflow-auto ",
-        /* allConnected ? "h-[calc(100vh-137px)]" : "h-[calc(100vh-255px)]" */
-        "h-[calc(100vh-137px)]"
+        allConnected ? "h-[calc(100vh-137px)]" : "h-[calc(100vh-255px)]"
       )}
     >
       {mensagensFiltradas.length === 0 && !loading ? (

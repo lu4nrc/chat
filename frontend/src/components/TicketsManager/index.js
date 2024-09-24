@@ -8,7 +8,7 @@ import { AuthContext } from "../../context/Auth/AuthContext";
 //import TicketsQueueSelect from "../TicketsQueueSelect"; //!Corrigir Selecionar filas
 
 import { Button } from "../ui/button";
-import { BotOff, LoaderCircle, Wifi } from "lucide-react";
+import { BotOff, LoaderCircle, Plus, Wifi } from "lucide-react";
 import { Input } from "../ui/input";
 import { Switch } from "../ui/switch";
 import { Tooltip, TooltipContent, TooltipTrigger } from "../ui/tooltip";
@@ -19,7 +19,8 @@ const TicketsManager = () => {
   const { whatsApps, loading } = useContext(WhatsAppsContext);
   const [newTicketModalOpen, setNewTicketModalOpen] = useState(false);
   const [showAllTickets, setShowAllTickets] = useState(false);
-
+  const [hasMoreManageOpen, sethasMoreManageOpen] = useState(false);
+  const [hasMoreManagePending, sethasMoreManagePending] = useState(false);
   const [filter, setFilter] = useState("");
 
   const checkConnections = (connectionsArray) => {
@@ -126,7 +127,10 @@ const TicketsManager = () => {
           >
             Em atendimento
             {openCount ? (
-              <span className="ml-2">{openCount}</span>
+              <div className="ml-2 flex justify-center items-center">
+                {hasMoreManageOpen ? <Plus className="w-4 h-4" /> : ""}
+                <span className="">{openCount}</span>
+              </div>
             ) : (
               <span className="ml-2">0</span>
             )}
@@ -137,7 +141,7 @@ const TicketsManager = () => {
           >
             Pendentes
             {pendingCount ? (
-              <span className="ml-2">{pendingCount}</span>
+              <span className="ml-2"> {pendingCount}</span>
             ) : (
               <span className="ml-2">0</span>
             )}
@@ -153,15 +157,18 @@ const TicketsManager = () => {
           selectedQueueIds={selectedQueueIds}
           updateCount={(val) => setOpenCount(val)}
           activeTab={activeTab}
+          sethasMoreManage={sethasMoreManageOpen}
         />
 
         <TicketsList
+          allConnected={allConnected}
           filter={filter}
           setFilter={setFilter}
           status="pending"
           selectedQueueIds={selectedQueueIds}
           updateCount={(val) => setPendingCount(val)}
           activeTab={activeTab}
+          sethasMoreManage={sethasMoreManagePending}
         />
       </div>
     </div>

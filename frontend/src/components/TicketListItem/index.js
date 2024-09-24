@@ -1,13 +1,16 @@
 import React, { memo, useContext, useRef, useState } from "react";
 
 import {
+  endOfDay,
   format,
   isBefore,
   isSameDay,
+  isSameWeek,
   parseISO,
   startOfDay,
   subDays,
 } from "date-fns";
+import { ptBR } from 'date-fns/locale';
 import {
   Link,
   useNavigate,
@@ -76,7 +79,7 @@ const TicketListItem = ({ ticket, setFilter }) => {
   const handleClose = () => {
     setAnchorEl(null);
   };
-  function DiffInHours(date1, date2) {
+/*   function DiffInHours(date1, date2) {
     const diffInMs =
       (date2 === null ? new Date().getTime() : new Date(date2).getTime()) -
       (date1 === null ? new Date().getTime() : new Date(date1).getTime());
@@ -86,26 +89,32 @@ const TicketListItem = ({ ticket, setFilter }) => {
     const diffTime = new Date(1970, 0, 1, diffInHours, diffInMinutes, 0);
 
     return diffTime.toLocaleTimeString("pt-BR", { timeStyle: "short" });
-  }
+  } */
   const open = Boolean(anchorEl);
   const id = openPoppover ? "simple-popover" : undefined;
 
   function displayDate(date) {
-    const parsedDate = parseISO(date);
-    const today = new Date();
-    /* const oneDayAgo = subDays(today, 1); */
-
+    const parsedDate = parseISO(date); // Converte a data para o formato adequado
+    const today = new Date(); // Pega a data atual
+    const oneDayAgo = subDays(today, 1); // Subtrai um dia para representar "ontem"
+  
+    // Verifica se é hoje
     const isSame = isSameDay(parsedDate, today);
-    /*     const isBeforeToday = isBefore(parsedDate, startOfDay(today));
-    const isWithinOneDay = isBefore(parsedDate, startOfDay(oneDayAgo)) && !isBefore(parsedDate, startOfDay(today));
-   */
+    // Verifica se é ontem
+    const isYesterday = isBefore(parsedDate, endOfDay(oneDayAgo)) && !isBefore(parsedDate, startOfDay(oneDayAgo));
+    // Verifica se está dentro da semana corrente
+    const isThisWeek = isSameWeek(parsedDate, today, { weekStartsOn: 0 }); // Configurando a semana para começar na segunda-feira
+  
     if (isSame) {
-      return format(parsedDate, "HH:mm");
+      return format(parsedDate, "HH:mm"); // Se for hoje, exibe apenas a hora
     }
-    /*     if (isBeforeToday && isWithinOneDay) {
-      return "ontem";
-    } */
-    return format(parsedDate, "dd/MM/yyyy");
+    if (isYesterday) {
+      return "ontem"; // Se for "ontem", exibe "ontem"
+    }
+    if (isThisWeek) {
+      return format(parsedDate, "EEEE", { locale: ptBR }); // Se for na semana corrente, exibe o dia por extenso
+    }
+    return format(parsedDate, "dd/MM/yyyy"); // Para datas fora da semana corrente, exibe no formato dd/MM/yyyy
   }
 
   return (
@@ -151,8 +160,8 @@ const TicketListItem = ({ ticket, setFilter }) => {
       </Tooltip>
 
       <div className="flex flex-col w-full  md:w-[370px] justify-center  min-w-0 border-b py-4 pr-4">
-        <div className="flex gap-1 justify-between">
-          <p className="font-medium leading-3 text-base truncate text-foreground">
+        <div className="flex gap-1 justify-between items-end">
+          <p className="font-medium text-base truncate text-foreground">
             {currentTicket.contact.name}
           </p>
           <div className="flex gap-1 justify-center items-center">

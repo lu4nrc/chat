@@ -47,7 +47,7 @@ const ContactModal = ({
   const { toast } = useToast();
 
   const [contact, setContact] = useState(initialState);
-
+console.log(contact)
   useEffect(() => {
     return () => {
       isMounted.current = false;
@@ -63,10 +63,11 @@ const ContactModal = ({
       }
 
       if (!contactId) return;
-
+     
       try {
         const { data } = await api.get(`/contacts/${contactId}`);
         if (isMounted.current) {
+          const contact = {...data, number: `+${data.number}`}
           setContact(data);
         }
       } catch (err) {
@@ -82,19 +83,18 @@ const ContactModal = ({
 
   const handleClose = () => {
     onOpenChange(false);
-    setContact(initialState);
   };
 
   const handleSaveContact = async (values) => {
     try {
       if (contactId) {
-      await api.put(`/contacts/${contactId}`, values);
-       // console.log(values);
+        await api.put(`/contacts/${contactId}`, values);
+        // console.log(values);
         handleClose();
       } else {
         const { data } = await api.post("/contacts", values);
         if (onSave) {
-         onSave(data);
+          onSave(data);
         }
         handleClose();
       }
@@ -149,11 +149,11 @@ const ContactModal = ({
                   <div className="grid w-full items-center gap-1.5">
                     <Label htmlFor="name">Número do Whatsapp</Label>
                     <PhoneInputUi
-                      value={values.number} // Passa o valor atual do campo
+                      value={values.number}
                       onChange={(value) => {
-                        //console.log(value);
+                        console.log(value);
                         setFieldValue("number", value);
-                      }} // Atualiza o estado de Formik
+                      }}
                     />
                   </div>
                   <div className="grid w-full items-center gap-1.5">

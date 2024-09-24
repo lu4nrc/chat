@@ -64,9 +64,9 @@ const Contacts = () => {
   const { user } = useContext(AuthContext);
 
   const [selectedContactId, setSelectedContactId] = useState(null);
-  const [contactModalOpen, setContactModalOpen] = useState(false);
+  const [isOpen, setIsOpen] = useState(false);
+  console.log("isOpen: ", isOpen);
   const [deletingContact, setDeletingContact] = useState(null);
-  const [confirmOpen, setConfirmOpen] = useState(false);
 
   const [pageNumber, setPageNumber] = useState(1);
   const [loading, setLoading] = useState(false);
@@ -81,10 +81,10 @@ const Contacts = () => {
   useEffect(() => {
     const handler = setTimeout(() => {
       setDebouncedSearchParam(searchParam);
-    }, 500); // Aguarda 500ms após a última digitação
+    }, 500);
 
     return () => {
-      clearTimeout(handler); // Limpa o timeout se o usuário continuar digitando
+      clearTimeout(handler);
     };
   }, [searchParam]);
 
@@ -172,20 +172,15 @@ const Contacts = () => {
     setSearchParam(event.target.value.toLowerCase());
   };
 
-  const handleOpenContactModal = () => {
-    //console.log("handleOpenContactModal");
-    setSelectedContactId(null);
-    setContactModalOpen(true);
-  };
-
-  const handleCloseContactModal = () => {
-    setSelectedContactId(null);
-    setContactModalOpen(false);
+  const handleOpenContactModal = (contactId) => {
+    console.log(contactId)
+    setSelectedContactId(contactId);
+    setIsOpen(true);
   };
 
   const hadleEditContact = (contactId) => {
     setSelectedContactId(contactId);
-    setContactModalOpen(true);
+    setIsOpen(true);
   };
 
   const handleDeleteContact = async (contactId) => {
@@ -222,12 +217,11 @@ const Contacts = () => {
   return (
     <div className="h-full flex flex-col gap-2 p-4 sm:px-6 sm:py-2 md:gap-4">
       <ContactModal
-        open={contactModalOpen}
-        onOpenChange={setContactModalOpen}
-        onClose={handleCloseContactModal}
+        open={isOpen}
+        onOpenChange={setIsOpen}
         aria-labelledby="form-dialog-title"
         contactId={selectedContactId}
-      ></ContactModal>
+      />
       <div className="flex items-center gap-2">
         <h1 className="text-2xl font-semibold leading-none tracking-tight text-foreground">
           Contatos
@@ -245,7 +239,7 @@ const Contacts = () => {
           <Button onClick={(e) => handleimportContact()}>
             Importar contatos
           </Button>
-          <Button onClick={handleOpenContactModal}>Novo contato</Button>
+          <Button onClick={() => handleOpenContactModal()}>Novo contato</Button>
         </div>
       </div>
 
@@ -297,16 +291,14 @@ const Contacts = () => {
                       <MessageSquarePlus className="h-4 w-4" />
                     </Button>
                     <Button
-                      disabled
                       variant="ghost"
-                      onClick={() => hadleEditContact(contact.id)}
+                      onClick={() => handleOpenContactModal(contact.id)}
                     >
                       <Pen className="h-4 w-4" />
                     </Button>
 
                     {user.profile === "admin" && (
                       <Button
-                        disabled
                         variant="ghost"
                         onClick={() => hadleEditContact(contact.id)}
                       >

@@ -408,6 +408,7 @@ const MessageInput = ({ ticketStatus }) => {
               ticketStatus === "open" && handleInputPaste(e);
             }}
             onKeyDown={handleKeyDown}
+            spellCheck={true}
           />
 
           {inputMessage ? (
