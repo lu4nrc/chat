@@ -19,33 +19,34 @@ import { useToast } from "@/hooks/use-toast";
 const Ticket = () => {
   const [activeRating] = useOutletContext();
 
-  //console.log(activeRating);
   const { ticketId } = useParams();
   const navigate = useNavigate();
 
   const [loading, setLoading] = useState(true);
   const [contact, setContact] = useState({});
   const [ticket, setTicket] = useState({});
-const {toast }= useToast()
+  const { toast } = useToast();
 
   useEffect(() => {
     setLoading(true);
-
-    const fetchTicket = async () => {
-      try {
-        const { data } = await api.get("/tickets/" + ticketId);
-        setContact(data.contact);
-        setTicket(data);
-        setLoading(false);
-      } catch (err) {
-        setLoading(false);
-        toast({
-          variant: "destructive",
-          title: toastError(err),
-        });
-      }
-    };
-    fetchTicket();
+    const delayDebounceFn = setTimeout(() => {
+      const fetchTicket = async () => {
+        try {
+          const { data } = await api.get("/tickets/" + ticketId);
+          setContact(data.contact);
+          setTicket(data);
+          setLoading(false);
+        } catch (err) {
+          setLoading(false);
+          toast({
+            variant: "destructive",
+            title: toastError(err),
+          });
+        }
+      };
+      fetchTicket();
+    }, 800);
+    return () => clearTimeout(delayDebounceFn);
   }, [ticketId, navigate]);
 
   useEffect(() => {
@@ -105,7 +106,10 @@ const {toast }= useToast()
                   </p>
                 )}
               </div>
-              <TicketActionButtons ticket={ticket} activeRating={activeRating}/>
+              <TicketActionButtons
+                ticket={ticket}
+                activeRating={activeRating}
+              />
             </div>
           </div>
           <div className="cursor-pointer flex gap-1 flex-wrap">

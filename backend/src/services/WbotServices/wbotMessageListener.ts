@@ -30,6 +30,8 @@ interface Session extends Client {
   id?: number;
 }
 
+const MAX_FILE_SIZE = 20 * 1024 * 1024;
+
 const writeFileAsync = promisify(writeFile);
 
 const verifyContact = async (msgContact: WbotContact): Promise<Contact> => {
@@ -84,6 +86,27 @@ const verifyMediaMessage = async (
 ): Promise<Message> => {
   const quotedMsg = await verifyQuotedMessage(msg);
 
+  const fileSizeInBytes =
+    msg.hasMedia && msg._data?.size ? msg._data.size : null;
+
+  const isMemoryExceeded = fileSizeInBytes && fileSizeInBytes > MAX_FILE_SIZE;
+
+  if (isMemoryExceeded) {
+    let messageData = {
+      id: msg.id.id,
+      ticketId: ticket.id,
+      contactId: msg.fromMe ? undefined : contact.id,
+      body: msg.filename || msg.body,
+      fromMe: msg.fromMe,
+      read: msg.fromMe,
+      mediaType: "exceededfile"
+    };
+    await ticket.update({ lastMessage: msg.body });
+    const newMessage = await CreateMessageService({ messageData });
+
+    return newMessage;
+  }
+
   const media = await msg.downloadMedia();
 
   if (!media) {
@@ -115,7 +138,7 @@ const verifyMediaMessage = async (
     logger.error(err);
   }
 
-  const messageData = {
+  let messageData = {
     id: msg.id.id,
     ticketId: ticket.id,
     contactId: msg.fromMe ? undefined : contact.id,
@@ -141,6 +164,7 @@ const verifyMessage = async (
   if (msg.type === "location") msg = prepareLocation(msg);
 
   const quotedMsg = await verifyQuotedMessage(msg);
+
   const messageData = {
     id: msg.id.id,
     ticketId: ticket.id,
@@ -281,7 +305,8 @@ const handleMessage = async (
 
       // mensagens enviadas automaticamente pelo wbot possuem um caractere especial na frente delas
       // se sim, esta mensagem já foi armazenada no banco de dados;
-      if (/\u200e/.test(msg.body[0])) return;
+      if (msg.body.startsWith("\u200e")) return;
+      //if (/\u200e/.test(msg.body[0])) return;
 
       // mensagens de mídia enviadas por mim pelo celular, primeiro vem com "hasMedia = false" e type = "image/ptt/etc"
       // neste caso, retorne e deixe esta mensagem ser tratada pelo evento "media_uploaded", quando terá "hasMedia = true"
@@ -389,67 +414,6 @@ const handleMessage = async (
         console.log(error);
       }
     }
-
-    /* if (msg.type === "multi_vcard") {
-      try {
-        const array = msg.vCards.toString().split("\n");
-        let name = "";
-        let number = "";
-        const obj = [];
-        const conts = [];
-        for (let index = 0; index < array.length; index++) {
-          const v = array[index];
-          const values = v.split(":");
-          for (let ind = 0; ind < values.length; ind++) {
-            if (values[ind].indexOf("+") !== -1) {
-              number = values[ind];
-            }
-            if (values[ind].indexOf("FN") !== -1) {
-              name = values[ind + 1];
-            }
-            if (name !== "" && number !== "") {
-              obj.push({
-                name,
-                number
-              });
-              name = "";
-              number = "";
-            }
-          }
-        }
-
-        // eslint-disable-next-line no-restricted-syntax
-        for await (const ob of obj) {
-          try {
-            const cont = await CreateContactService({
-              name: ob.name,
-              number: ob.number.replace(/\D/g, "")
-            });
-            conts.push({
-              id: cont.id,
-              name: cont.name,
-              number: cont.number
-            });
-          } catch (error) {
-            if (error.message === "ERR_DUPLICATED_CONTACT") {
-              const cont = await GetContactService({
-                name: ob.name,
-                number: ob.number.replace(/\D/g, ""),
-                email: ""
-              });
-              conts.push({
-                id: cont.id,
-                name: cont.name,
-                number: cont.number
-              });
-            }
-          }
-        }
-        msg.body = JSON.stringify(conts);
-      } catch (error) {
-        console.log(error);
-      }
-    } */
   } catch (err) {
     Sentry.captureException(err);
     logger.error(`Error handling whatsapp message: Err: ${err}`);

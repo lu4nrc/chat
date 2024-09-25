@@ -187,37 +187,6 @@ export const allOpen = async (
   return res.status(200).json({ tickets });
 };
 
-/* export const generalFilter = async (
-  req: Request,
-  res: Response
-): Promise<Response> => {
-  const { dateInitial, dateFinal, userId, queue } =
-    req.query as FilterFullQuery;
-  const {
-    chats,
-    espera,
-    atendimento,
-    finalizado,
-    qtespera,
-    qtatendimento,
-    qtfinalizado
-  } = await ListTicketsServiceGeneral({
-    dateInitial,
-    dateFinal,
-    userId,
-    queue
-  });
-
-  return res.status(200).json({
-    chats,
-    espera,
-    atendimento,
-    finalizado,
-    qtespera,
-    qtatendimento,
-    qtfinalizado
-  });
-}; */
 
 export const todayFilter = async (
   req: Request,

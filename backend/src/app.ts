@@ -15,7 +15,6 @@ import { logger } from "./utils/logger";
 Sentry.init({ dsn: process.env.SENTRY_DSN });
 moment.tz.setDefault("America/Sao_Paulo");
 const app = express();
-
 app.use(
   cors({
     credentials: true,

@@ -63,9 +63,9 @@ const Contacts = () => {
 
   const { user } = useContext(AuthContext);
 
+
   const [selectedContactId, setSelectedContactId] = useState(null);
   const [isOpen, setIsOpen] = useState(false);
-  console.log("isOpen: ", isOpen);
   const [deletingContact, setDeletingContact] = useState(null);
 
   const [pageNumber, setPageNumber] = useState(1);
@@ -173,7 +173,6 @@ const Contacts = () => {
   };
 
   const handleOpenContactModal = (contactId) => {
-    console.log(contactId)
     setSelectedContactId(contactId);
     setIsOpen(true);
   };

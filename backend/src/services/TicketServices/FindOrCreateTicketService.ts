@@ -12,6 +12,8 @@ const FindOrCreateTicketService = async (
   isScheduled?: boolean,
   rating?: number | null
 ): Promise<Ticket> => {
+  const durationDate = new Date();
+
   let ticket = await Ticket.findOne({
     where: {
       status: {
@@ -19,70 +21,26 @@ const FindOrCreateTicketService = async (
       },
       contactId: groupContact ? groupContact.id : contact.id,
       whatsappId: whatsappId
-    }
+    },
+    attributes: ["id", "status", "createdAt", "unreadMessages"],
+    order: [["createdAt", "DESC"]]
   });
-  var durationDate = new Date();
-  if (ticket?.status === "open") {
-    await ticket.update({ unreadMessages });
+
+  if (ticket?.status === "open" || ticket?.status === "pending") {
+    if (ticket.unreadMessages !== unreadMessages) {
+      await ticket.update({ unreadMessages });
+    }
   }
 
-  if (ticket?.status === "pending") {
-    await ticket.update({ unreadMessages });
+  if (ticket?.status === "waitingRating") {
+    if (rating) {
+      await ticket.update({ rating });
+      return ticket;
+    } else {
+      await ticket.update({ status: "closed" });
+      ticket = null;
+    }
   }
-
-  if (rating && ticket?.status === "waitingRating") {
-    await ticket.update({ rating });
-    return ticket
-  }
-
-  if (!rating && ticket?.status === "waitingRating") {
-    await ticket.update({ status: "closed" });
-    ticket = null;
-  }
-
-  // if (!ticket && groupContact) {
-
-  //   ticket = await Ticket.findOne({
-  //     where: {
-  //       contactId: groupContact.id,
-  //       whatsappId: whatsappId
-  //     },
-  //     order: [["updatedAt", "DESC"]]
-  //   });
-
-  //   if (ticket) {
-  //     await ticket.update({
-  //       status: "pending",
-  //       userId: null,
-  //       unreadMessages,
-  //       durationDate: durationDate,
-  //       initialDate: new Date(),
-  //       acceptDate: new Date(),
-  //       finishDate: new Date(),
-  //     });
-  //   }
-  // }
-
-  // if (!ticket && !groupContact) {
-  //   ticket = await Ticket.findOne({
-  //     where: {
-  //       updatedAt: {
-  //         [Op.between]: [+subHours(new Date(), 2), +new Date()]
-  //       },
-  //       contactId: contact.id,
-  //       whatsappId: whatsappId
-  //     },
-  //     order: [["updatedAt", "DESC"]]
-  //   });
-
-  //   if (ticket) {
-  //     await ticket.update({
-  //       status: "pending",
-  //       userId: null,
-  //       unreadMessages, durationDate: durationDate
-  //     });
-  //   }
-  // }
 
   if (!ticket) {
     ticket = await Ticket.create({
@@ -92,9 +50,9 @@ const FindOrCreateTicketService = async (
       unreadMessages,
       whatsappId,
       durationDate: durationDate,
-      initialDate: new Date(),
-      acceptDate: new Date(),
-      finishDate: new Date()
+      initialDate: durationDate,
+      acceptDate: durationDate,
+      finishDate: durationDate
     });
   }
 

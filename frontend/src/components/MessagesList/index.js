@@ -17,6 +17,7 @@ import {
   ChevronDown,
   Clock,
   Download,
+  Info,
   LoaderCircle,
   Trash,
 } from "lucide-react";
@@ -487,6 +488,18 @@ const MessagesList = ({ ticketId, isGroup }) => {
                     ) : (
                       ""
                     )}
+                  </div>
+                ) : message.mediaType === "exceededfile" ? (
+                  <div className="grid gap-1 grid-cols-[auto_1fr] items-center justify-center p-1">
+                    <Info className="text-yellow-600" />
+                    <div className="flex flex-col">
+                      <span className="text-sm font-medium">
+                        Tamanho do arquivo excedido. MAX 20MB
+                      </span>
+                      <span className="text-xs text-muted-foreground whitespace-pre-wrap leading-5 truncate">
+                        {message.body}
+                      </span>
+                    </div>
                   </div>
                 ) : message.mediaType === "location" ? (
                   " "

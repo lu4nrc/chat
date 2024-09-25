@@ -221,7 +221,6 @@ const TicketsList = (props) => {
   });
 
   if (activeTab !== status) return null;
-  console.log("console", allConnected);
   return (
     <div
       className={cn(

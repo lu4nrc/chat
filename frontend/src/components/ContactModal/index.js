@@ -47,7 +47,6 @@ const ContactModal = ({
   const { toast } = useToast();
 
   const [contact, setContact] = useState(initialState);
-console.log(contact)
   useEffect(() => {
     return () => {
       isMounted.current = false;

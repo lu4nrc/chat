@@ -10,7 +10,7 @@ import {
   startOfDay,
   subDays,
 } from "date-fns";
-import { ptBR } from 'date-fns/locale';
+import { ptBR } from "date-fns/locale";
 import {
   Link,
   useNavigate,
@@ -40,13 +40,6 @@ const TicketListItem = ({ ticket, setFilter }) => {
   const { user } = useContext(AuthContext);
   const [currentTicket, setCurrentTicket] = useState(ticket);
   const queueColor = currentTicket.queue?.color || null;
-
-  useEffect(() => {
-		return () => {
-			isMounted.current = false;
-		};
-	}, []);
-
   const handleAcepptTicket = async (id) => {
     setLoading(true);
     try {
@@ -65,30 +58,25 @@ const TicketListItem = ({ ticket, setFilter }) => {
     navigate(`/tickets/${id}`);
   };
 
-
   const handleSelectTicket = (id) => {
     setFilter("");
     navigate(`/tickets/${id}`);
   };
 
-
-
-
-
-
-
   function displayDate(date) {
     const parsedDate = parseISO(date); // Converte a data para o formato adequado
     const today = new Date(); // Pega a data atual
     const oneDayAgo = subDays(today, 1); // Subtrai um dia para representar "ontem"
-  
+
     // Verifica se é hoje
     const isSame = isSameDay(parsedDate, today);
     // Verifica se é ontem
-    const isYesterday = isBefore(parsedDate, endOfDay(oneDayAgo)) && !isBefore(parsedDate, startOfDay(oneDayAgo));
+    const isYesterday =
+      isBefore(parsedDate, endOfDay(oneDayAgo)) &&
+      !isBefore(parsedDate, startOfDay(oneDayAgo));
     // Verifica se está dentro da semana corrente
     const isThisWeek = isSameWeek(parsedDate, today, { weekStartsOn: 0 }); // Configurando a semana para começar na segunda-feira
-  
+
     if (isSame) {
       return format(parsedDate, "HH:mm"); // Se for hoje, exibe apenas a hora
     }
@@ -102,15 +90,12 @@ const TicketListItem = ({ ticket, setFilter }) => {
   }
 
   return (
-    <div
+    <Link
       className={cn(
         "group/item flex pl-1 items-center gap-1 hover:bg-muted",
         ticketId === ticket.id ? "bg-muted" : ""
       )}
       key={currentTicket.id}
-      onClick={(e) => {
-        handleSelectTicket(ticket.id);
-      }}
       to={`/tickets/${ticket.id}`}
       /*  onClick={(e) => {
         if (currentTicket.status === "pending") spyMessages(ticket.id);
@@ -169,90 +154,6 @@ const TicketListItem = ({ ticket, setFilter }) => {
           </p>
           {/* //! Resolver relogio de tempo de atendimento  */}
           <div className="flex gap-1 items-center ">
-            {/*   <div>
-              <Clock className="hidden w-6 h-6 rounded-lg text-muted-foreground transition-colors hover:text-foreground" />
-
-              <Popover
-                id={id}
-                elevation={0}
-                open={open}
-                anchorEl={anchorEl}
-                onClose={handleClose}
-                anchorOrigin={{
-                  vertical: "bottom",
-                  horizontal: "right",
-                }}
-                transformOrigin={{
-                  vertical: "bottom",
-                  horizontal: "left",
-                }}
-              >
-                <div className="flex p-1">
-                  {currentTicket.status === "pending" ? (
-                    <>
-                      <p className="text-sm">
-                        Tempo de espera:{" "}
-                        {open
-                          ? DiffInHours(currentTicket.initialDate, null)
-                          : null}
-                      </p>
-                    </>
-                  ) : null}
-                  {currentTicket.status === "open" ? (
-                    <>
-                      <p className="text-sm">
-                        Tempo de espera:{" "}
-                        {open
-                          ? DiffInHours(
-                              currentTicket.initialDate,
-                              currentTicket.acceptDate
-                            )
-                          : null}
-                      </p>
-                      <p className="text-sm">
-                        Tempo de atendimento:{" "}
-                        {open
-                          ? DiffInHours(currentTicket.acceptDate, null)
-                          : null}
-                      </p>
-                    </>
-                  ) : null}
-
-                  {currentTicket.status === "closed" ? (
-                    <>
-                      <p className="text-sm font-medium">
-                        Tempo de espera:{" "}
-                        {open
-                          ? DiffInHours(
-                              currentTicket.initialDate,
-                              currentTicket.acceptDate
-                            )
-                          : null}
-                      </p>
-                      <p className="text-sm font-medium">
-                        Tempo de atendimento:{" "}
-                        {open
-                          ? DiffInHours(
-                              currentTicket.acceptDate,
-                              currentTicket.finishDate
-                            )
-                          : null}
-                      </p>
-                      <p className="text-sm font-medium">
-                        Tempo de total:{" "}
-                        {open
-                          ? DiffInHours(
-                              currentTicket.initialDate,
-                              currentTicket.finishDate
-                            )
-                          : null}
-                      </p>
-                    </>
-                  ) : null}
-                </div>
-              </Popover>
-            </div> */}
-
             {currentTicket.status === "pending" && (
               <Button
                 size="sm"
@@ -272,7 +173,7 @@ const TicketListItem = ({ ticket, setFilter }) => {
           </div>
         </div>
       </div>
-    </div>
+    </Link>
   );
 };
 
