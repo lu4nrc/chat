@@ -3,6 +3,9 @@ import Contact from "../../models/Contact";
 import Ticket from "../../models/Ticket";
 
 import ShowTicketService from "./ShowTicketService";
+import Whatsapp from "../../models/Whatsapp";
+import User from "../../models/User";
+import Queue from "../../models/Queue";
 
 const FindOrCreateTicketService = async (
   contact: Contact,
@@ -56,7 +59,34 @@ const FindOrCreateTicketService = async (
     });
   }
 
-  ticket = await ShowTicketService(ticket.id);
+  ticket = await Ticket.findByPk(ticket.id, {
+    include: [
+      {
+        model: Contact,
+        as: "contact",
+        attributes: ["id", "name", "number"]
+      },
+      {
+        model: User,
+        as: "user",
+        attributes: ["id", "name"]
+      },
+      {
+        model: Queue,
+        as: "queue",
+        attributes: ["id", "name"]
+      },
+      {
+        model: Whatsapp,
+        as: "whatsapp",
+        attributes: ["name"]
+      }
+    ],
+    attributes: ["id", "status", "createdAt", "unreadMessages", "queueId", "userId", "contactId", "rating", "lastMessage"],
+    order: [["createdAt", "DESC"]]
+  });
+
+  //ticket = await ShowTicketService(ticket.id);
 
   return ticket;
 };
