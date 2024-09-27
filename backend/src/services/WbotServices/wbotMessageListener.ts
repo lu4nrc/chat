@@ -365,7 +365,7 @@ const handleMessage = async (
 
     if (ticket.rating) {
       msg.reply(
-        "> \u200B Mensagem automática \nObrigado por avaliar meu atendimento 😄."
+        "> \u200B Mensagem automática \nObrigado por avaliar o meu atendimento 😄."
       );
       ticket.update({ status: "closed" });
       return;

@@ -102,7 +102,7 @@ const SevenDays = () => {
           <Card className="h-full">
             <CardHeader className="flex flex-row items-center">
               <CardTitle>
-                Atendimentos (Período de 7 dias)<Badge>{status.total}</Badge>
+                Atendimentos (Período de 7 dias)
               </CardTitle>
             </CardHeader>
 

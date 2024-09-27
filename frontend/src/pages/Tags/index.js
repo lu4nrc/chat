@@ -143,7 +143,7 @@ const Tags = () => {
           <h2 className="text-2xl font-semibold leading-none tracking-tight text-foreground">
             Atendimentos
           </h2>
-          <Button onClick={() => setTagOpen(true)}>
+          <Button disabled onClick={() => setTagOpen(true)}>
             <Plus /> Adicionar Tag
           </Button>
         </div>

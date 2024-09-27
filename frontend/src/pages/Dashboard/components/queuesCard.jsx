@@ -7,7 +7,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { File } from "lucide-react";
+import { Annoyed, File, Frown, Info, Smile } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { intervalToDuration } from "date-fns";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -20,6 +20,11 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 
 const QueuesCard = ({ queuesData, loading }) => {
   const [sortKey, setSortKey] = useState("rating");
@@ -75,9 +80,7 @@ const QueuesCard = ({ queuesData, loading }) => {
       <CardHeader className="flex flex-row items-center">
         <div className="grid gap-2">
           <CardTitle>Departamentos</CardTitle>
-          <CardDescription>
-            Detalhamento por departamentos
-          </CardDescription>
+          <CardDescription>Detalhamento por departamentos</CardDescription>
         </div>
         <div className="ml-auto flex gap-2">
           <Select onValueChange={handleSortChange}>
@@ -101,15 +104,48 @@ const QueuesCard = ({ queuesData, loading }) => {
           <div className="text-sm text-muted-foreground text-center ">
             Total
           </div>
-          <div className="text-sm text-muted-foreground   text-center">
-            Tempo Médio
+          <div className="flex justify-center items-center gap-1">
+            <p className="text-sm text-muted-foreground text-center">TMA</p>
+
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Info className="text-muted-foreground w-4 y-4" />
+              </TooltipTrigger>
+              <TooltipContent>
+                <p className="w-32 text-xs font-medium">O que é TMA?</p>
+                <div className="w-56 text-xs text-muted-foreground">
+                  O Tempo Médio de Atendimento (TMA) é tipo o cronômetro que
+                  mede quanto tempo a gente leva para ajudar os clientes, desde
+                  o <strong>'Olá'</strong> até o{" "}
+                  <strong>'tudo resolvido'</strong>, contando até as pausas e
+                  transferências!
+                </div>
+              </TooltipContent>
+            </Tooltip>
           </div>
-          <div className="text-sm text-muted-foreground text-center ">
-            Avaliação
+          <div className="flex justify-center items-center gap-1">
+            <p className="text-sm text-muted-foreground text-center">CSAT</p>
+
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Info className="text-muted-foreground w-4 y-4" />
+              </TooltipTrigger>
+              <TooltipContent>
+                <p className="w-32 text-xs font-medium">O que é CSAT?</p>
+                <div className="w-56 text-xs text-muted-foreground">
+                  O CSAT é como aquele <strong>'tá tudo certo?'</strong> no
+                  final do atendimento, só que medido em números pra ver o
+                  quanto o cliente saiu feliz!
+                </div>
+              </TooltipContent>
+            </Tooltip>
           </div>
         </div>
         <ScrollArea className="h-[calc(100vh-600px)]">
           {sortedQueues.map((el) => {
+            let rating = el.rating.value
+              ? (el.rating.value / el.rating.qtd).toFixed(1)
+              : "-";
             return (
               <div
                 key={el.id}
@@ -118,7 +154,7 @@ const QueuesCard = ({ queuesData, loading }) => {
                 <div className="text-sm font-medium">{el.queue_name}</div>
 
                 <div className="flex items-center justify-center ">
-                  <Badge>{el.total}</Badge>
+                  <p className="text-center text-sm ">{el.total}</p>
                 </div>
                 <div className="flex justify-center items-center">
                   <p className="text-center text-sm ">
@@ -127,11 +163,29 @@ const QueuesCard = ({ queuesData, loading }) => {
                 </div>
 
                 <div className="flex items-center justify-center ">
-                  <Badge>
-                    {el.rating.qtd
-                      ? (el.rating.value / el.rating.qtd).toFixed(1)
-                      : "-"}
-                  </Badge>
+                <Badge
+                      className={"flex gap-1"}
+                      variant={
+                        rating === "-"
+                          ? "ghost"
+                          : rating >= 4
+                          ? "success"
+                          : rating >= 3
+                          ? "alert"
+                          : "destructive"
+                      }
+                    >
+                      {rating === "-" ? (
+                        ""
+                      ) : rating >= 4 ? (
+                        <Smile className="w-4 h-4" />
+                      ) : rating >= 3 ? (
+                        <Annoyed className="w-4 h-4" />
+                      ) : (
+                        <Frown className="w-4 h-4" />
+                      )}
+                      {rating}
+                    </Badge>
                 </div>
               </div>
             );

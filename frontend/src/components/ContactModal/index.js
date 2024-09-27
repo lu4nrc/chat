@@ -1,43 +1,26 @@
-import { Field, FieldArray, Form, Formik } from "formik";
-import React, { useEffect, useRef, useState } from "react";
+import { Field, Form, Formik } from "formik";
+import React, { useEffect, useState } from "react";
 import * as Yup from "yup";
 
 import { i18n } from "../../translate/i18n";
-
 import toastError from "../../errors/toastError";
 import api from "../../services/api";
 import { useToast } from "@/hooks/use-toast";
-import {
-  Dialog,
-  DialogClose,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "../ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "../ui/dialog";
 import { Button } from "../ui/button";
 import { Label } from "../ui/label";
 import { Input } from "../ui/input";
-import { PhoneInputUi } from "../ui/phone-input";
 
 const ContactSchema = Yup.object().shape({
   name: Yup.string()
     .min(2, "Muito curto!")
     .max(50, "Muito longo!")
     .required("Obrigatório"),
+  number: Yup.string().min(8, "Muito curto!").max(50, "Muito longo!"),
   email: Yup.string().email("Email inválido"),
 });
 
-const ContactModal = ({
-  open,
-  onOpenChange,
-  contactId,
-  initialValues,
-  onSave,
-}) => {
-  const isMounted = useRef(true);
+const ContactModal = ({ open, onOpenChange, contactId, onSave }) => {
   const initialState = {
     name: "",
     number: "",
@@ -47,28 +30,14 @@ const ContactModal = ({
   const { toast } = useToast();
 
   const [contact, setContact] = useState(initialState);
-  useEffect(() => {
-    return () => {
-      isMounted.current = false;
-    };
-  }, []);
 
   useEffect(() => {
     const fetchContact = async () => {
-      if (initialValues) {
-        setContact((prevState) => {
-          return { ...prevState, ...initialValues };
-        });
-      }
-
       if (!contactId) return;
-     
+
       try {
         const { data } = await api.get(`/contacts/${contactId}`);
-        if (isMounted.current) {
-          const contact = {...data, number: `+${data.number}`}
-          setContact(data);
-        }
+        setContact(data); // Atualiza o estado do contato com os dados recebidos
       } catch (err) {
         toast({
           variant: "destructive",
@@ -78,7 +47,7 @@ const ContactModal = ({
     };
 
     fetchContact();
-  }, [contactId, open, initialValues]);
+  }, [contactId]);
 
   const handleClose = () => {
     onOpenChange(false);
@@ -88,20 +57,17 @@ const ContactModal = ({
     try {
       if (contactId) {
         await api.put(`/contacts/${contactId}`, values);
-        // console.log(values);
-        handleClose();
       } else {
         const { data } = await api.post("/contacts", values);
-        if (onSave) {
-          onSave(data);
-        }
-        handleClose();
+        if (onSave) onSave(data);
       }
+
       toast({
         variant: "success",
         title: "Sucesso!",
         description: i18n.t("contactModal.success"),
       });
+      handleClose();
     } catch (err) {
       toast({
         variant: "destructive",
@@ -115,78 +81,62 @@ const ContactModal = ({
       <DialogContent className="sm:max-w-[320px]">
         <DialogHeader>
           <DialogTitle>
-            {contactId ? `Editar contato` : "Adicionar contato"}
+            {contactId ? "Editar contato" : "Adicionar contato"}
           </DialogTitle>
-          <DialogDescription></DialogDescription>
         </DialogHeader>
-        <div className="flex items-center space-x-2">
-          <Formik
-            initialValues={contact}
-            enableReinitialize={true}
-            validationSchema={ContactSchema}
-            onSubmit={(values, actions) => {
-              setTimeout(() => {
-                handleSaveContact(values);
-                actions.setSubmitting(false);
-              }, 400);
-            }}
-          >
-            {({ values, errors, touched, isSubmitting, setFieldValue }) => (
-              <Form>
-                <div className="grid  gap-2">
-                  <div className="grid w-full items-center gap-1.5 relative pb-1">
-                    <Label htmlFor="name">Nome do contato</Label>
-                    <Field
-                      as={Input}
-                      name="name"
-                      fullWidth
-                      error={touched.name && Boolean(errors.name)}
-                      helperText={touched.name && errors.name}
-                    />
-                  </div>
 
-                  <div className="grid w-full items-center gap-1.5">
-                    <Label htmlFor="name">Número do Whatsapp</Label>
-                    <PhoneInputUi
-                      value={values.number}
-                      onChange={(value) => {
-                        console.log(value);
-                        setFieldValue("number", value);
-                      }}
-                    />
-                  </div>
-                  <div className="grid w-full items-center gap-1.5">
-                    <Label htmlFor="name">Email</Label>
-                    <Field
-                      size="small"
-                      as={Input}
-                      name="email"
-                      error={touched.email && Boolean(errors.email)}
-                      helperText={touched.email && errors.email}
-                      fullWidth
-                      margin="dense"
-                      variant="outlined"
-                    />
-                  </div>
-                </div>
-                <div className="flex gap-2 w-full justify-end   col-span-2 pt-2">
-                  <Button
-                    type="submit"
-                    color="primary"
-                    disabled={isSubmitting}
-                    variant="contained"
-                    className={""}
-                  >
-                    {contactId
-                      ? `${i18n.t("contactModal.buttons.okEdit")}`
-                      : `${i18n.t("contactModal.buttons.okAdd")}`}
-                    {isSubmitting && "Salvando.."}
-                  </Button>
-                </div>
-              </Form>
-            )}
-          </Formik>
-        </div>
+        <Formik
+          initialValues={contact} // Usa o estado do contato como initialValues
+          enableReinitialize={true} // Permite reinicializar quando o estado do contato muda
+          validationSchema={ContactSchema}
+          onSubmit={(values, actions) => {
+            handleSaveContact(values);
+            actions.setSubmitting(false);
+          }}
+        >
+          {({ values, errors, touched, isSubmitting }) => (
+            <Form className="flex flex-col">
+              <div className="grid w-full items-center gap-1.5 relative pb-5">
+                <Label htmlFor="name">Nome do contato</Label>
+                <Field
+                  as={Input}
+                  name="name"
+                  error={touched.name && Boolean(errors.name)}
+                  helperText={touched.name && errors.name}
+                />
+              </div>
+
+              <div className="grid w-full items-center gap-1.5 relative pb-5">
+                <Label htmlFor="number">Número do Whatsapp</Label>
+                <Field
+                  as={Input}
+                  type="number"
+                  name="number"
+                  placeholder="556392xxxxxx"
+                />
+              </div>
+
+              {/*        <div className="grid w-full items-center gap-1.5 relative pb-5">
+                <Label htmlFor="email">Email</Label>
+                <Field
+                  as={Input}
+                  name="email"
+                  error={touched.email && Boolean(errors.email)}
+                  helperText={touched.email && errors.email}
+                />
+              </div> */}
+
+              <div className="flex gap-2 w-full justify-end pt-2">
+                <Button type="submit" color="primary" disabled={isSubmitting}>
+                  {contactId
+                    ? i18n.t("contactModal.buttons.okEdit")
+                    : i18n.t("contactModal.buttons.okAdd")}
+                  {isSubmitting && "Salvando..."}
+                </Button>
+              </div>
+            </Form>
+          )}
+        </Formik>
       </DialogContent>
     </Dialog>
   );

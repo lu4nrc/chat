@@ -1,6 +1,3 @@
-"use client";
-
-import { TrendingUp } from "lucide-react";
 import { Label, PolarRadiusAxis, RadialBar, RadialBarChart } from "recharts";
 
 import {
@@ -21,28 +18,31 @@ import {
 export const description = "A radial chart with stacked sections";
 
 const chartConfig = {
-  inbound: {
-    label: "inbound",
+  Receptivo: {
+    label: "Receptivo",
     color: "hsl(var(--primary))",
   },
-  outbound: {
-    label: "outbound",
+  Ativo: {
+    label: "Ativo",
     color: "hsl(var(--chart-3))",
   },
 };
 
 export default function Outin({ outinData, loading }) {
-
   if (loading) {
     return <div>Carregando dados...</div>;
   }
 
   if (!outinData || !outinData.inbound || !outinData.outbound) {
-    return <div>Dados insuficientes para exibir o gráfico.</div>;
+    return (
+      <div className="text-muted-foreground">
+        Dados insuficientes para exibir o gráfico.
+      </div>
+    );
   }
 
   const chartData = [
-    { inbound: outinData.inbound, outbound: outinData.outbound },
+    { Receptivo: outinData.inbound, Ativo: outinData.outbound },
   ];
   const totalVisitors = outinData.inbound + outinData.outbound;
 
@@ -51,7 +51,7 @@ export default function Outin({ outinData, loading }) {
     chartConfig && (
       <Card className="flex flex-col h-[200px] overflow-hidden">
         <CardHeader className="items-center pb-0">
-          <CardTitle>Recebidos e Realizados</CardTitle>
+          <CardTitle>Receptivos e Ativos</CardTitle>
         </CardHeader>
         <CardContent className="flex-1">
           <ChartContainer
@@ -95,20 +95,19 @@ export default function Outin({ outinData, loading }) {
                 />
               </PolarRadiusAxis>
               <RadialBar
-                dataKey="outbound"
-                fill="var(--color-outbound)"
+                dataKey="Ativo"
+                fill="var(--color-Ativo)"
                 stackId="a"
                 cornerRadius={5}
                 className="stroke-transparent stroke-2"
               />
               <RadialBar
-                dataKey="inbound"
+                dataKey="Receptivo"
                 stackId="a"
                 cornerRadius={5}
-                fill="var(--color-inbound)"
+                fill="var(--color-Receptivo)"
                 className="stroke-transparent stroke-2 "
               />
-          
             </RadialBarChart>
           </ChartContainer>
         </CardContent>

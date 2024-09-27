@@ -68,7 +68,7 @@ export const getContact = async (req: Request, res: Response): Promise<Response>
 
 export const store = async (req: Request, res: Response): Promise<Response> => {
   const newContact: ContactData = req.body;
-  newContact.number = newContact.number.slice(1);
+  newContact.number = newContact.number;
   const schema = Yup.object().shape({
     name: Yup.string().required(),
     number: Yup.string()

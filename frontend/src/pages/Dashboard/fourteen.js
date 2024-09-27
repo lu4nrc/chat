@@ -107,7 +107,7 @@ const FourteenDays = () => {
           <Card className="h-full">
             <CardHeader className="flex flex-row items-center">
               <CardTitle>
-                Atendimentos (Período de 14 dias)<Badge>{status.total}</Badge>
+                Atendimentos (Período de 14 dias)
               </CardTitle>
             </CardHeader>
 

@@ -168,7 +168,7 @@ const ListToday = async (): Promise<Response> => {
 
       //?Grouped by Contact
 
-      /*       if (!acc.contacts[contactId]) {
+/*       if (!acc.contacts[contactId]) {
         acc.contacts[contactId] = {
           contact_name: current.contact?.name || "Sem contato",
           n_closed: 0
@@ -176,8 +176,8 @@ const ListToday = async (): Promise<Response> => {
       }
       if (status === "closed") {
         acc.contacts[contactId].n_closed++;
-      }  */
-
+      }
+ */
       return acc;
     },
     {

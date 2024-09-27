@@ -63,7 +63,6 @@ const Contacts = () => {
 
   const { user } = useContext(AuthContext);
 
-
   const [selectedContactId, setSelectedContactId] = useState(null);
   const [isOpen, setIsOpen] = useState(false);
   const [deletingContact, setDeletingContact] = useState(null);
@@ -173,11 +172,6 @@ const Contacts = () => {
   };
 
   const handleOpenContactModal = (contactId) => {
-    setSelectedContactId(contactId);
-    setIsOpen(true);
-  };
-
-  const hadleEditContact = (contactId) => {
     setSelectedContactId(contactId);
     setIsOpen(true);
   };
@@ -299,7 +293,7 @@ const Contacts = () => {
                     {user.profile === "admin" && (
                       <Button
                         variant="ghost"
-                        onClick={() => hadleEditContact(contact.id)}
+                        onClick={() => handleDeleteContact(contact.id)}
                       >
                         <Trash className="h-4 w-4" />
                       </Button>
