@@ -9,7 +9,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { File, ListFilter, PlusCircle } from "lucide-react";
+import { Crown, File, ListFilter, PlusCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import Today from "./today";
@@ -32,8 +32,13 @@ const Dashboard = () => {
         <div className="flex items-center">
           <TabsList>
             <TabsTrigger value="today">Hoje</TabsTrigger>
-            <TabsTrigger value="seven">7 Dias</TabsTrigger>
-            <TabsTrigger value="fourteen">14 dias</TabsTrigger>
+            <TabsTrigger value="seven" className="flex gap-1">
+              <Crown className="w-3 h-3" />7 Dias
+            </TabsTrigger>
+            <TabsTrigger value="fourteen" className="flex gap-1">
+              <Crown className="w-3 h-3" />
+              14 dias
+            </TabsTrigger>
           </TabsList>
           <div className="ml-auto flex items-center gap-2">
             <DropdownMenu>

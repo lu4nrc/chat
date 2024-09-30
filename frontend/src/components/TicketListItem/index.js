@@ -92,16 +92,11 @@ const TicketListItem = ({ ticket, setFilter }) => {
   return (
     <Link
       className={cn(
-        "group/item flex pl-1 items-center gap-1 hover:bg-muted",
+        "group/item flex items-center  gap-1 hover:bg-muted  relative",
         ticketId === ticket.id ? "bg-muted" : ""
       )}
       key={currentTicket.id}
       to={`/tickets/${ticket.id}`}
-      /*  onClick={(e) => {
-        if (currentTicket.status === "pending") spyMessages(ticket.id);
-        handleSelectTicket(ticket.id);
-      }} */
-      // selected={ticketId && +ticketId === currentTicket.id}
     >
       <Tooltip>
         <TooltipTrigger asChild>
@@ -128,51 +123,44 @@ const TicketListItem = ({ ticket, setFilter }) => {
         }`}</TooltipContent>
       </Tooltip>
 
-      <div className="flex flex-col w-full  md:w-[370px] justify-center  min-w-0 border-b py-4 pr-4">
-        <div className="flex gap-1 justify-between items-end">
-          <p className="font-medium text-base truncate text-foreground">
+      <div className="flex flex-col w-full  md:w-[370px] justify-center min-w-0 border-b pr-4 h-[70px]">
+        <div className="grid grid-cols-[1fr_auto_auto] items-center ">
+          <p className="text-base font-medium text-foreground truncate leading-5">
             {currentTicket.contact.name}
           </p>
-          <div className="flex gap-1 justify-center items-center">
-            {ticket.lastMessage && (
-              <span className="text-xs text-primary font-medium">
-                {displayDate(currentTicket.updatedAt)}
-              </span>
-            )}
-            {ticket.unreadMessages ? (
-              <div className="shrink-0 grow-0 rounded-full bg-primary h-6 w-6 flex justify-center items-center text-xs text-white">
-                {ticket.unreadMessages}
-              </div>
-            ) : null}
-          </div>
-        </div>
-        <div className="flex gap-1 items-center justify-between">
-          <p className=" text-sm text-muted-foreground font-medium truncate">
+
+          {ticket.lastMessage && (
+            <span className="text-xs text-primary font-medium px-1">
+              {displayDate(currentTicket.updatedAt)}
+            </span>
+          )}
+          {ticket.unreadMessages ? (
+            <div className=" rounded-full bg-primary h-6 w-6 flex justify-center items-center text-xs text-white">
+              {ticket.unreadMessages}
+            </div>
+          ) : <div></div>}
+          <div className=" text-sm text-muted-foreground font-medium truncate col-span-3 left-4">
             <MarkdownWrapper>
               {currentTicket.lastMessage ? `${ticket.lastMessage}` : ""}
             </MarkdownWrapper>
-          </p>
-          {/* //! Resolver relogio de tempo de atendimento  */}
-          <div className="flex gap-1 items-center ">
-            {currentTicket.status === "pending" && (
-              <Button
-                size="sm"
-                className="group/edit hidden group-hover/item:flex rounded-full h-7"
-                disabled={loading}
-                onClick={(_) => handleAcepptTicket(currentTicket.id)}
-              >
-                Iniciar
-                {loading && (
-                  <LoaderCircle className="ml-1 h-4 w-4 animate-spin" />
-                )}
-                {!loading && (
-                  <ChevronRight className="ml-1 h-4 w-4 group-hover/edit:translate-x-0.5" />
-                )}
-              </Button>
-            )}
           </div>
         </div>
       </div>
+
+      {currentTicket.status === "pending" && (
+        <Button
+          size="sm"
+          className="group/edit hidden group-hover/item:flex rounded-full h-7 absolute right-3"
+          disabled={loading}
+          onClick={(_) => handleAcepptTicket(currentTicket.id)}
+        >
+          Iniciar
+          {loading && <LoaderCircle className="ml-1 h-4 w-4 animate-spin" />}
+          {!loading && (
+            <ChevronRight className="ml-1 h-4 w-4 group-hover/edit:translate-x-0.5" />
+          )}
+        </Button>
+      )}
     </Link>
   );
 };

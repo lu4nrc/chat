@@ -141,7 +141,7 @@ const UsersCard = ({ usersData, loading }) => {
               </Tooltip>
             </div>
           </div>
-          <ScrollArea className="h-[calc(100vh-600px)]">
+          <ScrollArea className="h-[calc(100vh-610px)]">
             {sortedUsers.map((el) => {
               let rating = el.rating.value
                 ? (el.rating.value / el.rating.qtd).toFixed(1)

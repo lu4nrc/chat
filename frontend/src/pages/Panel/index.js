@@ -424,7 +424,7 @@ function ListTicketStatus({ tickets, status }) {
       </CardHeader>
       <CardContent>
         {filteredTickets.length > 0 ? (
-          <ScrollArea className="h-[calc(100vh-370px)] w-full ">
+          <ScrollArea className="h-[calc(100vh-270px)] w-full ">
             {filteredTickets.map((el) => (
               <ListContactItem key={el.id} ticket={el} status={status} />
             ))}

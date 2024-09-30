@@ -71,25 +71,20 @@ const ContactCard = ({ queuesData, loading }) => {
 
   return (
     <Card className="h-full flex flex-col">
-      <CardHeader className="flex flex-row items-center">
-        <div className="grid gap-2">
-          <CardTitle>Contatos</CardTitle>
-          <CardDescription>Detalhamento por contatos</CardDescription>
-        </div>
-        <div className="ml-auto flex gap-2">
-          <Select onValueChange={handleSortChange}>
-            <SelectTrigger>
-              <SelectValue placeholder="Ordenar por" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectGroup>
-                <SelectLabel>Status</SelectLabel>
-                <SelectItem value="total">Total</SelectItem>
-                <SelectItem value="media">Tempo Médio</SelectItem>
-              </SelectGroup>
-            </SelectContent>
-          </Select>
-        </div>
+      <CardHeader className="flex justify-between flex-row">
+        <CardTitle>Contatos </CardTitle>
+        <Select onValueChange={handleSortChange}>
+          <SelectTrigger>
+            <SelectValue placeholder="Ordenar por" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectGroup>
+              <SelectLabel>Status</SelectLabel>
+              <SelectItem value="total">Total</SelectItem>
+              <SelectItem value="media">Tempo Médio</SelectItem>
+            </SelectGroup>
+          </SelectContent>
+        </Select>
       </CardHeader>
       <CardContent className="flex justify-center flex-col items-center  h-full text-muted-foreground">
         <TrafficCone className="text-orange-500  w-6 h-6" /> Em manutenção!

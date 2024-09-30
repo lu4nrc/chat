@@ -2,20 +2,20 @@ import React, { useEffect, useReducer, useState } from "react";
 
 import openSocket from "../../services/socket-io";
 
-import { Edit, Trash, Search, Loader2 } from "lucide-react";
+import { Edit, Trash, Search, Loader2, Plus } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
 import ConfirmationModal from "../../components/ConfirmationModal";
-import TableRowSkeleton from "../../components/TableRowSkeleton";
 import UserModal from "../../components/UserModal";
 import api from "../../services/api";
 import { i18n } from "../../translate/i18n";
-import { Table, TableCell, TableRow } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import toastError from "@/errors/toastError";
 import InfiniteScroll from "@/components/ui/InfiniteScroll";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { Badge } from "@/components/ui/badge";
+import ModalProfileCors from "@/components/ModalProfileCors";
 
 const reducer = (state, action) => {
   if (action.type === "LOAD_USERS") {
@@ -63,44 +63,70 @@ const reducer = (state, action) => {
 
 const Users = () => {
   const [loading, setLoading] = useState(false);
-  const [pageNumber, setPageNumber] = useState(1);
-  const [, setHasMore] = useState(false);
   const [selectedUser, setSelectedUser] = useState(null);
+  const [pageNumber, setPageNumber] = useState(1);
+  const [hasMore, setHasMore] = useState(true);
   const [deletingUser, setDeletingUser] = useState(null);
   const [userModalOpen, setUserModalOpen] = useState(false);
+  const [searchParam, setSearchParam] = useState("");
+  const [debouncedSearchParam, setDebouncedSearchParam] = useState(searchParam);
 
   const [confirmModalOpen, setConfirmModalOpen] = useState(false);
-  const [searchParam, setSearchParam] = useState("");
   const [users, dispatch] = useReducer(reducer, []);
   const { toast } = useToast();
 
   useEffect(() => {
-    dispatch({ type: "RESET" });
-    setPageNumber(1);
+    const handler = setTimeout(() => {
+      setDebouncedSearchParam(searchParam);
+    }, 500);
+
+    return () => {
+      clearTimeout(handler);
+    };
   }, [searchParam]);
 
   useEffect(() => {
+    dispatch({ type: "RESET" });
+    setPageNumber(1);
+    search();
+  }, [debouncedSearchParam]);
+
+  const search = async () => {
     setLoading(true);
-    const delayDebounceFn = setTimeout(() => {
-      const fetchUsers = async () => {
-        try {
-          const { data } = await api.get("/users/", {
-            params: { searchParam, pageNumber },
-          });
-          dispatch({ type: "LOAD_USERS", payload: data.users });
-          setHasMore(data.hasMore);
-          setLoading(false);
-        } catch (err) {
-          toast({
-            variant: "destructive",
-            title: toastError(err),
-          });
-        }
-      };
-      fetchUsers();
-    }, 500);
-    return () => clearTimeout(delayDebounceFn);
-  }, [searchParam, pageNumber]);
+    try {
+      const { data } = await api.get("/users/", {
+        params: { searchParam, pageNumber },
+      });
+      dispatch({ type: "LOAD_USERS", payload: data.users });
+      setHasMore(data.hasMore);
+    } catch (error) {
+      toast({
+        variant: "destructive",
+        title: toastError(error),
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const next = async () => {
+    setLoading(true);
+    try {
+      const { data } = await api.get("/users/", {
+        params: { searchParam, pageNumber },
+      });
+      dispatch({ type: "LOAD_USERS", payload: data.users });
+      setHasMore(data.hasMore);
+      setPageNumber((prev) => prev + 1);
+    } catch (error) {
+      toast({
+        variant: "destructive",
+        title: toastError(error),
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
     const socket = openSocket();
@@ -129,9 +155,9 @@ const Users = () => {
     setUserModalOpen(true); // Abre o modal para criação
   };
 
-  const handleEditUser = (user) => {
-    setSelectedUser(user); // Define o usuário a ser editado
-    setUserModalOpen(true); // Abre o modal para edição
+  const handleEditUser = (userId) => {
+    setSelectedUser(userId);
+    setUserModalOpen(true);
   };
 
   const handleDeleteUser = async (userId) => {
@@ -155,79 +181,84 @@ const Users = () => {
   };
 
   return (
-    <div className="p-4">
-      <div className="flex justify-between mb-4">
-        <h1 className="text-xl font-semibold">Usuários</h1>
-        <UserModal
-          open={userModalOpen}
-          setOpen={setUserModalOpen}
-          userId={selectedUser && selectedUser.id}
-        />
-        <Button onClick={handleCreateUser}>Novo Usuário</Button>
-      </div>
-      <div className="flex justify-between mb-4">
-        <Input
-          placeholder={i18n.t("contacts.searchPlaceholder")}
-          type="search"
-          value={searchParam}
-          onChange={handleSearch}
-          className="w-full max-w-md"
-        />
-      </div>
+    <div className="grid gap-2">
+      <h1 className="text-xl font-semibold ml-2">Usuários</h1>
+
+      <UserModal
+        open={userModalOpen}
+        setOpen={setUserModalOpen}
+        userId={selectedUser}
+      />
 
       <div className="border overflow-hidden rounded-lg">
-        <div className="flex w-full bg-muted flex-col gap-2 border-b border-muted">
-          <div className="grid grid-cols-5 text-muted-foreground">
-            <h4 className=" py-2 pl-2 text-sm font-medium leading-none">
-              Nome
-            </h4>
-            <h4 className=" py-2  text-sm font-medium leading-none">Email</h4>
-            <h4 className=" py-2 text-sm font-medium text-center leading-none">
-              Perfil
-            </h4>
-            <h4 className=" py-2 text-sm font-medium text-center leading-none">
-              Conexão Padrão
-            </h4>
-            <h4 className=" py-2 text-sm font-medium text-center leading-none">
-              Ações
-            </h4>
-          </div>
+        <div className="flex justify-between p-2">
+          <Input
+            placeholder={i18n.t("contacts.searchPlaceholder")}
+            type="search"
+            value={searchParam}
+            onChange={handleSearch}
+            className=" max-w-md bg-background w-full"
+          />
+          <Button onClick={handleCreateUser}>
+            <Plus className="w-4 h-4" /> Novo Usuário
+          </Button>
         </div>
-        <ScrollArea className="h-[calc(100vh-300px)] w-full">
+
+        <div className="grid grid-cols-4 text-muted-foreground bg-muted">
+          <h4 className=" py-2 pl-2 text-sm font-medium leading-none">Nome</h4>
+
+          <h4 className=" py-2 text-sm font-medium text-center leading-none">
+            Perfil
+          </h4>
+          <h4 className=" py-2 text-sm font-medium text-center leading-none">
+            Conexão Padrão
+          </h4>
+          <h4 className=" py-2 text-sm font-medium text-center leading-none">
+            Ações
+          </h4>
+        </div>
+        <ScrollArea className="h-[calc(100vh-240px)] w-full">
           <div className=" w-full  overflow-y-auto">
             <div className="flex w-full flex-col items-center">
               {users.map((user) => (
                 <div
-                  className="grid grid-cols-5 w-full border-b py-1  items-center"
+                  className="grid grid-cols-4 w-full border-b py-1  items-center text-base leading-2"
                   key={user.id}
                 >
-                  <div className="text-center">{user.name}</div>
-                  <div className="text-center">{user.email}</div>
-                  <div className="text-center">{user.profile}</div>
+                  <div className="pl-2 flex gap-1 items-center">
+                    <ModalProfileCors imageUrl={user.imageUrl} />
+                    <div className="flex flex-col">
+                      <span className="text-sm font-medium leading-3">{user.name}</span>
+                      <span className="text-sm text-muted-foreground">
+                        {user.email}
+                      </span>
+                    </div>
+                  </div>
+
+                  <div className="text-center">
+                    <Badge>{user.profile}</Badge>
+                  </div>
+
                   <div className="text-center">{user.whatsapp?.name}</div>
-                  <div className="text-center flex justify-center space-x-2">
-                    <Button
-                      variant="ghost"
-                      onClick={() => handleEditUser(user)}
-                      size="sm"
-                    >
-                      <Edit className="h-4 w-4" />
-                    </Button>
-                    <Button
-                      variant="ghost"
+
+                  <div className="text-center flex justify-center gap-4">
+                    <Edit
+                      onClick={() => handleEditUser(user.id)}
+                      className="h-5 w-5 hover:text-primary"
+                    />
+
+                    <Trash
                       onClick={() => {
                         setConfirmModalOpen(true);
                         setDeletingUser(user);
                       }}
-                      size="sm"
-                    >
-                      <Trash className="h-4 w-4" />
-                    </Button>
+                      className="h-5 w-5 hover:text-primary"
+                    />
                   </div>
                 </div>
               ))}
 
-           {/*    <InfiniteScroll
+              <InfiniteScroll
                 hasMore={hasMore}
                 isLoading={loading}
                 next={next}
@@ -236,57 +267,11 @@ const Users = () => {
                 {hasMore && (
                   <Loader2 className="my-4 h-8 w-8 text-primary animate-spin" />
                 )}
-              </InfiniteScroll> */}
+              </InfiniteScroll>
             </div>
           </div>
         </ScrollArea>
       </div>
-
-     {/*  <div className="overflow-hidden">
-        <Table>
-          <thead>
-            <TableRow>
-              <TableCell className="text-center">Nome</TableCell>
-              <TableCell className="text-center">Email</TableCell>
-              <TableCell className="text-center">Perfil</TableCell>
-              <TableCell className="text-center">Conexão Padrão</TableCell>
-              <TableCell className="text-center">Ações</TableCell>
-            </TableRow>
-          </thead>
-          <tbody>
-            {users.map((user) => (
-              <TableRow key={user.id}>
-                <TableCell className="text-center">{user.name}</TableCell>
-                <TableCell className="text-center">{user.email}</TableCell>
-                <TableCell className="text-center">{user.profile}</TableCell>
-                <TableCell className="text-center">
-                  {user.whatsapp?.name}
-                </TableCell>
-                <TableCell className="text-center flex justify-center space-x-2">
-                  <Button
-                    variant="ghost"
-                    onClick={() => handleEditUser(user)}
-                    size="sm"
-                  >
-                    <Edit className="h-4 w-4" />
-                  </Button>
-                  <Button
-                    variant="ghost"
-                    onClick={() => {
-                      setConfirmModalOpen(true);
-                      setDeletingUser(user);
-                    }}
-                    size="sm"
-                  >
-                    <Trash className="h-4 w-4" />
-                  </Button>
-                </TableCell>
-              </TableRow>
-            ))}
-            {loading && <TableRowSkeleton columns={4} />}
-          </tbody>
-        </Table>
-      </div> */}
       <ConfirmationModal
         title={
           deletingUser &&
