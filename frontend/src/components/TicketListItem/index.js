@@ -138,7 +138,9 @@ const TicketListItem = ({ ticket, setFilter }) => {
             <div className=" rounded-full bg-primary h-6 w-6 flex justify-center items-center text-xs text-white">
               {ticket.unreadMessages}
             </div>
-          ) : <div></div>}
+          ) : (
+            <div></div>
+          )}
           <div className=" text-sm text-muted-foreground font-medium truncate col-span-3 left-4">
             <MarkdownWrapper>
               {currentTicket.lastMessage ? `${ticket.lastMessage}` : ""}
@@ -149,8 +151,7 @@ const TicketListItem = ({ ticket, setFilter }) => {
 
       {currentTicket.status === "pending" && (
         <Button
-          size="sm"
-          className="group/edit hidden group-hover/item:flex rounded-full h-7 absolute right-3"
+          className="group/edit hidden rounded-full group-hover/item:flex border-l-4 absolute right-2"
           disabled={loading}
           onClick={(_) => handleAcepptTicket(currentTicket.id)}
         >

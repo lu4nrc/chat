@@ -17,6 +17,7 @@ import RecordingTimer from "./RecordingTimer";
 import { Textarea } from "../ui/textarea";
 import {
   Check,
+  File,
   LoaderCircle,
   Mic,
   Paperclip,
@@ -290,22 +291,25 @@ const MessageInput = ({ ticketStatus }) => {
   if (medias.length > 0)
     return (
       <div className="flex items-center bg-muted justify-between px-2 py-4 w-full">
-        {loading ? (
-          <div>
-            <LoaderCircle className="mr-2 h-4 w-4 animate-spin text-primary" />
-          </div>
-        ) : (
+        <div className="flex gap-1 ">
+          <File className="w-4 h-4 text-primary"/>
           <p className="text-sm text-foreground">{medias[0]?.name}</p>
-        )}
+        </div>
+
         <div className="flex gap-2 pr-5">
-          <X
-            aria-label="cancel-upload"
+          <Button
+            disabled={loading}
             onClick={(e) => setMedias([])}
-            className="w-5 h-5 text-foreground"
-          />
-          <div disabled={loading} onClick={handleUploadMedia}>
-            <Send size={24} className="w-5 h-5 text-primary" />
-          </div>
+            variant="outline"
+          >
+            <X aria-label="cancel-upload" className="w-5 h-5 text-foreground" />
+          </Button>
+          <Button disabled={loading} onClick={handleUploadMedia}>
+            <div className="flex gap-1">
+              {loading && <LoaderCircle className=" h-5 w-5 animate-spin" />}
+              <Send size={24} className="w-5 h-5" />
+            </div>
+          </Button>
         </div>
       </div>
     );
@@ -414,7 +418,6 @@ const MessageInput = ({ ticketStatus }) => {
           {inputMessage ? (
             <Button
               aria-label="sendMessage"
-              size="icon"
               onClick={handleSendMessage}
               disabled={loading}
             >

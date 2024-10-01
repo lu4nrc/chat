@@ -25,6 +25,7 @@ import {
 } from "../ui/select";
 import { useToast } from "@/hooks/use-toast";
 import MultipleSelector from "../ui/multiple-selector"; // Importando o selector
+import { LoaderCircle } from "lucide-react";
 
 const UserSchema = Yup.object().shape({
   name: Yup.string()
@@ -53,6 +54,7 @@ const UserModal = ({ userId, open, setOpen }) => {
   const { loading, whatsApps } = useWhatsApps();
   const { toast } = useToast();
   const [queues, setQueues] = useState([]);
+  const [isLoading, setIsLoading] = useState(false)
 
   useEffect(() => {
     const fetchQueues = async () => {
@@ -93,6 +95,7 @@ const UserModal = ({ userId, open, setOpen }) => {
   };
 
   const handleSaveUser = async (values) => {
+    setIsLoading(true)
     const ids = selectedQueueIds.map((queue) => queue.id);
     const userData = { ...values, queueIds: ids };
 
@@ -121,7 +124,9 @@ const UserModal = ({ userId, open, setOpen }) => {
         description: "Parabéns! Seu usuário foi criado com sucesso.",
       });
       setOpen(false);
+      setIsLoading(false)
     } catch (err) {
+      setIsLoading(false)
       toast({
         variant: "destructive",
         title: toastError(err),
@@ -275,16 +280,16 @@ const UserModal = ({ userId, open, setOpen }) => {
                 <div className="flex gap-2 w-full justify-end col-span-2 pt-2">
                   <Button
                     onClick={handleClose}
-                    disabled={isSubmitting}
+                    disabled={isLoading}
                     variant="outline"
                   >
                     {i18n.t("userModal.buttons.cancel")}
                   </Button>
-                  <Button type="submit" color="primary" disabled={isSubmitting}>
+                  <Button type="submit" color="primary" disabled={isLoading}>
+                    {isLoading && <LoaderCircle className="mr-2 h-4 w-4 animate-spin text-white" />}
                     {userId
                       ? `${i18n.t("userModal.buttons.okEdit")}`
                       : `${i18n.t("userModal.buttons.okAdd")}`}
-                    {isSubmitting && "salvando.."}
                   </Button>
                 </div>
               </Form>

@@ -17,6 +17,7 @@ import {
   ChevronDown,
   Clock,
   Download,
+  File,
   Info,
   LoaderCircle,
   Trash,
@@ -300,12 +301,16 @@ const MessagesList = ({ ticketId, isGroup }) => {
     } else {
       const nomeArquivo = message.mediaUrl.split("/").pop();
       return (
-        <Button
-          size="icon"
-          onClick={() => baixarArquivoSemHash(message.mediaUrl, nomeArquivo)} // Chama a função para baixar o arquivo sem a hash
-        >
-          <Download className="pr-1" />
-        </Button>
+        <div className="flex gap-1 justify-center items-center">
+          <Button
+            size="icon"
+            className="m-1"
+            onClick={() => baixarArquivoSemHash(message.mediaUrl, nomeArquivo)} // Chama a função para baixar o arquivo sem a hash
+          >
+            <Download className="pr-1" />
+          </Button>
+          <File className="w-4 h-4 text-primary" />
+        </div>
       );
     }
   };
@@ -367,7 +372,7 @@ const MessagesList = ({ ticketId, isGroup }) => {
           "flex flex-col w-full rounded-lg bg-background mb-2",
           message.quotedMsg.mediaType === "chat"
             ? "px-1 py-2  border-l-4 border-primary"
-            : "py-1",
+            : "px-1 py-2",
           message.fromMe ? "bg-muted" : "bg-background"
         )}
       >
@@ -412,6 +417,18 @@ const MessagesList = ({ ticketId, isGroup }) => {
   const renderMessages = () => {
     if (messagesList.length > 0) {
       const viewMessagesList = messagesList.map((message, index) => {
+        const messageClasses = cn(
+          "group  md:max-w-[90%] flex flex-col relative rounded-xl text-base overflow-hidden justify-center min-h-9 text-foreground",
+          message.fromMe
+            ? "rounded-br-none bg-sky-100 text-sky-900 dark:text-muted-foreground dark:bg-slate-900"
+            : "bg-muted rounded-bl-none text-slate-800 dark:text-muted-foreground",
+          message.mediaType === "chat"
+            ? "p-2 flex-col"
+            : ["application", "text"].includes(message.mediaType)
+            ? "flex-row items-center"
+            : "flex-col items-start"
+        );
+        //console.log(message)
         const file_name = message.mediaUrl
           ? removerHashDoNomeDoArquivo(message.mediaUrl.split("/").pop())
           : null;
@@ -443,21 +460,13 @@ const MessagesList = ({ ticketId, isGroup }) => {
               </span>
 
               {/* Mensagem  */}
-              <div
-                key={message.id}
-                className={cn(
-                  "group w-fit md:max-w-[90%] flex flex-col relative rounded-xl text-base overflow-hidden justify-center items-start min-h-9 text-foreground ",
-                  message.fromMe
-                    ? "rounded-br-none bg-sky-100 text-sky-900 dark:text-muted-foreground dark:bg-slate-900 "
-                    : "bg-muted rounded-bl-none text-slate-800 dark:text-muted-foreground ",
-                  message.mediaType === "chat" ? "p-2" : ""
-                )}
-              >
+              <div key={message.id} className={messageClasses}>
                 {isGroup && (
-                  <p className="text-primary font-medium text-xs">
+                  <p className="text-primary font-medium text-xs p-1">
                     {message.contact?.name}
                   </p>
                 )}
+
                 {(message.mediaUrl ||
                   message.mediaType === "location" ||
                   message.mediaType === "vcard") &&
@@ -469,6 +478,7 @@ const MessagesList = ({ ticketId, isGroup }) => {
                     <span>Mensagem apagada</span>
                   </span>
                 )}
+
                 {message.quotedMsg && renderQuotedMessage(message)}
 
                 {message.mediaType === "audio" ||
@@ -481,10 +491,10 @@ const MessagesList = ({ ticketId, isGroup }) => {
                     <span className="text-sm text-muted-foreground pl-1 pr-1 whitespace-pre-wrap leading-5">
                       {file_name}
                     </span>
-                    {file_name !== message.body ? (
-                      <div className="pl-1 pr-1 whitespace-pre-wrap leading-5 text-[14.2px]">
+                    {file_name !== removerHashDoNomeDoArquivo(message.body) ? (
+                      <span className="pl-1 pr-1 whitespace-pre-wrap leading-5 text-[14.2px]">
                         <MarkdownWrapper>{message.body}</MarkdownWrapper>
-                      </div>
+                      </span>
                     ) : (
                       ""
                     )}
@@ -494,7 +504,7 @@ const MessagesList = ({ ticketId, isGroup }) => {
                     <Info className="text-yellow-600" />
                     <div className="flex flex-col">
                       <span className="text-sm font-medium">
-                        Tamanho do arquivo excedido. MAX 20MB
+                        O tamanho do arquivo excede o limite de 20 MB.
                       </span>
                       <span className="text-xs text-muted-foreground whitespace-pre-wrap leading-5 truncate">
                         {message.body}
@@ -508,6 +518,7 @@ const MessagesList = ({ ticketId, isGroup }) => {
                     <MarkdownWrapper>{message.body}</MarkdownWrapper>
                   </p>
                 )}
+
                 {!message.isDeleted && <MessageOptionsMenu message={message} />}
               </div>
 

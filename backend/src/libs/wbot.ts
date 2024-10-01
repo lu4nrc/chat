@@ -77,7 +77,7 @@ export const initWbot = async (whatsapp: Whatsapp): Promise<Session> => {
             "--no-zygote",
             "--disable-gpu"
           ],
-          cacheEnabled: false, //!Testando desativar o cache para ver se diminui o uso
+          //cacheEnabled: false, //!Testando desativar o cache para ver se diminui o uso
           // @ts-ignore
           browserWSEndpoint: process.env.CHROME_WS || undefined
         }

@@ -34,7 +34,7 @@ const AudioComp = ({ audio }) => {
   }, [wavesurfer]);
 
   return (
-    <div className="flex justify-between items-center gap-1 px-1">
+    <div className="flex justify-between items-center gap-1 px-1 m-1">
       <div onClick={onPlayPause}>
         {isPlaying ? <Pause size={22} /> : <Play size={22} />}
       </div>

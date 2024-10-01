@@ -10,7 +10,7 @@ import { AuthContext } from "../../context/Auth/AuthContext";
 import useTickets from "../../hooks/useTickets";
 import { i18n } from "../../translate/i18n";
 
-const NotificationsPopOver = ({ icon }) => {
+const NotificationsPopOver = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const { user } = useContext(AuthContext);
@@ -140,8 +140,6 @@ const NotificationsPopOver = ({ icon }) => {
 
     soundAlertRef.current();
   };
-
-  return { icon };
 };
 
 export default NotificationsPopOver;
