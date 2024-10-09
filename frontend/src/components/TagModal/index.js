@@ -1,22 +1,32 @@
 import React, { useState, useEffect, useRef } from "react";
+import { Formik, Form, Field, ErrorMessage } from "formik";
 import * as Yup from "yup";
-import { Formik, Form, Field } from "formik";
-
-
 import api from "../../services/api";
 import { useToast } from "@/hooks/use-toast";
 import toastError from "@/errors/toastError";
+import { Input } from "../ui/input";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "../ui/select";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "../ui/dialog";
+import { Label } from "../ui/label";
+import { Button } from "../ui/button";
+import { LoaderCircle } from "lucide-react";
 
-const ContactSchema = Yup.object().shape({
-  name: Yup.string()
-    .min(2, "Muito curto!")
-    .max(40, "Muito longo!")
-    .required("Obrigatório"),
-});
-
-const TagModal = ({ open, onClose, value }) => {
+const TagModal = ({ open, setOpen, value }) => {
   const isMounted = useRef(true);
-  const { toast } = useToast()
+  const [isLoading, setIsLoading] = useState(false);
+  const { toast } = useToast();
 
   const initialState = {
     name: "",
@@ -37,7 +47,7 @@ const TagModal = ({ open, onClose, value }) => {
   }, [value]);
 
   const handleClose = () => {
-    onClose();
+    setOpen(false);
     setTag(initialState);
   };
 
@@ -49,7 +59,7 @@ const TagModal = ({ open, onClose, value }) => {
         await api.post(`/tags`, values);
       }
 
-      handleClose();
+      setOpen(false);
       toast({
         variant: "success",
         title: "Sucesso!",
@@ -64,15 +74,21 @@ const TagModal = ({ open, onClose, value }) => {
   };
 
   return (
-    <div /* className={classes.root} */>
-      {/*  <Dialog open={open} onClose={handleClose} maxWidth="lg" scroll="paper">
-        <DialogTitle id="form-dialog-title">
-          {tag?.id ? "Editar" : "Criar"}
-        </DialogTitle>
+    <Dialog open={open} onOpenChange={setOpen}>
+      <DialogContent>
+        <DialogHeader>
+          <DialogTitle>Tags</DialogTitle>
+          <DialogDescription>Informações</DialogDescription>
+        </DialogHeader>
         <Formik
           initialValues={tag}
           enableReinitialize={true}
-          validationSchema={ContactSchema}
+          validationSchema={Yup.object().shape({
+            name: Yup.string()
+              .min(2, "Muito curto!")
+              .max(40, "Muito longo!")
+              .required("Obrigatório"),
+          })}
           onSubmit={(values, actions) => {
             setTimeout(() => {
               handleSaveNewTag(values);
@@ -80,81 +96,72 @@ const TagModal = ({ open, onClose, value }) => {
             }, 400);
           }}
         >
-          {({ values, errors, touched, isSubmitting }) => (
-            <Form>
-              <DialogContent dividers>
-                <Stack direction={"row"} alignItems={"top"} spacing={1}>
-                  <Stack spacing={0.5}>
-                    <Typography variant="subtitle1">Nome</Typography>
-                    <Field
-                      as={TextField}
-                      name="name"
-                      autoFocus
-                      error={touched.name && Boolean(errors.name)}
-                      helperText={touched.name && errors.name}
-                      variant="outlined"
-                      margin="dense"
-                    />
-                  </Stack>
-                  <Stack spacing={0.5}>
-                    <Typography variant="subtitle1">Categoria</Typography>
-                    <Field
-                      as={TextField}
-                      style={{ width: "200px" }}
-                      select
-                      name="typetag"
-                      error={touched.number && Boolean(errors.number)}
-                      helperText={touched.number && errors.number}
-                      placeholder="User/Enterprise/Custom"
-                      variant="outlined"
-                      margin="dense"
-                    >
-                      <MenuItem key={""} value={""} disabled></MenuItem>
-                      {typestag.map((option, index) => (
-                        <MenuItem key={index} value={option}>
-                          {option === "user"
-                            ? "Usuário"
-                            : option === "enterprise"
-                            ? "Empresa"
-                            : option === "custom"
-                            ? "Customizado"
-                            : ""}
-                        </MenuItem>
-                      ))}
-                    </Field>
-                  </Stack>
-                </Stack>
-              </DialogContent>
+          {({ values, errors, touched, isSubmitting, setFieldValue }) => (
+            <Form className="grid grid-cols-2 gap-1 gap-x-4">
+              <div className="grid w-full items-center gap-1.5 relative pb-5">
+                <Label htmlFor="name">Nome</Label>
+                <Field
+                  as={Input}
+                  name="name"
+                  error={touched.name && Boolean(errors.name)}
+                  helperText={touched.name && errors.name}
+                />
+                <ErrorMessage name="name">
+                  {(msg) => (
+                    <div className="text-xs text-red-500 absolute bottom-0">
+                      {msg}
+                    </div>
+                  )}
+                </ErrorMessage>
+              </div>
+              <div className="grid w-full items-center gap-1.5 relative pb-5">
+                <Label htmlFor="profile">Tipo</Label>
+                <Select
+                  id="typetag"
+                  name="typetag"
+                  onValueChange={(value) => {
+                    setFieldValue("typetag", value);
+                  }}
+                >
+                  <SelectTrigger className="w-full">
+                    <SelectValue placeholder="Selecione o tipo de usuário" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {typestag.map((option, index) => (
+                      <SelectItem key={index} value={option}>
+                        {option === "user"
+                          ? "Usuário"
+                          : option === "enterprise"
+                          ? "Empresa"
+                          : option === "custom"
+                          ? "Customizado"
+                          : ""}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
 
-              <DialogActions>
+              <div className="flex gap-2 w-full justify-end col-span-2 pt-2">
                 <Button
                   onClick={handleClose}
                   disabled={isSubmitting}
-                  variant="outlined"
+                  variant="outline"
                 >
                   Cancelar
                 </Button>
-                <Button
-                  type="submit"
-                  color="primary"
-                  disabled={isSubmitting}
-                  variant="contained"
-                
-                >
-                  Salvar
+                <Button type="submit" color="primary" disabled={isSubmitting}>
                   {isSubmitting && (
-                    <CircularProgress
-                      size={24}
-                   
-                    />
+                    <LoaderCircle className="mr-2 h-4 w-4 animate-spin text-white" />
                   )}
+                  {value ? `Editar` : `Adicionar`}
                 </Button>
-              </DialogActions>
+              </div>
             </Form>
           )}
         </Formik>
-      </Dialog> */}
-    </div>
+      </DialogContent>
+    </Dialog>
   );
 };
 

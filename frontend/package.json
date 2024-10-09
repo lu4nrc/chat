@@ -50,6 +50,7 @@
     "react-color": "^2.19.3",
     "react-date-range": "^1.4.0",
     "react-datepicker": "^4.15.0",
+    "react-day-picker": "^8.10.1",
     "react-dom": "^18.2.0",
     "react-i18next": "^13.2.2",
     "react-live-clock": "^6.1.15",

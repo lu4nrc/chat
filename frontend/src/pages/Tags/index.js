@@ -143,7 +143,7 @@ const Tags = () => {
           <h2 className="text-2xl font-semibold leading-none tracking-tight text-foreground">
             Atendimentos
           </h2>
-          <Button disabled onClick={() => setTagOpen(true)}>
+          <Button  onClick={() => setTagOpen(true)}>
             <Plus /> Adicionar Tag
           </Button>
         </div>
@@ -189,7 +189,7 @@ const Tags = () => {
             </CardContent>
           </Card>
 
-          <TagModal open={tagOpen} onClose={handleCloseTag} value={v} />
+          <TagModal open={tagOpen} setOpen={setTagOpen} value={v} />
         </div>
       </div>
     </div>

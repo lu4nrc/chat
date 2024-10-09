@@ -18,6 +18,7 @@ import {
 } from "@/components/ui/card";
 import toastError from "@/errors/toastError";
 import Maintenance from "@/components/Maintenance";
+import { Badge } from "@/components/ui/badge";
 
 const reducer = (state, action) => {
   if (action.type === "LOAD_CONTACTS") {
@@ -190,18 +191,15 @@ const Search = () => {
   };
   return (
     <>
-<Maintenance/>
-      {/* <Stack p={2} spacing={2}>
-   
-      <Stack spacing={2}>
-        <Typography variant="h5">Conversas</Typography>
-        <Stack
-          direction={"row"}
-          alignItems={"center"}
-          justifyContent={"space-between"}
-          spacing={3}
-        >
-           <StyledInput
+     {/*  <div className="h-full flex flex-col gap-2 p-4 sm:px-6 sm:py-2 md:gap-4">
+        <div className="flex items-center gap-2">
+          <h1 className="text-2xl font-semibold leading-none tracking-tight text-foreground">
+            Atendimentos
+          </h1>
+          <Badge className="ml-auto sm:ml-0">Beta</Badge>
+        </div>
+        <div className="grid ">
+          <StyledInput
             size="small"
             placeholder="Localizar Mensagem..."
             type="search"
@@ -214,173 +212,166 @@ const Search = () => {
                 </InputAdornment>
               ),
             }}
-          /> 
+          />
 
-          <Stack direction={"row"}>
-            <Stack direction={"row"} flex={1}>
-              <DateRangePicker
-                localeText={{
-                  start: "Data Inicial",
-                  end: "Data Final",
-                }}
-                slotProps={{ textField: { size: "small" } }}
-                onChange={(v) => setDates(v)}
-                closeOnSelect
-                sx={{ width: 300, marginRight: 2 }}
-              />
-            </Stack>
-            <Stack
-              direction={"row"}
-              spacing={2}
-              flex={1}
-              justifyContent="flex-end"
+          <div direction={"row"} flex={1}>
+            <DateRangePicker
+              localeText={{
+                start: "Data Inicial",
+                end: "Data Final",
+              }}
+              slotProps={{ textField: { size: "small" } }}
+              onChange={(v) => setDates(v)}
+              closeOnSelect
+              sx={{ width: 300, marginRight: 2 }}
+            />
+          </div>
+          <div direction={"row"} spacing={2} flex={1} justifyContent="flex-end">
+            <TextField
+              sx={{ width: 150 }}
+              select
+              label="Departamento"
+              shrink="true"
+              value={queueId}
+              name="searchQueueId"
+              size="small"
             >
-              <TextField
-                sx={{ width: 150 }}
-                select
-                label="Departamento"
-                shrink="true"
-                value={queueId}
-                name="searchQueueId"
-                size="small"
-              >
-                {queue.map((e) => {
-                  return (
-                    <MenuItem
-                      value={e.id}
-                      key={e.id}
-                      onClick={() => {
-                        if (e.id === queueId) {
-                          setQueueId("");
-                        } else {
-                          setQueueId(e.id);
-                        }
-                      }}
-                    >
-                      {e.name}
-                    </MenuItem>
-                  );
-                })}
-              </TextField>
+              {queue.map((e) => {
+                return (
+                  <MenuItem
+                    value={e.id}
+                    key={e.id}
+                    onClick={() => {
+                      if (e.id === queueId) {
+                        setQueueId("");
+                      } else {
+                        setQueueId(e.id);
+                      }
+                    }}
+                  >
+                    {e.name}
+                  </MenuItem>
+                );
+              })}
+            </TextField>
 
-              <TextField
-                sx={{ width: 150 }}
-                select
-                label="Usuário"
-                shrink="true"
-                value={userId}
-                name="searchUserId"
-                size="small"
-              >
-                {users.map((e) => {
-                  return (
-                    <MenuItem
-                      value={e.id}
-                      key={e.id}
-                      onClick={() => {
-                        if (e.id === userId) {
-                          setUserId("");
-                        } else {
-                          setUserId(e.id);
-                        }
-                      }}
-                    >
-                      {e.name}
-                    </MenuItem>
-                  );
-                })}
-              </TextField>
-              <TextField
-                sx={{ width: 150 }}
-                select
-                label="Status"
-                shrink="true"
-                value={status}
-                name="status"
-                size="small"
-              >
-                {["open", "closed", "pending"].map((e) => {
-                  return (
-                    <MenuItem
-                      value={e}
-                      key={e}
-                      onClick={() => {
-                        if (e === status) {
-                          setStatus(null);
-                        } else {
-                          setStatus(e);
-                        }
-                      }}
-                    >
-                      {e === "open"
-                        ? "Aberto"
-                        : e === "closed"
-                        ? "Fechado"
-                        : "Aguardando"}
-                    </MenuItem>
-                  );
-                })}
-              </TextField>
-            </Stack>
-            <Button
-              variant="contained"
-              onClick={fetchTicketsGeneral}
-              sx={{ height: 40, marginLeft: 2 }}
+            <TextField
+              sx={{ width: 150 }}
+              select
+              label="Usuário"
+              shrink="true"
+              value={userId}
+              name="searchUserId"
+              size="small"
             >
-              Filtrar
-            </Button>
-          </Stack>
-        </Stack>
-      </Stack>
-      <Stack sx={{ width: "100%", overflow: "hidden" }}>
-        <TableContainer
-          onScroll={handleScroll}
-          sx={{ maxHeight: `calc(100vh - 160px)` }}
-        >
-          <Table stickyHeader size="small">
-            <TableHead>
-              <TableRow>
-                <TableCell padding="checkbox" />
-                <TableCell>Nome</TableCell>
-                <TableCell align="center">WhatsApp</TableCell>
-                <TableCell align="center">Data da conversa</TableCell>
-                <TableCell align="center">Status</TableCell>
-                <TableCell align="center">Ações</TableCell>
-              </TableRow>
-            </TableHead>
+              {users.map((e) => {
+                return (
+                  <MenuItem
+                    value={e.id}
+                    key={e.id}
+                    onClick={() => {
+                      if (e.id === userId) {
+                        setUserId("");
+                      } else {
+                        setUserId(e.id);
+                      }
+                    }}
+                  >
+                    {e.name}
+                  </MenuItem>
+                );
+              })}
+            </TextField>
+            <TextField
+              sx={{ width: 150 }}
+              select
+              label="Status"
+              shrink="true"
+              value={status}
+              name="status"
+              size="small"
+            >
+              {["open", "closed", "pending"].map((e) => {
+                return (
+                  <MenuItem
+                    value={e}
+                    key={e}
+                    onClick={() => {
+                      if (e === status) {
+                        setStatus(null);
+                      } else {
+                        setStatus(e);
+                      }
+                    }}
+                  >
+                    {e === "open"
+                      ? "Aberto"
+                      : e === "closed"
+                      ? "Fechado"
+                      : "Aguardando"}
+                  </MenuItem>
+                );
+              })}
+            </TextField>
+          </div>
+          <Button
+            variant="contained"
+            onClick={fetchTicketsGeneral}
+            sx={{ height: 40, marginLeft: 2 }}
+          >
+            Filtrar
+          </Button>
+        </div>
 
-            <TableBody>
-              {tickets.map((chat) => (
-                <TableRow key={chat.id}>
-                  <TableCell>
-                    {<Avatar src={chat.contact.profilePicUrl} />}
-                  </TableCell>
-                  <TableCell>{chat.contact.name}</TableCell>
-                  <TableCell align="center">{chat.contact.number}</TableCell>
-                  <TableCell align="center">
-                    {dayjs(chat.updatedAt).format("DD/MM/YYYY")}
-                  </TableCell>
-                  <TableCell align="center">
-                    {handleStatusLabel(chat.status)}
-                  </TableCell>
-                  <TableCell align="center">
-                    <IconButton
-                      size="small"
-                      onClick={() => {
-                        navigate(`/tickets/${chat.id}`);
-                      }}
-                    >
-                      <WhatsappLogo size={24} />
-                    </IconButton>
-                  </TableCell>
+        <div sx={{ width: "100%", overflow: "hidden" }}>
+          <TableContainer
+            onScroll={handleScroll}
+            sx={{ maxHeight: `calc(100vh - 160px)` }}
+          >
+            <Table stickyHeader size="small">
+              <TableHead>
+                <TableRow>
+                  <TableCell padding="checkbox" />
+                  <TableCell>Nome</TableCell>
+                  <TableCell align="center">WhatsApp</TableCell>
+                  <TableCell align="center">Data da conversa</TableCell>
+                  <TableCell align="center">Status</TableCell>
+                  <TableCell align="center">Ações</TableCell>
                 </TableRow>
-              ))}
-              {loading && <TableRowSkeleton avatar columns={3} />}
-            </TableBody>
-          </Table>
-        </TableContainer>
-      </Stack>
-    </Stack>  */}
+              </TableHead>
+
+              <TableBody>
+                {tickets.map((chat) => (
+                  <TableRow key={chat.id}>
+                    <TableCell>
+                      {<Avatar src={chat.contact.profilePicUrl} />}
+                    </TableCell>
+                    <TableCell>{chat.contact.name}</TableCell>
+                    <TableCell align="center">{chat.contact.number}</TableCell>
+                    <TableCell align="center">
+                      {dayjs(chat.updatedAt).format("DD/MM/YYYY")}
+                    </TableCell>
+                    <TableCell align="center">
+                      {handleStatusLabel(chat.status)}
+                    </TableCell>
+                    <TableCell align="center">
+                      <IconButton
+                        size="small"
+                        onClick={() => {
+                          navigate(`/tickets/${chat.id}`);
+                        }}
+                      >
+                        <WhatsappLogo size={24} />
+                      </IconButton>
+                    </TableCell>
+                  </TableRow>
+                ))}
+                {loading && <TableRowSkeleton avatar columns={3} />}
+              </TableBody>
+            </Table>
+          </TableContainer>
+        </div>
+      </div> */}
     </>
   );
 };

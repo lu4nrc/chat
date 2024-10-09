@@ -12,9 +12,23 @@ import { Label } from "@/components/ui/label";
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
 import Tags from "./Tags";
 import { useState } from "react";
+import { Button } from "../ui/button";
+import { Check, Copy } from "lucide-react";
 
 export default function ContactDrawer({ contact }) {
   const [open, setOpen] = useState(false);
+  const [copied, setCopied] = useState(false);
+
+  const copyToClipboard = () => {
+    navigator.clipboard
+      .writeText(contact.number)
+      .then(() => {
+        setCopied(true);
+        setTimeout(() => setCopied(false), 2000); // Reseta a mensagem após 2 segundos
+      })
+      .catch((err) => console.error("Failed to copy: ", err));
+  };
+
   function formatPhoneNumber(phoneNumber) {
     // Remove todos os caracteres não numéricos
     const cleaned = ("" + phoneNumber).replace(/\D/g, "");
@@ -29,7 +43,7 @@ export default function ContactDrawer({ contact }) {
   }
 
   return (
-    <Dialog  open={open} onOpenChange={setOpen} >
+    <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
         <Avatar className="h-12 w-12" alt="contact_image">
           <AvatarImage src={contact.profilePicUrl} alt="@contact" />
@@ -39,21 +53,34 @@ export default function ContactDrawer({ contact }) {
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
           <DialogTitle>Informações do contato</DialogTitle>
-          <DialogDescription>
+          {/*  <DialogDescription>
             Adicione tags e Informações relevantes
-          </DialogDescription>
+          </DialogDescription> */}
         </DialogHeader>
         <div className="grid gap-4 py-4">
-          <div className="flex items-center gap-4">
-            <Avatar className="hidden h-9 w-9 sm:flex">
+          <div className="flex gap-4">
+            <Avatar className="hidden h-16 w-16 sm:flex">
               <AvatarImage src={contact.profilePicUrl} alt={contact.name} />
               <AvatarFallback>HC</AvatarFallback>
             </Avatar>
             <div className="grid gap-1">
               <p className=" font-medium">{contact.name}</p>
-              <p className="text-sm text-muted-foreground">
-                {contact.number ? formatPhoneNumber(contact.number) : null}
-              </p>
+              <div className="flex gap-2 items-center justify-between">
+                <p className="text-lg text-muted-foreground">
+                  {contact.number ? formatPhoneNumber(contact.number) : null}
+                </p>
+                <Button variant="ghost" size="sm" onClick={copyToClipboard}>
+                  {copied ? (
+                    <div className="flex justify-center text-green-500 text-xs items-center gap-2">
+                      <Check className="w-4 h-4 " /> Copiado!
+                    </div>
+                  ) : (
+                    <div className="flex justify-center items-center text-xs gap-2">
+                      <Copy className="w-4 h-4" /> Copiar
+                    </div>
+                  )}
+                </Button>
+              </div>
             </div>
           </div>
 
