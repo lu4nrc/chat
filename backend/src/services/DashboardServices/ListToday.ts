@@ -1,5 +1,6 @@
 import Ticket from "../../models/Ticket";
 import { Includeable, Op } from "sequelize";
+import { get, set } from "../../libs/cache";
 import {
   startOfDay,
   endOfDay,
@@ -21,7 +22,14 @@ interface Response {
   outin: any;
 }
 
+const CACHE_KEY = "dashboard:listToday";
+
 const ListToday = async (): Promise<Response> => {
+  const cachedResponse = get<Response>(CACHE_KEY);
+  if (cachedResponse) {
+    return cachedResponse;
+  }
+
   const includeCondition: Includeable[] = [
     {
       model: User,
@@ -200,7 +208,7 @@ const ListToday = async (): Promise<Response> => {
     (a, b) => parseInt(a.hour, 10) - parseInt(b.hour, 10)
   );
 
-  return {
+  const response = {
     today: sortedHours,
     status: grouped.status,
     media: grouped.media,
@@ -208,6 +216,10 @@ const ListToday = async (): Promise<Response> => {
     users: grouped.users,
     outin: grouped.outin
   };
+
+  set(CACHE_KEY, response, 300); // Cache for 5 minutes
+
+  return response;
 };
 
 export default ListToday;

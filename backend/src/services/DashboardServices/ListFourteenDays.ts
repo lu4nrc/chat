@@ -1,16 +1,17 @@
 import Ticket from "../../models/Ticket";
 import { Includeable, Op } from "sequelize";
+import { get, set } from "../../libs/cache";
 import {
   startOfDay,
   endOfDay,
   subDays,
   differenceInMinutes,
-  format
+  format,
+  isEqual
 } from "date-fns";
 import User from "../../models/User";
 import Contact from "../../models/Contact";
 import Queue from "../../models/Queue";
-import { init } from "@sentry/node";
 
 interface Response {
   today: any;
@@ -21,7 +22,14 @@ interface Response {
   outin: any;
 }
 
-const ListSevenDays = async (): Promise<Response> => {
+const CACHE_KEY = "dashboard:listFourteenDays";
+
+const ListFourteenDays = async (): Promise<Response> => {
+  const cachedResponse = get<Response>(CACHE_KEY);
+  if (cachedResponse) {
+    return cachedResponse;
+  }
+
   const includeCondition: Includeable[] = [
     {
       model: User,
@@ -41,14 +49,13 @@ const ListSevenDays = async (): Promise<Response> => {
   ];
 
   const today = new Date();
-  //const sevenDaysAgo = subDays(today, 7);
-  const fourteenDaysAgo = subDays(today, 14);
+  const fourteenDaysAgo = subDays(today, 14); // Changed from 7 to 14
 
   const tickets = await Ticket.findAll({
     where: {
       isGroup: false,
       createdAt: {
-        [Op.between]: [startOfDay(fourteenDaysAgo), endOfDay(today)]
+        [Op.between]: [startOfDay(fourteenDaysAgo), endOfDay(today)] // Use fourteenDaysAgo
       }
     },
     include: includeCondition,
@@ -202,7 +209,7 @@ const ListSevenDays = async (): Promise<Response> => {
     (a, b) => new Date(a.date) - new Date(b.date)
   );
 
-  return {
+  const response = {
     today: sortedHours,
     status: grouped.status,
     media: grouped.media,
@@ -210,6 +217,10 @@ const ListSevenDays = async (): Promise<Response> => {
     users: grouped.users,
     outin: grouped.outin
   };
+
+  set(CACHE_KEY, response, 300); // Cache for 5 minutes
+
+  return response;
 };
 
-export default ListSevenDays;
+export default ListFourteenDays;
