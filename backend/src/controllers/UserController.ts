@@ -8,11 +8,12 @@ import CreateUserService from "../services/UserServices/CreateUserService";
 import ListUsersService from "../services/UserServices/ListUsersService";
 import ResetPassService from "../services/UserServices/ResetPassUserService";
 import UpdateUserService from "../services/UserServices/UpdateUserService";
-
+import UpdateUserStatusService from "../services/UserServices/UpdateUserStatusService"; // Corrected import alias
 import ShowUserService from "../services/UserServices/ShowUserService";
 import DeleteUserService from "../services/UserServices/DeleteUserService";
 import UpdateProfileImageService from "../services/UserServices/UpdateProfileImageService";
-import UpdateStatusUserService from "../services/UserServices/UpdateStatusUserService";
+// The old 'UpdateStatusUserService' import is removed if it was on a line here.
+// The new 'UpdateUserStatusService' is already correctly imported.
 import UpdateDatetimeUserService from "../services/UserServices/UpdateDatetimeUserService";
 import sharp from "sharp";
 import path from "path";
@@ -192,4 +193,27 @@ export const remove = async (
   });
 
   return res.status(200).json({ message: "User deleted" });
+};
+
+export const updateStatus = async (
+  req: Request,
+  res: Response
+): Promise<Response> => {
+  const { newStatus } = req.body;
+  const userId = req.user.id; // User updates their own status
+
+  if (!newStatus) {
+    throw new AppError("Missing newStatus parameter", 400);
+  }
+
+  const updatedUser = await UpdateUserStatusService({ // Use the corrected service import
+    userId,
+    newStatus
+  });
+
+  // Optionally, emit a socket event if other parts of the app need to know about status changes
+  // const io = getIO();
+  // io.emit("userStatusUpdate", { userId, newStatus });
+
+  return res.status(200).json(updatedUser); // Or a success message
 };

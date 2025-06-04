@@ -16,6 +16,7 @@ import InfiniteScroll from "@/components/ui/InfiniteScroll";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Badge } from "@/components/ui/badge";
 import ModalProfileCors from "@/components/ModalProfileCors";
+import StatusDot from "../../components/ui/StatusDot"; // Import the new StatusDot component
 
 const reducer = (state, action) => {
   if (action.type === "LOAD_USERS") {
@@ -204,9 +205,11 @@ const Users = () => {
           </Button>
         </div>
 
-        <div className="grid grid-cols-4 text-muted-foreground bg-muted">
+        <div className="grid grid-cols-5 text-muted-foreground bg-muted"> {/* Updated to grid-cols-5 */}
           <h4 className=" py-2 pl-2 text-sm font-medium leading-none">Nome</h4>
-
+          <h4 className=" py-2 text-sm font-medium text-center leading-none"> {/* New Status column header */}
+            Status
+          </h4>
           <h4 className=" py-2 text-sm font-medium text-center leading-none">
             Perfil
           </h4>
@@ -222,7 +225,7 @@ const Users = () => {
             <div className="flex w-full flex-col items-center">
               {users.map((user) => (
                 <div
-                  className="grid grid-cols-4 w-full border-b py-1  items-center text-base leading-2"
+                  className="grid grid-cols-5 w-full border-b py-1 items-center text-base leading-2" /* Updated to grid-cols-5 */
                   key={user.id}
                 >
                   <div className="pl-2 flex gap-1 items-center">
@@ -233,6 +236,10 @@ const Users = () => {
                         {user.email}
                       </span>
                     </div>
+                  </div>
+
+                  <div className="text-center"> {/* New Status cell */}
+                    <StatusDot status={user.status} />
                   </div>
 
                   <div className="text-center">

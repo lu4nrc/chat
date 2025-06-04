@@ -24,4 +24,7 @@ userRoutes.get("/users/:userId", isAuth, UserController.show);
 
 userRoutes.delete("/users/:userId", isAuth, UserController.remove);
 
+// Route for user to update their own status
+userRoutes.put("/users/status", isAuth, UserController.updateStatus);
+
 export default userRoutes;

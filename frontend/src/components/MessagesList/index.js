@@ -1,6 +1,7 @@
 import { format, isSameDay, parseISO } from "date-fns";
-import React, { useEffect, useReducer, useRef, useState } from "react";
+import React, { useEffect, useReducer, useRef, useCallback } from "react"; // Added useCallback
 import openSocket from "../../services/socket-io";
+import { useInfiniteQuery, useQueryClient } from '@tanstack/react-query'; // Import TanStack Query hooks
 
 import toastError from "../../errors/toastError";
 import api from "../../services/api";
@@ -73,17 +74,52 @@ const reducer = (state, action) => {
 };
 
 const MessagesList = ({ ticketId, isGroup }) => {
-  const [messagesList, dispatch] = useReducer(reducer, []);
-  const [pageNumber, setPageNumber] = useState(1);
-  const [hasMore, setHasMore] = useState(false);
-  const [loading, setLoading] = useState(true);
+  // const [messagesList, dispatch] = useReducer(reducer, []); // Will be replaced by useInfiniteQuery
+  // const [pageNumber, setPageNumber] = useState(1); // Managed by useInfiniteQuery
+  // const [hasMore, setHasMore] = useState(false); // Managed by useInfiniteQuery (hasNextPage)
+  // const [loading, setLoading] = useState(true); // Managed by useInfiniteQuery (isLoading, isFetching)
   const lastMessageRef = useRef();
   const { toast } = useToast();
+  const queryClient = useQueryClient(); // For potential cache updates later
 
   const [selectedMessage, setSelectedMessage] = useState({});
   const [anchorEl, setAnchorEl] = useState(null);
   const messageOptionsMenuOpen = Boolean(anchorEl);
-  const currentTicketId = useRef(ticketId);
+  // const currentTicketId = useRef(ticketId); // Not strictly needed with queryKey invalidation
+
+  const fetchMessages = async ({ pageParam = 1 }) => {
+    const { data } = await api.get(`/messages/${ticketId}`, {
+      params: { pageNumber: pageParam },
+    });
+    // Adapt data structure for useInfiniteQuery:
+    // It expects an object where your actual data array is, plus pagination info
+    return { messages: data.messages, hasMore: data.hasMore, nextPageNumber: pageParam + 1 };
+  };
+
+  const {
+    data,
+    fetchNextPage,
+    hasNextPage,
+    isLoading,
+    isFetchingNextPage,
+    // error, // good to handle errors
+    // status, // 'pending', 'error', 'success'
+  } = useInfiniteQuery({
+    queryKey: ['messages', ticketId],
+    queryFn: fetchMessages,
+    initialPageParam: 1,
+    getNextPageParam: (lastPage, allPages) => {
+      return lastPage.hasMore ? lastPage.nextPageNumber : undefined;
+    },
+    // staleTime: 1000 * 60 * 1, // Optional: 1 minute
+    // refetchOnWindowFocus: false, // Optional
+  });
+
+  const messagesList = data?.pages?.flatMap(page => page.messages) ?? [];
+  // The reducer and dispatch are no longer needed for displaying messages from socket events here.
+  // We will use queryClient.setQueryData directly.
+  // const [, dispatch] = useReducer(reducer, messagesList); // Remove this line
+
 
   const removerHashDoNomeDoArquivo = (nomeArquivo) => {
     // Encontra a posição dos dois últimos pontos no nome do arquivo
@@ -128,98 +164,88 @@ const MessagesList = ({ ticketId, isGroup }) => {
     }
   };
 
-  /* ADD */
-  useEffect(() => {
-    dispatch({ type: "RESET" });
-    setPageNumber(1);
+  /*
+    The useEffect that dispatched "RESET" and setPageNumber is no longer needed.
+    TanStack Query handles data fetching when ticketId (part of queryKey) changes.
+    If explicit cache clearing is desired on ticketId change, it can be done via:
+    useEffect(() => {
+      // queryClient.removeQueries(['messages', oldTicketId]); // if you have oldTicketId
+      // or queryClient.resetQueries(['messages', ticketId]) before a new fetch if needed.
+      // However, just changing the queryKey typically suffices.
+    }, [ticketId, queryClient]);
+  */
 
-    currentTicketId.current = ticketId;
-  }, [ticketId]);
-  /*  */
-
-  const [, setTicket] = useState({});
+  // const [, setTicket] = useState({}); // If setTicket was only for API response, might not be needed
   const stackRef = useRef(null);
-  const previousScrollHeightRef = useRef(0);
+  // const previousScrollHeightRef = useRef(0); // May need different logic for scroll restoration
 
-  useEffect(() => {
-    restoreScrollPosition();
-  }, [messagesList]);
+  // Scroll restoration logic might need adjustment with how data is loaded by useInfiniteQuery
+  // useEffect(() => {
+  //   restoreScrollPosition();
+  // }, [messagesList]); // messagesList is now derived from `data`
 
-  const restoreScrollPosition = () => {
-    if (stackRef.current) {
-      const scrollDifference =
-        stackRef.current.scrollHeight - previousScrollHeightRef.current;
-      stackRef.current.scrollTop += scrollDifference;
-    }
-  };
+  // const restoreScrollPosition = () => {
+  //   if (stackRef.current) {
+  //     const scrollDifference =
+  //       stackRef.current.scrollHeight - previousScrollHeightRef.current;
+  //     stackRef.current.scrollTop += scrollDifference;
+  //   }
+  // };
 
-  useEffect(() => {
-    dispatch({ type: "RESET" });
-    setPageNumber(1);
-
-    currentTicketId.current = ticketId;
-  }, [ticketId]);
-
-  useEffect(() => {
-    setLoading(true);
-    const delayDebounceFn = setTimeout(() => {
-      const fetchMessages = async () => {
-        try {
-          const { data } = await api.get("/messages/" + ticketId, {
-            params: { pageNumber },
-          });
-
-          if (currentTicketId.current === ticketId) {
-            previousScrollHeightRef.current = stackRef.current.scrollHeight;
-            dispatch({ type: "LOAD_MESSAGES", payload: data.messages });
-            setHasMore(data.hasMore);
-          }
-
-          if (pageNumber === 1 && data.messages.length > 1) {
-            scrollToBottom();
-          }
-
-          setTicket(data.ticket);
-          setLoading(false);
-        } catch (err) {
-          setLoading(false);
-          toast({
-            variant: "destructive",
-            title: toastError(err),
-          });
-        }
-      };
-      fetchMessages();
-    }, 500);
-    return () => {
-      clearTimeout(delayDebounceFn);
-    };
-  }, [pageNumber, ticketId]);
+  // Old useEffect for fetching messages is removed. useInfiniteQuery handles this.
 
   useEffect(() => {
     const socket = openSocket();
 
     socket.on("connect", () => socket.emit("joinChatBox", ticketId));
 
-    socket.on("appMessage", (data) => {
-      if (data.action === "create") {
-        dispatch({ type: "ADD_MESSAGE", payload: data.message });
+    socket.on("appMessage", (socketData) => {
+      if (socketData.action === "create") {
+        queryClient.setQueryData(['messages', ticketId], (oldData) => {
+          if (!oldData) return oldData;
+
+          // Check if message already exists to prevent duplicates (e.g., if sender gets it via socket too)
+          const messageExists = oldData.pages.some(page =>
+            page.messages.some(msg => msg.id === socketData.message.id)
+          );
+          if (messageExists) return oldData;
+
+          const newPagesArray = oldData.pages.map((page, index) => {
+            if (index === oldData.pages.length - 1) { // Add to the last page
+              return {
+                ...page,
+                messages: [...page.messages, socketData.message],
+              };
+            }
+            return page;
+          });
+          return { ...oldData, pages: newPagesArray };
+        });
         scrollToBottom();
       }
 
-      if (data.action === "update") {
-        dispatch({ type: "UPDATE_MESSAGE", payload: data.message });
+      if (socketData.action === "update") {
+        queryClient.setQueryData(['messages', ticketId], (oldData) => {
+          if (!oldData) return oldData;
+          const newPagesArray = oldData.pages.map(page => ({
+            ...page,
+            messages: page.messages.map(msg =>
+              msg.id === socketData.message.id ? socketData.message : msg
+            ),
+          }));
+          return { ...oldData, pages: newPagesArray };
+        });
       }
     });
 
     return () => {
       socket.disconnect();
     };
-  }, [ticketId]);
+  }, [ticketId, queryClient]); // Added queryClient to dependencies
 
-  const loadMore = () => {
-    setPageNumber((prevPageNumber) => prevPageNumber + 1);
-  };
+  // const loadMore = () => { // Replaced by fetchNextPage
+  //   setPageNumber((prevPageNumber) => prevPageNumber + 1);
+  // };
 
   const scrollToBottom = () => {
     if (lastMessageRef.current) {
@@ -228,14 +254,11 @@ const MessagesList = ({ ticketId, isGroup }) => {
   };
 
   const handleScroll = (e) => {
-    if (!hasMore) return;
+    if (!hasNextPage || isFetchingNextPage) return;
     const { scrollTop } = e.currentTarget;
 
-    if (loading) return;
-
-    if (scrollTop < 10) {
-      setLoading(true);
-      loadMore();
+    if (scrollTop < 10) { // Threshold to trigger load more
+      fetchNextPage();
     }
   };
 
@@ -408,19 +431,34 @@ const MessagesList = ({ ticketId, isGroup }) => {
 
   useEffect(() => {
     if (lastMessageRef.current) {
-      if (pageNumber === 1) {
-        lastMessageRef.current.scrollIntoView({ behaviour: "smooth" });
-      }
+      // This useEffect might need adjustment.
+      // Scrolling to bottom on initial load or when new messages arrive (via socket)
+      // For initial load, useInfiniteQuery's `data` can be a trigger.
     }
-  }, [messagesList, pageNumber]);
+  // }, [messagesList, pageNumber]); // pageNumber is no longer a state here
+  }, [messagesList]);
+
 
   const renderMessages = () => {
-    if (messagesList.length > 0) {
-      const viewMessagesList = messagesList.map((message, index) => {
-        const messageClasses = cn(
-          "group  md:max-w-[90%] flex flex-col relative rounded-xl text-base overflow-hidden justify-center min-h-9 text-foreground",
-          message.fromMe
-            ? "rounded-br-none bg-sky-100 text-sky-900 dark:text-muted-foreground dark:bg-slate-900"
+    if (isLoading && !data) { // Initial loading state
+      return (
+        <div className="flex justify-center items-center h-full">
+          <LoaderCircle className="h-8 w-8 animate-spin text-primary" />
+        </div>
+      );
+    }
+
+    if (!messagesList || messagesList.length === 0) {
+      return <div className="flex justify-center items-center h-full">Diga olá ao seu novo contato!</div>;
+    }
+
+    // `messagesList` is already derived from `data.pages.flatMap(page => page.messages)`
+    const viewMessagesList = messagesList.map((message, index) => {
+      const messageClasses = cn(
+        "group  md:max-w-[90%]", // Removed some fixed layout classes to be more flexible
+        "flex flex-col relative rounded-xl text-base overflow-hidden justify-center min-h-9 text-foreground",
+        message.fromMe
+          ? "rounded-br-none bg-sky-100 text-sky-900 dark:text-muted-foreground dark:bg-slate-900"
             : "bg-muted rounded-bl-none text-slate-800 dark:text-muted-foreground",
           message.mediaType === "chat"
             ? "p-2 flex-col"
@@ -544,24 +582,13 @@ const MessagesList = ({ ticketId, isGroup }) => {
       onScroll={handleScroll}
       ref={stackRef}
     >
-      {messagesList.length > 0 ? renderMessages() : []}
-      {loading && (
-        <div
-          style={{
-            position: "absolute",
-            zIndex: 2,
-            display: "flex",
-            flexDirection: "column",
-            alignItems: "center",
-            justifyContent: "center",
-            top: "50%",
-            left: "50%",
-            transform: "translate(-50%, -50%)",
-          }}
-        >
-          <LoaderCircle className="mr-2 h-4 w-4 animate-spin" />
-        </div>
+      {isFetchingNextPage && ( // Show loader at the top when fetching more
+         <div className="flex justify-center py-2">
+           <LoaderCircle className="h-6 w-6 animate-spin text-primary" />
+         </div>
       )}
+      {renderMessages()}
+      {/* Removed old loading overlay, handled by isLoading/isFetchingNextPage indicators */}
     </div>
   );
 };

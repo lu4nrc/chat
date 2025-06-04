@@ -36,7 +36,7 @@ class User extends Model<User> {
 
   @Default("inactive")
   @Column
-  status: string;
+  status: string; // This will now be used for online/offline status as per new requirement.
 
   @Column(DataType.VIRTUAL)
   password: string;

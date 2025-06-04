@@ -15,6 +15,7 @@ import {
 } from "@/components/ui/command";
 import api from "@/services/api";
 import ModalProfileCors from "../ModalProfileCors";
+import StatusDot from "./StatusDot"; // Import the new StatusDot component
 
 export default function ComboboxUser({ setUser }) {
   const [open, setOpen] = useState(false);
@@ -102,12 +103,12 @@ function SearchResults({ data, selectedResult, onSelectResult, isLoading }) {
         <div className="p-4 text-sm">Contato não encontrado</div>
       )}
 
-      {data.map(({ id, name, imageUrl, queues }) => (
+      {data.map(({ id, name, imageUrl, queues, status }) => ( // Added status here
         <CommandItem
           key={id}
-          onSelect={() => onSelectResult({ id, name, queues, imageUrl })}
+          onSelect={() => onSelectResult({ id, name, queues, imageUrl, status })} // Pass status
           value={name}
-          className="flex gap-1"
+          className="flex items-center gap-1" // Ensure items are centered
         >
           <Check
             className={cn(
@@ -115,10 +116,9 @@ function SearchResults({ data, selectedResult, onSelectResult, isLoading }) {
               selectedResult?.id === id ? "opacity-100" : "opacity-0"
             )}
           />
-          <div className="flex gap-1 items-center">
-            <ModalProfileCors imageUrl={imageUrl} />
-            <p className="font-medium">{name}</p>
-          </div>
+          <ModalProfileCors imageUrl={imageUrl} />
+          <StatusDot status={status} />
+          <p className="font-medium">{name}</p>
         </CommandItem>
       ))}
     </CommandList>

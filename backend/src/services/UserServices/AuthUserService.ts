@@ -6,6 +6,7 @@ import {
 } from "../../helpers/CreateTokens";
 import { SerializeUser } from "../../helpers/SerializeUser";
 import Queue from "../../models/Queue";
+import { getIO } from "../../libs/socket"; // Import getIO
 
 interface SerializedUser {
   id: number;
@@ -43,15 +44,23 @@ const AuthUserService = async ({
     throw new AppError("ERR_INVALID_CREDENTIALS", 401);
   }
   await user.update({
-    datetime:new Date(),
-    status:"active"
-  })
-  await user.reload();
+    datetime: new Date(),
+    status: "online" // Update existing status to "online"
+  });
+  // No need to reload if we are not immediately using the reloaded data for serialization directly here.
+  // The user object in memory is updated.
 
   const token = createAccessToken(user);
   const refreshToken = createRefreshToken(user);
 
   const serializedUser = SerializeUser(user);
+
+  // The user.status is now "online" from the update above.
+  const io = getIO();
+  io.emit("user:status:updated", {
+    userId: user.id,
+    status: user.status // which is "online"
+  });
 
   return {
     serializedUser,

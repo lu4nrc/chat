@@ -26,6 +26,7 @@ import {
 import { useToast } from "@/hooks/use-toast";
 import MultipleSelector from "../ui/multiple-selector"; // Importando o selector
 import { LoaderCircle } from "lucide-react";
+import StatusDot from "../ui/StatusDot"; // Import the new StatusDot component
 
 const UserSchema = Yup.object().shape({
   name: Yup.string()
@@ -236,6 +237,16 @@ const UserModal = ({ userId, open, setOpen }) => {
                     </SelectContent>
                   </Select>
                 </div>
+
+                {userId && user && user.status && (
+                  <div className="grid w-full items-center gap-1.5 relative pb-1"> {/* Reduced pb for tighter spacing if needed */}
+                    <Label htmlFor="statusDisplay">Status</Label>
+                    <div className="flex items-center mt-1">
+                      <StatusDot status={user.status} />
+                      <span className="ml-2">{user.status.charAt(0).toUpperCase() + user.status.slice(1)}</span>
+                    </div>
+                  </div>
+                )}
 
                 <div className="grid w-full items-center gap-1.5 relative pb-5">
                   <Label htmlFor="whatsappId">Definir conexão padrão</Label>
