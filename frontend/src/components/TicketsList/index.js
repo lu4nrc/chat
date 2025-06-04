@@ -3,95 +3,17 @@ import openSocket from "../../services/socket-io";
 
 import TicketListItem from "../TicketListItem";
 import TicketsListSkeleton from "../TicketsListSkeleton";
+import { useInfiniteQuery, useQueryClient } from '@tanstack/react-query'; // Import TanStack Query
 
 import { AuthContext } from "../../context/Auth/AuthContext";
-import useTickets from "../../hooks/useTickets";
+// import useTickets from "../../hooks/useTickets"; // Remove useTickets
 import { useNavigate } from "react-router-dom";
 import { ScrollArea } from "../ui/scroll-area";
 import InfiniteScroll from "../ui/InfiniteScroll";
 import { Loader2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
-const reducer = (state, action) => {
-  if (action.type === "LOAD_TICKETS") {
-    const newTickets = action.payload;
-
-    newTickets.forEach((ticket) => {
-      const ticketIndex = state.findIndex((t) => t.id === ticket.id);
-      if (ticketIndex !== -1) {
-        state[ticketIndex] = ticket;
-        if (ticket.unreadMessages > 0) {
-          state.unshift(state.splice(ticketIndex, 1)[0]);
-        }
-      } else {
-        state.push(ticket);
-      }
-    });
-
-    return [...state];
-  }
-
-  if (action.type === "RESET_UNREAD") {
-    const ticketId = action.payload;
-
-    const ticketIndex = state.findIndex((t) => t.id === ticketId);
-    if (ticketIndex !== -1) {
-      state[ticketIndex].unreadMessages = 0;
-    }
-
-    return [...state];
-  }
-
-  if (action.type === "UPDATE_TICKET") {
-    const ticket = action.payload;
-
-    const ticketIndex = state.findIndex((t) => t.id === ticket.id);
-    if (ticketIndex !== -1) {
-      state[ticketIndex] = ticket;
-    } else {
-      state.unshift(ticket);
-    }
-
-    return [...state];
-  }
-
-  if (action.type === "UPDATE_TICKET_UNREAD_MESSAGES") {
-    const ticket = action.payload;
-
-    const ticketIndex = state.findIndex((t) => t.id === ticket.id);
-    if (ticketIndex !== -1) {
-      state[ticketIndex] = ticket;
-      state.unshift(state.splice(ticketIndex, 1)[0]);
-    } else {
-      state.unshift(ticket);
-    }
-
-    return [...state];
-  }
-
-  if (action.type === "UPDATE_TICKET_CONTACT") {
-    const contact = action.payload;
-    const ticketIndex = state.findIndex((t) => t.contactId === contact.id);
-    if (ticketIndex !== -1) {
-      state[ticketIndex].contact = contact;
-    }
-    return [...state];
-  }
-
-  if (action.type === "DELETE_TICKET") {
-    const ticketId = action.payload;
-    const ticketIndex = state.findIndex((t) => t.id === ticketId);
-    if (ticketIndex !== -1) {
-      state.splice(ticketIndex, 1);
-    }
-
-    return [...state];
-  }
-
-  if (action.type === "RESET") {
-    return [];
-  }
-};
+// const reducer = (state, action) => { ... }; // Reducer is no longer needed
 
 const TicketsList = (props) => {
   const {
@@ -107,34 +29,70 @@ const TicketsList = (props) => {
     sethasMoreManage
   } = props;
 
-  const [pageNumber, setPageNumber] = useState(1);
-  const [ticketsList, dispatch] = useReducer(reducer, []);
-  //console.log("ticketsList: ",ticketsList);
+  // const [pageNumber, setPageNumber] = useState(1); // Replaced by useInfiniteQuery's pageParam
   const { user } = useContext(AuthContext);
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
 
-  useEffect(() => {
-    dispatch({ type: "RESET" });
-    setPageNumber(1);
-  }, [status, searchParam, dispatch, showAll, selectedQueueIds]);
+  // useEffect(() => { // This useEffect for RESET will be removed
+  //   dispatch({ type: "RESET" });
+  //   // setPageNumber(1); // No longer needed
+  // }, [status, searchParam, dispatch, showAll, selectedQueueIds]);
 
-  const { tickets, hasMore, loading } = useTickets({
-    pageNumber,
-    searchParam,
-    status,
-    showAll,
-    queueIds: JSON.stringify(selectedQueueIds),
+  const fetchTickets = async ({ pageParam = 1 }) => {
+    const params = {
+      searchParam,
+      pageNumber: pageParam,
+      status,
+      showAll,
+      queueIds: JSON.stringify(selectedQueueIds),
+      // date: undefined, // As per plan, if needed, source them
+      // withUnreadMessages: undefined, // As per plan
+    };
+    const { data } = await api.get("/tickets", { params });
+    // API returns { tickets: [], count: number, hasMore: boolean }
+    return { tickets: data.tickets, hasMore: data.hasMore, nextPageParam: pageParam + 1, count: data.count };
+  };
+
+  const {
+    data,
+    fetchNextPage,
+    hasNextPage,
+    isLoading, // Initial load
+    isFetchingNextPage, // Subsequent page loads
+    isError,
+    error,
+  } = useInfiniteQuery({
+    queryKey: ['tickets', { status, searchParam, showAll, queueIds: selectedQueueIds }], // selectedQueueIds in key directly
+    queryFn: fetchTickets,
+    initialPageParam: 1,
+    getNextPageParam: (lastPage) => {
+      return lastPage.hasMore ? lastPage.nextPageParam : undefined;
+    },
+    enabled: !!status, // Only fetch if status is active
   });
 
-  sethasMoreManage(hasMore)
+  const ticketsDataFromQuery = data?.pages?.flatMap(page => page.tickets) ?? [];
+
+  // sethasMoreManage(hasNextPage); // Propagate hasNextPage
+
+  // useEffect(() => { // This useEffect for LOAD_TICKETS will be removed
+  //   if (!status && !searchParam && !showAll) return; // Conditions might need adjustment
+  //   // Data from useInfiniteQuery is now the source, this dispatch might be redundant
+  //   // or needs to be re-evaluated once socket logic is also moved to react-query
+  //   // For now, to keep the existing reducer logic somewhat functional with sockets:
+  //   dispatch({
+  //     type: "LOAD_TICKETS", // This action might need to be smarter or removed
+  //     payload: ticketsDataFromQuery,
+  //   });
+  // }, [ticketsDataFromQuery, status, searchParam, showAll]); // Depends on ticketsDataFromQuery
 
   useEffect(() => {
-    if (!status && !searchParam) return;
-    dispatch({
-      type: "LOAD_TICKETS",
-      payload: tickets,
-    });
-  }, [tickets]);
+    if (hasNextPage !== undefined) { // Check if hasNextPage is defined before calling
+        sethasMoreManage(hasNextPage);
+    }
+  }, [hasNextPage, sethasMoreManage]);
+
 
   useEffect(() => {
     const socket = openSocket();
@@ -155,44 +113,124 @@ const TicketsList = (props) => {
       }
     });
 
-    socket.on("ticket", (data) => {
-      if (data.action === "updateUnread") {
-        dispatch({
-          type: "RESET_UNREAD",
-          payload: data.ticketId,
+    // Define queryKey for setQueryData, using current props/state
+    const currentQueryKey = ['tickets', { status, searchParam, showAll, queueIds: selectedQueueIds }];
+
+    socket.on("ticket", (socketTicketData) => {
+      if (socketTicketData.action === "updateUnread") {
+        queryClient.setQueryData(currentQueryKey, (oldData) => {
+          if (!oldData) return oldData;
+          return {
+            ...oldData,
+            pages: oldData.pages.map(page => ({
+              ...page,
+              tickets: page.tickets.map(ticket =>
+                ticket.id === socketTicketData.ticketId ? { ...ticket, unreadMessages: 0 } : ticket
+              ),
+            })),
+          };
         });
       }
 
-      if (data.action === "update" && shouldUpdateTicket(data.ticket)) {
-        dispatch({
-          type: "UPDATE_TICKET",
-          payload: data.ticket,
+      if (socketTicketData.action === "update") {
+        if (shouldUpdateTicket(socketTicketData.ticket)) {
+          queryClient.setQueryData(currentQueryKey, (oldData) => {
+            if (!oldData) return oldData;
+            let ticketFoundAndUpdated = false;
+            const newPages = oldData.pages.map(page => ({
+              ...page,
+              tickets: page.tickets.map(ticket => {
+                if (ticket.id === socketTicketData.ticket.id) {
+                  ticketFoundAndUpdated = true;
+                  return socketTicketData.ticket;
+                }
+                return ticket;
+              }),
+            }));
+            // If ticket not found, add to the beginning of the first page
+            if (!ticketFoundAndUpdated && newPages.length > 0) {
+              newPages[0].tickets.unshift(socketTicketData.ticket);
+            } else if (!ticketFoundAndUpdated && newPages.length === 0) {
+              // If no pages exist yet (e.g. empty list), create a new page
+              // This case might be less common if initial fetch already ran
+              newPages.push({ tickets: [socketTicketData.ticket], hasMore: false, nextPageParam: 2, count: 1});
+            }
+            return { ...oldData, pages: newPages };
+          });
+        } else if (notBelongsToUserQueues(socketTicketData.ticket)) {
+          // Remove ticket if it no longer belongs to user queues
+          queryClient.setQueryData(currentQueryKey, (oldData) => {
+            if (!oldData) return oldData;
+            return {
+              ...oldData,
+              pages: oldData.pages.map(page => ({
+                ...page,
+                tickets: page.tickets.filter(ticket => ticket.id !== socketTicketData.ticket.id),
+              })),
+            };
+          });
+        }
+      }
+
+      if (socketTicketData.action === "delete") {
+        queryClient.setQueryData(currentQueryKey, (oldData) => {
+          if (!oldData) return oldData;
+          return {
+            ...oldData,
+            pages: oldData.pages.map(page => ({
+              ...page,
+              tickets: page.tickets.filter(ticket => ticket.id !== socketTicketData.ticketId),
+            })),
+          };
         });
-      }
-
-      if (data.action === "update" && notBelongsToUserQueues(data.ticket)) {
-        dispatch({ type: "DELETE_TICKET", payload: data.ticket.id });
-      }
-
-      if (data.action === "delete") {
-        dispatch({ type: "DELETE_TICKET", payload: data.ticketId });
       }
     });
 
-    socket.on("appMessage", (data) => {
-      if (data.action === "create" && shouldUpdateTicket(data.ticket)) {
-        dispatch({
-          type: "UPDATE_TICKET_UNREAD_MESSAGES",
-          payload: data.ticket,
+    socket.on("appMessage", (appMessageData) => {
+      if (appMessageData.action === "create" && shouldUpdateTicket(appMessageData.ticket)) {
+        queryClient.setQueryData(currentQueryKey, (oldData) => {
+          if (!oldData) return oldData;
+          let ticketFound = false;
+          const newPages = oldData.pages.map(page => ({
+            ...page,
+            tickets: page.tickets.map(ticket => {
+              if (ticket.id === appMessageData.ticket.id) {
+                ticketFound = true;
+                return appMessageData.ticket; // Update existing ticket
+              }
+              return ticket;
+            }),
+          }));
+
+          if (!ticketFound && newPages.length > 0) {
+            // Add to top of first page and ensure it's sorted if needed (or rely on query resort)
+            const newFirstPageTickets = [appMessageData.ticket, ...newPages[0].tickets];
+            newPages[0] = { ...newPages[0], tickets: newFirstPageTickets };
+          } else if (!ticketFound && newPages.length === 0) {
+             newPages.push({ tickets: [appMessageData.ticket], hasMore: false, nextPageParam: 2, count: 1});
+          }
+          // Optionally, re-sort or move the updated/new ticket to the top of the list across all pages
+          // For simplicity here, just adding/updating in place or at start of first page.
+          return { ...oldData, pages: newPages };
         });
       }
     });
 
-    socket.on("contact", (data) => {
-      if (data.action === "update") {
-        dispatch({
-          type: "UPDATE_TICKET_CONTACT",
-          payload: data.contact,
+    socket.on("contact", (contactData) => {
+      if (contactData.action === "update") {
+        queryClient.setQueryData(currentQueryKey, (oldData) => {
+          if (!oldData) return oldData;
+          return {
+            ...oldData,
+            pages: oldData.pages.map(page => ({
+              ...page,
+              tickets: page.tickets.map(ticket =>
+                ticket.contactId === contactData.contact.id || (ticket.contact && ticket.contact.id === contactData.contact.id)
+                  ? { ...ticket, contact: contactData.contact }
+                  : ticket
+              ),
+            })),
+          };
         });
       }
     });
@@ -200,20 +238,30 @@ const TicketsList = (props) => {
     return () => {
       socket.disconnect();
     };
-  }, [status, searchParam, showAll, user, selectedQueueIds]);
+  }, [status, searchParam, showAll, user, selectedQueueIds, queryClient, filter]); // Added queryClient and filter
 
   useEffect(() => {
     if (typeof updateCount === "function") {
-      updateCount(ticketsList.length);
+      // Use count from the first page if available (total count for the query)
+      // or the length of currently loaded tickets if total count isn't consistently provided per page.
+      const totalCount = data?.pages?.[0]?.count;
+      if (typeof totalCount === 'number') {
+        updateCount(totalCount);
+      } else {
+        updateCount(ticketsDataFromQuery.length);
+      }
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [ticketsList]);
+  }, [data, ticketsDataFromQuery, updateCount]);
+
 
   const loadMore = () => {
-    setPageNumber((prevState) => prevState + 1);
+    if (hasNextPage && !isFetchingNextPage) {
+      fetchNextPage();
+    }
   };
 
-  const mensagensFiltradas = ticketsList.filter((mensagem) => {
+  // Apply local filter to the data fetched by useInfiniteQuery
+  const mensagensFiltradas = ticketsDataFromQuery.filter((mensagem) => {
     if (!filter) {
       return true; // Retorna true para manter todas as mensagens
     }
@@ -228,7 +276,9 @@ const TicketsList = (props) => {
         allConnected ? "h-[calc(100vh-137px)]" : "h-[calc(100vh-255px)]"
       )}
     >
-      {mensagensFiltradas.length === 0 && !loading ? (
+      {isLoading && mensagensFiltradas.length === 0 ? ( // Show skeleton or loader on initial load
+        <TicketsListSkeleton /> // Or a simpler Loader2 if preferred for initial
+      ) : mensagensFiltradas.length === 0 && !isLoading && !isFetchingNextPage ? (
         <h3 className="text-center p-4">
           Parece que finalizamos todos os atendimentos 😅
           <br />
@@ -244,12 +294,12 @@ const TicketsList = (props) => {
         ))
       )}
       <InfiniteScroll
-        hasMore={hasMore}
-        isLoading={loading}
+        hasMore={hasNextPage}
+        isLoading={isFetchingNextPage} // Use isFetchingNextPage for pagination loading
         next={loadMore}
         threshold={0.5}
       >
-        {hasMore && (
+        {hasNextPage && isFetchingNextPage && ( // Show loader only when actively fetching more
           <div className="flex justify-center items-center ">
             <Loader2 className=" h-8 w-8 text-primary animate-spin" />
           </div>

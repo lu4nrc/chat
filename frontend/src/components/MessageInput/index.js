@@ -4,6 +4,7 @@ import Picker from "@emoji-mart/react";
 import MicRecorder from "mic-recorder-to-mp3";
 import React, { useContext, useEffect, useRef, useState } from "react";
 import { useOutletContext, useParams } from "react-router-dom";
+import { useMutation, useQueryClient } from '@tanstack/react-query'; // Import TanStack Query hooks
 
 //import { Menu, MenuItem } from "@mui/material";
 
@@ -40,7 +41,7 @@ const MessageInput = ({ ticketStatus }) => {
   const [medias, setMedias] = useState([]);
   const [inputMessage, setInputMessage] = useState("");
   const [showEmoji, setShowEmoji] = useState(false);
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(false); // This might be used by media/audio, keep for now
   const [recording, setRecording] = useState(false);
   const [quickAnswers, setQuickAnswer] = useState([]);
   const [typeBar, setTypeBar] = useState(false);
@@ -50,6 +51,7 @@ const MessageInput = ({ ticketStatus }) => {
     useContext(ReplyMessageContext);
   const { user } = useContext(AuthContext);
   const { toast } = useToast();
+  const queryClient = useQueryClient(); // Get queryClient instance
 
   const [signMessage, setSignMessage] = useLocalStorage("signOption", true);
 
@@ -143,11 +145,48 @@ const MessageInput = ({ ticketStatus }) => {
     return shortcut;
   };
 
+  const { mutate: sendTextMessage, isLoading: isSendingTextMessage } = useMutation(
+    (newMessage) => api.post(`/messages/${ticketId}`, newMessage),
+    {
+      onSuccess: (data) => {
+        // Assuming 'data' from api.post is the newly created message object from the server
+        const newMessage = data.data; // Adjust if API response structure is different (e.g., just data)
+
+        queryClient.setQueryData(['messages', ticketId], (oldData) => {
+          if (!oldData || !oldData.pages) {
+            // If cache is empty or has wrong structure, maybe initialize or log
+            // For now, just return oldData to prevent errors, or initialize structure:
+            // return { pages: [{ messages: [newMessage], hasMore: true, nextPageNumber: 2 }], pageParams: [1] };
+            return oldData;
+          }
+
+          const newPagesArray = oldData.pages.map((page, index) => {
+            if (index === oldData.pages.length - 1) { // Add to the last page
+              return {
+                ...page,
+                messages: [...page.messages, newMessage],
+              };
+            }
+            return page;
+          });
+          return { ...oldData, pages: newPagesArray };
+        });
+        // TODO: Call scrollToBottom() if accessible or manage globally
+      },
+      onError: (error) => {
+        toast({
+          variant: "destructive",
+          title: toastError(error),
+        });
+      }
+    }
+  );
+
   const handleSendMessage = async () => {
     if (inputMessage.trim() === "") return;
-    setLoading(true);
+    // setLoading(true); // Replaced by isSendingTextMessage from useMutation
 
-    const message = {
+    const messagePayload = {
       read: 1,
       fromMe: true,
       mediaUrl: "",
@@ -157,18 +196,11 @@ const MessageInput = ({ ticketStatus }) => {
       quotedMsg: replyingMessage,
     };
 
-    try {
-      await api.post(`/messages/${ticketId}`, message);
-    } catch (err) {
-      toast({
-        variant: "destructive",
-        title: toastError(err),
-      });
-    }
+    sendTextMessage(messagePayload); // Call the mutation
 
     setInputMessage("");
     setShowEmoji(false);
-    setLoading(false);
+    // setLoading(false); // Replaced by isSendingTextMessage
     setReplyingMessage(null);
   };
 
@@ -419,20 +451,20 @@ const MessageInput = ({ ticketStatus }) => {
             <Button
               aria-label="sendMessage"
               onClick={handleSendMessage}
-              disabled={loading}
+              disabled={isSendingTextMessage || loading} // Use isSendingTextMessage here
             >
-              <Send />
+              {isSendingTextMessage ? <LoaderCircle className="h-4 w-4 animate-spin" /> : <Send />}
             </Button>
           ) : recording ? (
             <div className="flex items-center gap-1">
               <Button
                 aria-label="cancelRecording"
-                disabled={loading}
+                disabled={loading} // Assuming 'loading' is for other operations like media upload
                 onClick={handleCancelAudio}
               >
                 <X />
               </Button>
-              {loading ? (
+              {loading && !isSendingTextMessage ? ( // Show general loader if not sending text
                 <LoaderCircle className="mr-2 h-4 w-4 animate-spin text-primary" />
               ) : (
                 <RecordingTimer />
@@ -441,7 +473,7 @@ const MessageInput = ({ ticketStatus }) => {
               <Button
                 aria-label="sendRecordedAudio"
                 onClick={handleUploadAudio}
-                disabled={loading}
+                disabled={loading} // Assuming 'loading' is for other operations
               >
                 <Check />
               </Button>
