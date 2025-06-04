@@ -1,5 +1,6 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect } from "react"; // Removed useState
 import { useNavigate, useOutletContext, useParams } from "react-router-dom";
+import { useQuery, useQueryClient } from '@tanstack/react-query'; // Import TanStack Query hooks
 
 import openSocket from "../../services/socket-io";
 
@@ -18,52 +19,65 @@ import { useToast } from "@/hooks/use-toast";
 
 const Ticket = () => {
   const [activeRating] = useOutletContext();
-
   const { ticketId } = useParams();
   const navigate = useNavigate();
-
-  const [loading, setLoading] = useState(true);
-  const [contact, setContact] = useState({});
-  const [ticket, setTicket] = useState({});
   const { toast } = useToast();
+  const queryClient = useQueryClient();
 
-  useEffect(() => {
-    setLoading(true);
-    const delayDebounceFn = setTimeout(() => {
-      const fetchTicket = async () => {
-        try {
-          const { data } = await api.get("/tickets/" + ticketId);
-          setContact(data.contact);
-          setTicket(data);
-          setLoading(false);
-        } catch (err) {
-          setLoading(false);
-          toast({
-            variant: "destructive",
-            title: toastError(err),
-          });
-        }
-      };
-      fetchTicket();
-    }, 800);
-    return () => clearTimeout(delayDebounceFn);
-  }, [ticketId, navigate]);
+  const fetchTicketQueryFn = async () => {
+    const { data } = await api.get(`/tickets/${ticketId}`);
+    return data; // API returns the ticket object which includes contact, user, etc.
+  };
+
+  const {
+    data: ticketData,
+    isLoading: isLoadingTicket,
+    isError: isErrorTicket,
+    error: ticketError
+  } = useQuery(
+    ['ticket', ticketId],
+    fetchTicketQueryFn,
+    {
+      // staleTime: 1000 * 60 * 1, // Optional: 1 minute
+      // refetchOnWindowFocus: false, // Optional
+      onError: (err) => {
+        toast({
+          variant: "destructive",
+          title: toastError(err), // Use the error from useQuery
+        });
+        // Optionally navigate away if ticket fetch fails critically
+        // navigate("/tickets");
+      }
+    }
+  );
+
+  // Extract ticket and contact from ticketData
+  // Based on ShowTicketService.ts, the response 'data' is the ticket object itself.
+  const ticket = ticketData;
+  const contact = ticketData?.contact;
+  const loading = isLoadingTicket; // Use isLoadingTicket for loading state
 
   useEffect(() => {
     const socket = openSocket();
+    const queryKey = ['ticket', ticketId];
 
     socket.on("connect", () => socket.emit("joinChatBox", ticketId));
 
     socket.on("ticket", (data) => {
       if (data.action === "update") {
-        setTicket(data.ticket);
+        queryClient.setQueryData(queryKey, (oldQueryData) => {
+          if (!oldQueryData) return oldQueryData;
+          // Assuming data.ticket contains all updated fields for the ticket
+          return { ...oldQueryData, ...data.ticket };
+        });
       }
 
       if (data.action === "delete") {
+        queryClient.removeQueries(queryKey);
         toast({
           variant: "success",
           title: "Sucesso!",
-          description: "atendimento excluído com sucesso.",
+          description: "Atendimento excluído com sucesso.",
         });
         navigate("/tickets");
       }
@@ -71,11 +85,14 @@ const Ticket = () => {
 
     socket.on("contact", (data) => {
       if (data.action === "update") {
-        setContact((prevState) => {
-          if (prevState.id === data.contact?.id) {
-            return { ...prevState, ...data.contact };
+        queryClient.setQueryData(queryKey, (oldQueryData) => {
+          if (!oldQueryData || !oldQueryData.contact || oldQueryData.contact.id !== data.contact?.id) {
+            return oldQueryData;
           }
-          return prevState;
+          return {
+            ...oldQueryData,
+            contact: { ...oldQueryData.contact, ...data.contact },
+          };
         });
       }
     });
@@ -83,7 +100,26 @@ const Ticket = () => {
     return () => {
       socket.disconnect();
     };
-  }, [ticketId, navigate]);
+  }, [ticketId, navigate, queryClient, toast]); // Added queryClient and toast to dependencies
+
+  // Handle loading and error states explicitly for clarity
+  if (loading) {
+    // You might want a more sophisticated loading skeleton here
+    return <div className="flex justify-center items-center h-screen">Carregando...</div>;
+  }
+
+  if (isErrorTicket) {
+    // Error is already toasted by useQuery's onError.
+    // You could show a specific error message here or navigate away.
+    // For now, assuming toast is enough and component might not render further or show a generic error.
+    return <div className="flex justify-center items-center h-screen">Erro ao carregar ticket.</div>;
+  }
+
+  if (!ticket) {
+    // This case might occur if data is undefined after loading and no error (e.g. ticket deleted before load)
+    return <div className="flex justify-center items-center h-screen">Ticket não encontrado.</div>;
+  }
+
 
   return (
     <ReplyMessageProvider>
@@ -91,16 +127,16 @@ const Ticket = () => {
         <div className="bg-muted p-1  w-full">
           <div className="flex gap-1 items-center">
             <ContactDrawer
-              contact={contact}
-              loading={loading}
-              photo={contact.profilePicUrl}
+              contact={contact || {}} // Pass empty object if contact is undefined
+              loading={loading} // Use derived loading state
+              photo={contact?.profilePicUrl}
             />
             <div className="flex-1 flex  justify-between items-center">
               <div className="flex flex-col">
                 <p className="text-lg text-foreground font-medium  leading-4">
-                  {contact.name}
+                  {contact?.name}
                 </p>
-                {ticket.user?.name && (
+                {ticket?.user?.name && (
                   <p className="text-sm font-medium text-muted-foreground">
                     Atribuído a: {ticket.user?.name}
                   </p>
@@ -113,9 +149,9 @@ const Ticket = () => {
             </div>
           </div>
           <div className="cursor-pointer flex gap-1 flex-wrap">
-            {loading
+            {loading // Use derived loading state
               ? null
-              : contact.tagslist?.map((e, i) => {
+              : contact?.tagslist?.map((e, i) => {
                   return (
                     <div key={i}>
                       <Badge
@@ -135,9 +171,9 @@ const Ticket = () => {
           </div>
         </div>
 
-        <MessagesList ticketId={ticketId} isGroup={ticket.isGroup} />
+        <MessagesList ticketId={ticketId} isGroup={ticket?.isGroup} />
 
-        <MessageInput ticketStatus={ticket.status} />
+        <MessageInput ticketStatus={ticket?.status} />
       </div>
     </ReplyMessageProvider>
   );

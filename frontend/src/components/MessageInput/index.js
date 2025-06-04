@@ -104,27 +104,19 @@ const MessageInput = ({ ticketStatus }) => {
   };
 
   const handleUploadMedia = async (e) => {
-    setLoading(true);
+    // setLoading(true); // Replaced by isUploadingMedia state from useMutation
     e.preventDefault();
 
     const formData = new FormData();
     formData.append("fromMe", true);
     medias.forEach((media) => {
       formData.append("medias", media);
-      formData.append("body", media.name);
+      formData.append("body", media.name); // Using media.name as body
     });
 
-    try {
-      await api.post(`/messages/${ticketId}`, formData);
-    } catch (err) {
-      toast({
-        variant: "destructive",
-        title: toastError(err),
-      });
-    }
-
-    setLoading(false);
-    setMedias([]);
+    uploadMediaMessage(formData);
+    // setMedias([]); // Moved to onSuccess/onError in useMutation
+    // setLoading(false); // Replaced by isUploadingMedia
   };
 
   // Função para destacar parte do shortcut que coincide com o input
@@ -178,6 +170,48 @@ const MessageInput = ({ ticketStatus }) => {
           variant: "destructive",
           title: toastError(error),
         });
+      }
+    }
+  );
+
+  const { mutate: uploadMediaMessage, isLoading: isUploadingMedia } = useMutation(
+    (formData) => api.post(`/messages/${ticketId}`, formData), // Axios usually handles FormData headers
+    {
+      onSuccess: (data) => {
+        const newMessage = data.data || data; // Adjust based on your API response structure
+        queryClient.setQueryData(['messages', ticketId], (oldData) => {
+          if (!oldData || !oldData.pages) {
+            // Consider initializing structure if cache is empty:
+            // return { pages: [{ messages: [newMessage], hasMore: true, nextPageNumber: 2 }], pageParams: [1] };
+            return oldData;
+          }
+          const newPagesArray = oldData.pages.map((page, index) => {
+            if (index === oldData.pages.length - 1) { // Add to the last page
+              return {
+                ...page,
+                messages: [...page.messages, newMessage],
+              };
+            }
+            return page;
+          });
+          return { ...oldData, pages: newPagesArray };
+        });
+        setMedias([]); // Clear selected media files
+        if (recording) { // If this upload was from a recording
+          setRecording(false); // Reset recording state
+        }
+        // TODO: Call scrollToBottom() if accessible or manage globally
+      },
+      onError: (error) => {
+        toast({
+          variant: "destructive",
+          title: toastError(error),
+        });
+        // Optionally reset states like medias or recording if the upload fails
+        setMedias([]);
+        if (recording) {
+          setRecording(false);
+        }
       }
     }
   );
@@ -259,31 +293,32 @@ const MessageInput = ({ ticketStatus }) => {
   };
 
   const handleUploadAudio = async () => {
-    setLoading(true);
+    // setLoading(true); // Replaced by isUploadingMedia
     try {
       const [, blob] = await Mp3Recorder.stop().getMp3();
       if (blob.size < 10000) {
-        setLoading(false);
-        setRecording(false);
+        // setLoading(false); // Replaced
+        setRecording(false); // Still reset recording if file is too small
         return;
       }
 
       const formData = new FormData();
       const filename = `${new Date().getTime()}.mp3`;
       formData.append("medias", blob, filename);
-      formData.append("body", filename);
+      formData.append("body", filename); // Using filename as body
       formData.append("fromMe", true);
 
-      await api.post(`/messages/${ticketId}`, formData);
-    } catch (err) {
+      uploadMediaMessage(formData);
+      // setRecording(false); // Moved to onSuccess/onError in useMutation
+      // setLoading(false); // Replaced
+    } catch (err) { // This catch is for Mp3Recorder.stop() errors primarily
       toast({
         variant: "destructive",
         title: toastError(err),
       });
+      setRecording(false); // Ensure recording is reset on error
+      // setLoading(false); // Replaced
     }
-
-    setRecording(false);
-    setLoading(false);
   };
 
   const handleCancelAudio = async () => {
@@ -320,6 +355,8 @@ const MessageInput = ({ ticketStatus }) => {
     );
   };
 
+  const combinedOverallLoading = isSendingTextMessage || isUploadingMedia || loading;
+
   if (medias.length > 0)
     return (
       <div className="flex items-center bg-muted justify-between px-2 py-4 w-full">
@@ -330,22 +367,24 @@ const MessageInput = ({ ticketStatus }) => {
 
         <div className="flex gap-2 pr-5">
           <Button
-            disabled={loading}
+            disabled={isUploadingMedia} // Main disable condition for this action
             onClick={(e) => setMedias([])}
             variant="outline"
           >
             <X aria-label="cancel-upload" className="w-5 h-5 text-foreground" />
           </Button>
-          <Button disabled={loading} onClick={handleUploadMedia}>
+          <Button disabled={isUploadingMedia} onClick={handleUploadMedia}>
             <div className="flex gap-1">
-              {loading && <LoaderCircle className=" h-5 w-5 animate-spin" />}
-              <Send size={24} className="w-5 h-5" />
+              {isUploadingMedia && <LoaderCircle className=" h-5 w-5 animate-spin" />}
+              {!isUploadingMedia && <Send size={24} className="w-5 h-5" />}
             </div>
           </Button>
         </div>
       </div>
     );
   else {
+    // Use a combined loading state for disabling UI elements generally
+    const uiDisabled = combinedOverallLoading || recording || ticketStatus !== "open";
     return (
       <div className="flex flex-col gap-3 bg-muted pt-2 py-3 px-2 w-full">
         {replyingMessage && renderReplyingMessage(replyingMessage)}
@@ -380,7 +419,7 @@ const MessageInput = ({ ticketStatus }) => {
               <div className="relative">
                 <Smile
                   className="text-muted-foreground"
-                  disabled={loading || recording || ticketStatus !== "open"}
+                  disabled={uiDisabled}
                   onClick={() => setShowEmoji((prevState) => !prevState)}
                 />
 
@@ -401,14 +440,14 @@ const MessageInput = ({ ticketStatus }) => {
                 multiple
                 type="file"
                 id="upload-button"
-                disabled={loading || recording || ticketStatus !== "open"}
+                disabled={uiDisabled}
                 sx={{ display: "none" }}
                 onChange={handleChangeMedias}
               />
               <label htmlFor="upload-button">
                 <Paperclip
                   className="text-muted-foreground"
-                  disabled={loading || recording || ticketStatus !== "open"}
+                  disabled={uiDisabled}
                 />
               </label>
               <Tooltip>
@@ -439,7 +478,7 @@ const MessageInput = ({ ticketStatus }) => {
             placeholder="Mensagem..."
             value={inputMessage}
             onChange={handleChangeInput}
-            disabled={recording || loading || ticketStatus !== "open"}
+            disabled={uiDisabled} // Use combined disabled state
             onPaste={(e) => {
               ticketStatus === "open" && handleInputPaste(e);
             }}
@@ -451,7 +490,7 @@ const MessageInput = ({ ticketStatus }) => {
             <Button
               aria-label="sendMessage"
               onClick={handleSendMessage}
-              disabled={isSendingTextMessage || loading} // Use isSendingTextMessage here
+              disabled={isSendingTextMessage || isUploadingMedia || loading} // Disable if any upload is in progress
             >
               {isSendingTextMessage ? <LoaderCircle className="h-4 w-4 animate-spin" /> : <Send />}
             </Button>
@@ -459,12 +498,12 @@ const MessageInput = ({ ticketStatus }) => {
             <div className="flex items-center gap-1">
               <Button
                 aria-label="cancelRecording"
-                disabled={loading} // Assuming 'loading' is for other operations like media upload
+                disabled={isUploadingMedia || loading} // Disable if media upload is in progress or general loading
                 onClick={handleCancelAudio}
               >
                 <X />
               </Button>
-              {loading && !isSendingTextMessage ? ( // Show general loader if not sending text
+              {(isUploadingMedia && recording) ? ( // Show loader specifically if uploading this recording
                 <LoaderCircle className="mr-2 h-4 w-4 animate-spin text-primary" />
               ) : (
                 <RecordingTimer />
@@ -473,7 +512,7 @@ const MessageInput = ({ ticketStatus }) => {
               <Button
                 aria-label="sendRecordedAudio"
                 onClick={handleUploadAudio}
-                disabled={loading} // Assuming 'loading' is for other operations
+                disabled={isUploadingMedia || loading} // Disable if media upload is in progress or general loading
               >
                 <Check />
               </Button>
@@ -481,7 +520,7 @@ const MessageInput = ({ ticketStatus }) => {
           ) : (
             <Button
               aria-label="showRecorder"
-              disabled={loading || ticketStatus !== "open"}
+              disabled={uiDisabled} // Use combined disabled state
               onClick={handleStartRecording}
             >
               <Mic size={24} color="#fff" />
