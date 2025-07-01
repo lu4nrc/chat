@@ -1,0 +1,11 @@
+version: '3.8' # Adicione a versão para compatibilidade
+services:
+  postgres:
+    image: postgres:latest
+    container_name: pg-hellow
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_DB: db_hellowchat
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: password

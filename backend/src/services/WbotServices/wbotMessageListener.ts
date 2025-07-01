@@ -326,8 +326,8 @@ const handleMessage = async (
     }
 
     const chat = await msg.getChat();
-
     if (chat.isGroup) {
+      return;
       let msgGroupContact;
 
       if (msg.fromMe) {
