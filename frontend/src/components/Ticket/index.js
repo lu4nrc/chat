@@ -1,20 +1,20 @@
-import React, { useEffect, useState } from "react";
-import { useNavigate, useOutletContext, useParams } from "react-router-dom";
+import React, { useEffect, useState } from 'react';
+import { useNavigate, useOutletContext, useParams } from 'react-router-dom';
 
-import openSocket from "../../services/socket-io";
+import openSocket from '../../services/socket-io';
 
-import MessageInput from "../MessageInput/";
+import MessageInput from '../MessageInput/';
 
-import { ReplyMessageProvider } from "../../context/ReplyingMessage/ReplyingMessageContext";
-import toastError from "../../errors/toastError";
-import api from "../../services/api";
-import ContactDrawer from "../ContactDrawer";
-import MessagesList from "../MessagesList";
-import TicketActionButtons from "../TicketActionButtons";
+import { ReplyMessageProvider } from '../../context/ReplyingMessage/ReplyingMessageContext';
+import toastError from '../../errors/toastError';
+import api from '../../services/api';
+import ContactDrawer from '../ContactDrawer';
+import MessagesList from '../MessagesList';
+import TicketActionButtons from '../TicketActionButtons';
 
-import { Badge } from "../ui/badge";
-import { cn } from "@/lib/utils";
-import { useToast } from "@/hooks/use-toast";
+import { Badge } from '../ui/badge';
+import { cn } from '@/lib/utils';
+import { useToast } from '@/hooks/use-toast';
 
 const Ticket = () => {
   const [activeRating] = useOutletContext();
@@ -32,14 +32,14 @@ const Ticket = () => {
     const delayDebounceFn = setTimeout(() => {
       const fetchTicket = async () => {
         try {
-          const { data } = await api.get("/tickets/" + ticketId);
+          const { data } = await api.get('/tickets/' + ticketId);
           setContact(data.contact);
           setTicket(data);
           setLoading(false);
         } catch (err) {
           setLoading(false);
           toast({
-            variant: "destructive",
+            variant: 'destructive',
             title: toastError(err),
           });
         }
@@ -52,25 +52,25 @@ const Ticket = () => {
   useEffect(() => {
     const socket = openSocket();
 
-    socket.on("connect", () => socket.emit("joinChatBox", ticketId));
+    socket.on('connect', () => socket.emit('joinChatBox', ticketId));
 
-    socket.on("ticket", (data) => {
-      if (data.action === "update") {
+    socket.on('ticket', (data) => {
+      if (data.action === 'update') {
         setTicket(data.ticket);
       }
 
-      if (data.action === "delete") {
+      if (data.action === 'delete') {
         toast({
-          variant: "success",
-          title: "Sucesso!",
-          description: "atendimento excluído com sucesso.",
+          variant: 'success',
+          title: 'Sucesso!',
+          description: 'atendimento excluído com sucesso.',
         });
-        navigate("/tickets");
+        navigate('/tickets');
       }
     });
 
-    socket.on("contact", (data) => {
-      if (data.action === "update") {
+    socket.on('contact', (data) => {
+      if (data.action === 'update') {
         setContact((prevState) => {
           if (prevState.id === data.contact?.id) {
             return { ...prevState, ...data.contact };
@@ -120,11 +120,11 @@ const Ticket = () => {
                     <div key={i}>
                       <Badge
                         className={cn(
-                          e.typetag === "user"
-                            ? "bg-primary"
-                            : e.typetag === "enterprise"
-                            ? "bg-slate-900"
-                            : "bg-slate-400"
+                          e.typetag === 'user'
+                            ? 'bg-pink-500/20 text-pink-600'
+                            : e.typetag === 'enterprise'
+                            ? 'bg-blue-500/20 text-blue-600'
+                            : 'bg-orange-500/20 text-orange-600'
                         )}
                       >
                         {e.name}
