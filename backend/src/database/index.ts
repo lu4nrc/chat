@@ -1,4 +1,7 @@
 import { Sequelize } from "sequelize-typescript";
+import dotenv from "dotenv";
+dotenv.config();
+
 import User from "../models/User";
 import Setting from "../models/Setting";
 import Contact from "../models/Contact";
@@ -15,11 +18,7 @@ import OpeningHours from "../models/OpeningHour";
 import Tag from "../models/Tag";
 import Transmission from "../models/Transmission";
 
-// eslint-disable-next-line
-const dbConfig = require("../config/database");
-
-const sequelize = new Sequelize(dbConfig);
-
+// Lista de models
 const models = [
   User,
   Contact,
@@ -31,11 +30,22 @@ const models = [
   Queue,
   WhatsappQueue,
   UserQueue,
-  QuickAnswer,Scheduled,OpeningHours,
+  QuickAnswer,
+  Scheduled,
+  OpeningHours,
   Tag,
   Transmission
 ];
 
-sequelize.addModels(models);
+const sequelize = new Sequelize({
+  dialect: "postgres",
+  host: process.env.DB_HOST,
+  port: Number(process.env.DB_PORT),
+  username: process.env.DB_USER,
+  password: process.env.DB_PASS,
+  database: process.env.DB_NAME,
+  models,
+  logging: false
+});
 
 export default sequelize;

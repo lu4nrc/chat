@@ -327,15 +327,16 @@ const handleMessage = async (
 
     const chat = await msg.getChat();
     if (chat.isGroup) {
-      let msgGroupContact;
+      return;
+      // let msgGroupContact;
 
-      if (msg.fromMe) {
-        msgGroupContact = await wbot.getContactById(msg.to);
-      } else {
-        msgGroupContact = await wbot.getContactById(msg.from);
-      }
+      // if (msg.fromMe) {
+      //   msgGroupContact = await wbot.getContactById(msg.to);
+      // } else {
+      //   msgGroupContact = await wbot.getContactById(msg.from);
+      // }
 
-      groupContact = await verifyContact(msgGroupContact);
+      // groupContact = await verifyContact(msgGroupContact);
     }
     const whatsapp = await ShowWhatsAppService(wbot.id!);
 

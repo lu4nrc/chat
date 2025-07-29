@@ -3,7 +3,7 @@ import { useNavigate, useOutletContext, useParams } from 'react-router-dom';
 
 import openSocket from '../../services/socket-io';
 
-import MessageInput from '../MessageInput/';
+import MessageInput from '../MessageInput';
 
 import { ReplyMessageProvider } from '../../context/ReplyingMessage/ReplyingMessageContext';
 import toastError from '../../errors/toastError';

@@ -1,31 +1,31 @@
-import { Navigate, createBrowserRouter, Route, Routes } from "react-router-dom";
-import LoggedInLayout from "../layout";
-import Dashboard from "../pages/Dashboard/";
+import { Navigate, createBrowserRouter, Route, Routes } from 'react-router-dom';
+import LoggedInLayout from '../layout';
+import Dashboard from '../pages/Dashboard';
 
-import Login from "../pages/Login/";
-import Connections from "../pages/Connections/";
-import Settings from "../pages/Settings/";
-import Users from "../pages/Users";
-import Contacts from "../pages/Contacts/";
-import QuickAnswers from "../pages/QuickAnswers/";
-import Queues from "../pages/Queues/";
+import Login from '../pages/Login';
+import Connections from '../pages/Connections';
+import Settings from '../pages/Settings';
+import Users from '../pages/Users';
+import Contacts from '../pages/Contacts';
+import QuickAnswers from '../pages/QuickAnswers';
+import Queues from '../pages/Queues';
 
-import { AuthProvider, useAuthContext } from "../context/Auth/AuthContext";
-import { WhatsAppsProvider } from "../context/WhatsApp/WhatsAppsContext";
-import Transmission from "../pages/Transmission";
+import { AuthProvider, useAuthContext } from '../context/Auth/AuthContext';
+import { WhatsAppsProvider } from '../context/WhatsApp/WhatsAppsContext';
+import Transmission from '../pages/Transmission';
 
-import "dayjs/locale/pt-br";
-import ErrorPage from "../pages/error";
+import 'dayjs/locale/pt-br';
+import ErrorPage from '../pages/error';
 
-import Search from "../pages/Search";
-import PanelPage from "../pages/Panel";
+import Search from '../pages/Search';
+import PanelPage from '../pages/Panel';
 
-import ThemeProvider from "@/components/theme/theme-provider";
-import Ticket from "@/components/Ticket";
+import ThemeProvider from '@/components/theme/theme-provider';
+import Ticket from '@/components/Ticket';
 
-import Chat from "../pages/Chat";
-import { Toaster } from "@/components/ui/toaster";
-import { TooltipProvider } from "@/components/ui/tooltip";
+import Chat from '../pages/Chat';
+import { Toaster } from '@/components/ui/toaster';
+import { TooltipProvider } from '@/components/ui/tooltip';
 
 const PrivateRoute = ({ children }) => {
   const { isAuth } = useAuthContext();
@@ -39,7 +39,7 @@ const PrivateRoute = ({ children }) => {
 
 const router = createBrowserRouter([
   {
-    path: "/login",
+    path: '/login',
     element: (
       <AuthProvider>
         <Toaster />
@@ -48,7 +48,7 @@ const router = createBrowserRouter([
     ),
   },
   {
-    path: "/",
+    path: '/',
     element: (
       <AuthProvider>
         <ThemeProvider defaultTheme="light" storageKey="vite-ui-theme">
@@ -63,11 +63,11 @@ const router = createBrowserRouter([
     errorElement: <ErrorPage />,
     children: [
       {
-        path: "/",
+        path: '/',
         element: <Dashboard />,
       },
       {
-        path: "/tickets",
+        path: '/tickets',
         element: (
           <WhatsAppsProvider>
             <Chat />
@@ -75,13 +75,13 @@ const router = createBrowserRouter([
         ),
         children: [
           {
-            path: ":ticketId",
+            path: ':ticketId',
             element: <Ticket />,
           },
         ],
       },
       {
-        path: "/connections",
+        path: '/connections',
         element: (
           <WhatsAppsProvider>
             <Connections />
@@ -89,39 +89,39 @@ const router = createBrowserRouter([
         ),
       },
       {
-        path: "/contacts",
+        path: '/contacts',
         element: <Contacts />,
       },
       {
-        path: "/search",
+        path: '/search',
         element: <Search />,
       },
       {
-        path: "/users",
+        path: '/users',
         element: <Users />,
       },
       {
-        path: "/quickAnswers",
+        path: '/quickAnswers',
         element: <QuickAnswers />,
       },
       {
-        path: "/settings",
+        path: '/settings',
         element: <Settings />,
       },
       {
-        path: "/queues",
+        path: '/queues',
         element: <Queues />,
       },
       {
-        path: "/transmission",
+        path: '/transmission',
         element: <Transmission />,
       },
       {
-        path: "/panel",
+        path: '/panel',
         element: <PanelPage />,
       },
       {
-        path: "/404",
+        path: '/404',
         element: <ErrorPage />,
       },
     ],

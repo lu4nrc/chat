@@ -1,19 +1,23 @@
 import gracefulShutdown from "http-graceful-shutdown";
+import { createServer } from "http";
 import app from "./app";
 import { initIO } from "./libs/socket";
 import { logger } from "./utils/logger";
 import { StartAllWhatsAppsSessions } from "./services/WbotServices/StartAllWhatsAppsSessions";
-/* import cron from "node-cron";
-import NotificationScheduledService from "./services/ScheduleService/NotificationScheduledService";
-import StatusUpdateScheduledService from "./services/ScheduleService/StatusUpdateScheduledService"; */
-const server = app.listen(process.env.PORT, () => {
-  logger.info(`Server started on port: ${process.env.PORT}`);
-  //cron.schedule("*/1 * * * *", () => {
-  //  NotificationScheduledService();
-  //  StatusUpdateScheduledService();
-  // });
+
+const httpServer = createServer(app);
+
+// Inicializa Socket.IO
+initIO(httpServer);
+
+// Inicia Express + WebSocket
+const PORT = process.env.PORT || 3000;
+httpServer.listen(PORT, () => {
+  logger.info(`Server listening on port ${PORT}`);
 });
 
-initIO(server);
+// Inicia sessões WhatsApp
 StartAllWhatsAppsSessions();
-gracefulShutdown(server);
+
+// Graceful shutdown
+gracefulShutdown(httpServer);

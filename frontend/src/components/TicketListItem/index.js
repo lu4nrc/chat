@@ -1,4 +1,4 @@
-import React, { memo, useContext, useEffect, useRef, useState } from "react";
+import React, { memo, useContext, useEffect, useRef, useState } from 'react';
 
 import {
   endOfDay,
@@ -9,26 +9,26 @@ import {
   parseISO,
   startOfDay,
   subDays,
-} from "date-fns";
-import { ptBR } from "date-fns/locale";
+} from 'date-fns';
+import { ptBR } from 'date-fns/locale';
 import {
   Link,
   useNavigate,
   useOutletContext,
   useParams,
-} from "react-router-dom";
-import MarkdownWrapper from "../MarkdownWrapper";
-import api from "../../services/api";
+} from 'react-router-dom';
+import MarkdownWrapper from '../MarkdownWrapper';
+import api from '../../services/api';
 
-import { AuthContext } from "../../context/Auth/AuthContext";
-import toastError from "../../errors/toastError";
-import { Button } from "../ui/button";
-import { ChevronRight, Clock, LoaderCircle, Smile } from "lucide-react";
+import { AuthContext } from '../../context/Auth/AuthContext';
+import toastError from '../../errors/toastError';
+import { Button } from '../ui/button';
+import { ChevronRight, Clock, LoaderCircle, Smile } from 'lucide-react';
 
-import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
-import { Tooltip, TooltipContent, TooltipTrigger } from "../ui/tooltip";
-import { cn } from "@/lib/utils";
-import { useToast } from "@/hooks/use-toast";
+import { Avatar, AvatarFallback, AvatarImage } from '../ui/avatar';
+import { Tooltip, TooltipContent, TooltipTrigger } from '../ui/tooltip';
+import { cn } from '@/lib/utils';
+import { useToast } from '@/hooks/use-toast';
 
 const TicketListItem = ({ ticket, setFilter }) => {
   const { toast } = useToast();
@@ -44,7 +44,7 @@ const TicketListItem = ({ ticket, setFilter }) => {
     setLoading(true);
     try {
       var ticketUpdated = await api.put(`/tickets/${id}`, {
-        status: "open",
+        status: 'open',
         userId: user?.id,
       });
       setCurrentTicket(ticketUpdated.data);
@@ -59,7 +59,7 @@ const TicketListItem = ({ ticket, setFilter }) => {
   };
 
   const handleSelectTicket = (id) => {
-    setFilter("");
+    setFilter('');
     navigate(`/tickets/${id}`);
   };
 
@@ -78,22 +78,22 @@ const TicketListItem = ({ ticket, setFilter }) => {
     const isThisWeek = isSameWeek(parsedDate, today, { weekStartsOn: 0 }); // Configurando a semana para começar na segunda-feira
 
     if (isSame) {
-      return format(parsedDate, "HH:mm"); // Se for hoje, exibe apenas a hora
+      return format(parsedDate, 'HH:mm'); // Se for hoje, exibe apenas a hora
     }
     if (isYesterday) {
-      return "ontem"; // Se for "ontem", exibe "ontem"
+      return 'ontem'; // Se for "ontem", exibe "ontem"
     }
     if (isThisWeek) {
-      return format(parsedDate, "EEEE", { locale: ptBR }); // Se for na semana corrente, exibe o dia por extenso
+      return format(parsedDate, 'EEEE', { locale: ptBR }); // Se for na semana corrente, exibe o dia por extenso
     }
-    return format(parsedDate, "dd/MM/yyyy"); // Para datas fora da semana corrente, exibe no formato dd/MM/yyyy
+    return format(parsedDate, 'dd/MM/yyyy'); // Para datas fora da semana corrente, exibe no formato dd/MM/yyyy
   }
 
   return (
     <Link
       className={cn(
-        "group/item flex items-center  gap-1 hover:bg-muted  relative",
-        ticketId === ticket.id ? "bg-muted" : ""
+        'group/item flex items-center  gap-1 hover:bg-muted  relative',
+        ticketId === ticket.id ? 'bg-muted' : ''
       )}
       key={currentTicket.id}
       to={`/tickets/${ticket.id}`}
@@ -102,10 +102,10 @@ const TicketListItem = ({ ticket, setFilter }) => {
         <TooltipTrigger asChild>
           <Avatar
             className="h-14 w-14"
-            style={queueColor ? { border: `2px solid ${queueColor}` } : ""}
+            style={queueColor ? { border: `2px solid ${queueColor}` } : ''}
           >
             <AvatarImage
-              className={"border-2 border-background rounded-full"}
+              className={'border-2 border-background rounded-full'}
               src={currentTicket?.contact?.profilePicUrl}
               alt="@contact"
             />
@@ -115,11 +115,11 @@ const TicketListItem = ({ ticket, setFilter }) => {
           </Avatar>
         </TooltipTrigger>
         <TooltipContent side="right">{`${
-          currentTicket?.queue?.name ?? "Sem fila"
+          currentTicket?.queue?.name ?? 'Sem fila'
         } | ${
           currentTicket?.whatsappId
-            ? currentTicket?.whatsapp?.name ?? "Sem conexão"
-            : "Sem conexão"
+            ? currentTicket?.whatsapp?.name ?? 'Sem conexão'
+            : 'Sem conexão'
         }`}</TooltipContent>
       </Tooltip>
 
@@ -143,13 +143,13 @@ const TicketListItem = ({ ticket, setFilter }) => {
           )}
           <div className=" text-sm text-muted-foreground font-medium truncate col-span-3 left-4">
             <MarkdownWrapper>
-              {currentTicket.lastMessage ? `${ticket.lastMessage}` : ""}
+              {currentTicket.lastMessage ? `${ticket.lastMessage}` : ''}
             </MarkdownWrapper>
           </div>
         </div>
       </div>
 
-      {currentTicket.status === "pending" && (
+      {currentTicket.status === 'pending' && (
         <Button
           className="group/edit hidden rounded-full group-hover/item:flex border-l-4 absolute right-2"
           disabled={loading}
