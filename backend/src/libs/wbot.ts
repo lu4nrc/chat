@@ -175,6 +175,7 @@ export const initWbot = async (whatsapp: Whatsapp): Promise<Session> => {
 
         resolve(wbot);
       });
+
     } catch (err) {
       logger.error("Erro geral no initWbot:", err);
       reject(err);
