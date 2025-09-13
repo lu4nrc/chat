@@ -114,12 +114,22 @@ export const update = async (
     ticketId
   });
 
+  const whatsapp = await ShowWhatsAppService(ticket.whatsappId);
+  const { farewellMessage } = whatsapp;
+
+  //console.log("NOVO AQUI", ticketData, ticketId);
   const ticketUpdated = await ShowTicketService(ticket.id);
+
+  if (ticket.status === "closed") {
+    if (farewellMessage) {
+      await SendWhatsAppMessage({
+        body: formatBody(`${farewellMessage}`, ticket.contact),
+        ticket
+      });
+    }
+  }
+
   if (ticket.status === "waitingRating") {
-    const whatsapp = await ShowWhatsAppService(ticket.whatsappId);
-
-    const { farewellMessage } = whatsapp;
-
     if (farewellMessage) {
       await SendWhatsAppMessage({
         body: formatBody(
@@ -186,7 +196,6 @@ export const allOpen = async (
 
   return res.status(200).json({ tickets });
 };
-
 
 export const todayFilter = async (
   req: Request,

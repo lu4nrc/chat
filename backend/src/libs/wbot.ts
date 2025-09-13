@@ -39,7 +39,7 @@ export const initWbot = async (whatsapp: Whatsapp): Promise<Session> => {
       // 🔁 Remove sessão antiga, se existir
       try {
         await removeWbot(whatsapp.id);
-      } catch (e) {
+      } catch (e: any) {
         logger.warn(`Não foi possível limpar sessão antiga: ${e.message}`);
       }
 
@@ -175,7 +175,6 @@ export const initWbot = async (whatsapp: Whatsapp): Promise<Session> => {
 
         resolve(wbot);
       });
-
     } catch (err) {
       logger.error("Erro geral no initWbot:", err);
       reject(err);

@@ -23,16 +23,68 @@ import ShowWhatsAppService from "../WhatsappService/ShowWhatsAppService";
 import { debounce } from "../../helpers/Debounce";
 import UpdateTicketService from "../TicketServices/UpdateTicketService";
 import CreateContactService from "../ContactServices/CreateContactService";
-import GetContactService from "../ContactServices/GetContactService";
 import formatBody from "../../helpers/Mustache";
+import ShowOpenHours from "../SettingServices/ShowOpenHours";
+import { getDay, isWithinInterval, setHours, setMinutes } from "date-fns";
 
 interface Session extends Client {
   id?: number;
 }
 
 const MAX_FILE_SIZE = 20 * 1024 * 1024;
+const DEBOUNCE_TIME_MS = 3000;
 
 const writeFileAsync = promisify(writeFile);
+
+const isBusinessHours = (OpeningHours: any): boolean => {
+  const now = new Date();
+  const dayOfWeek = getDay(now);
+  const daySchedule = OpeningHours.days.find((d: any) => d.index === dayOfWeek);
+
+  if (!daySchedule || !daySchedule.open) {
+    return false;
+  }
+
+  // Cria um objeto Date a partir da string e extrai as horas e minutos
+  const getHoursAndMinutes = (dateString: string) => {
+    const dateObj = new Date(dateString);
+    return {
+      hour: dateObj.getHours(),
+      minute: dateObj.getMinutes()
+    };
+  };
+
+  const start1 = getHoursAndMinutes(daySchedule.start1);
+  const end1 = getHoursAndMinutes(daySchedule.end1);
+
+  let isWithinWorkingHours = false;
+
+  // Verifica o primeiro intervalo
+  const firstInterval = {
+    start: setMinutes(setHours(now, start1.hour), start1.minute),
+    end: setMinutes(setHours(now, end1.hour), end1.minute)
+  };
+  if (isWithinInterval(now, firstInterval)) {
+    isWithinWorkingHours = true;
+  }
+
+  // Verifica o segundo intervalo (se houver)
+  if (!isWithinWorkingHours && daySchedule.start2 && daySchedule.end2) {
+    const start2 = getHoursAndMinutes(daySchedule.start2);
+    const end2 = getHoursAndMinutes(daySchedule.end2);
+
+    const secondInterval = {
+      start: setMinutes(setHours(now, start2.hour), start2.minute),
+      end: setMinutes(setHours(now, end2.hour), end2.minute)
+    };
+
+    if (isWithinInterval(now, secondInterval)) {
+      isWithinWorkingHours = true;
+    }
+  }
+
+  return isWithinWorkingHours;
+};
 
 const verifyContact = async (msgContact: WbotContact): Promise<Contact> => {
   const profilePicUrl = await msgContact.getProfilePicUrl();
@@ -65,7 +117,7 @@ const verifyQuotedMessage = async (
   return quotedMsg;
 };
 
-// generate random id string for file names, function got from: https://stackoverflow.com/a/1349426/1851801
+// Gera um ID de string aleatório para nomes de arquivo
 function makeRandomId(length: number) {
   let result = "";
   const characters =
@@ -78,6 +130,13 @@ function makeRandomId(length: number) {
   }
   return result;
 }
+
+const updateTicketLastMessage = async (
+  ticket: Ticket,
+  msgBody: string
+): Promise<void> => {
+  await ticket.update({ lastMessage: msgBody });
+};
 
 const verifyMediaMessage = async (
   msg: WbotMessage,
@@ -92,7 +151,7 @@ const verifyMediaMessage = async (
   const isMemoryExceeded = fileSizeInBytes && fileSizeInBytes > MAX_FILE_SIZE;
 
   if (isMemoryExceeded) {
-    let messageData = {
+    const messageData = {
       id: msg.id.id,
       ticketId: ticket.id,
       contactId: msg.fromMe ? undefined : contact.id,
@@ -101,7 +160,8 @@ const verifyMediaMessage = async (
       read: msg.fromMe,
       mediaType: "exceededfile"
     };
-    await ticket.update({ lastMessage: msg.body });
+
+    await updateTicketLastMessage(ticket, msg.body);
     const newMessage = await CreateMessageService({ messageData });
 
     return newMessage;
@@ -119,12 +179,8 @@ const verifyMediaMessage = async (
     const ext = media.mimetype.split("/")[1].split(";")[0];
     media.filename = `${randomId}-${new Date().getTime()}.${ext}`;
   } else {
-    media.filename =
-      media.filename.split(".").slice(0, -1).join(".") +
-      "." +
-      randomId +
-      "." +
-      media.filename.split(".").slice(-1);
+    const [fileName, fileExt] = media.filename.split(".");
+    media.filename = `${fileName}.${randomId}.${fileExt}`;
   }
 
   try {
@@ -138,7 +194,7 @@ const verifyMediaMessage = async (
     logger.error(err);
   }
 
-  let messageData = {
+  const messageData = {
     id: msg.id.id,
     ticketId: ticket.id,
     contactId: msg.fromMe ? undefined : contact.id,
@@ -150,7 +206,7 @@ const verifyMediaMessage = async (
     quotedMsgId: quotedMsg?.id
   };
 
-  await ticket.update({ lastMessage: msg.body || media.filename });
+  await updateTicketLastMessage(ticket, msg.body || media.filename);
   const newMessage = await CreateMessageService({ messageData });
 
   return newMessage;
@@ -176,17 +232,16 @@ const verifyMessage = async (
     quotedMsgId: quotedMsg?.id
   };
 
-  // temporaryly disable ts checks because of type definition bug for Location object
+  // Desativa temporariamente as verificações de ts devido ao bug de definição de tipo para o objeto Location
   // @ts-ignore
-  await ticket.update({
-    lastMessage:
-      msg.type === "location"
-        ? msg.location.description
-          ? "Localization - " + msg.location.description.split("\\n")[0]
-          : "Localization"
-        : msg.body
-  });
+  const lastMessage =
+    msg.type === "location"
+      ? msg.location.description
+        ? "Localization - " + msg.location.description.split("\\n")[0]
+        : "Localization"
+      : msg.body;
 
+  await updateTicketLastMessage(ticket, lastMessage);
   await CreateMessageService({ messageData });
 };
 
@@ -200,7 +255,6 @@ const prepareLocation = (msg: WbotMessage): WbotMessage => {
 
   msg.body = "data:image/png;base64," + msg.body + "|" + gmapsUrl;
 
-  // desativar temporariamente as verificações de ts devido ao bug de definição de tipo para o objeto Locationt
   // @ts-ignore
   msg.body +=
     "|" +
@@ -224,12 +278,10 @@ const verifyQueue = async (
       ticketData: { queueId: queues[0].id },
       ticketId: ticket.id
     });
-
     return;
   }
 
   const selectedOption = msg.body;
-
   const choosenQueue = queues[+selectedOption - 1];
 
   if (choosenQueue) {
@@ -239,19 +291,17 @@ const verifyQueue = async (
     });
 
     const body = formatBody(`\u200e${choosenQueue.greetingMessage}`, contact);
-
     const sentMessage = await wbot.sendMessage(`${contact.number}@c.us`, body);
-
     await verifyMessage(sentMessage, ticket, contact);
   } else {
     let options = "";
-
     queues.forEach((queue, index) => {
       options += `*${index + 1}* - ${queue.name}\n`;
     });
 
     const body = formatBody(`\u200e${greetingMessage}\n${options}`, contact);
 
+    // Usa debounce para evitar o envio de múltiplas mensagens em sequência
     const debouncedSentMessage = debounce(
       async () => {
         const sentMessage = await wbot.sendMessage(
@@ -260,7 +310,7 @@ const verifyQueue = async (
         );
         verifyMessage(sentMessage, ticket, contact);
       },
-      3000,
+      DEBOUNCE_TIME_MS,
       ticket.id
     );
 
@@ -278,7 +328,7 @@ const isValidMsg = (msg: WbotMessage): boolean => {
     msg.type === "image" ||
     msg.type === "document" ||
     msg.type === "vcard" ||
-    //msg.type === "multi_vcard" ||
+    // msg.type === "multi_vcard" ||
     msg.type === "sticker" ||
     msg.type === "location"
   )
@@ -286,7 +336,7 @@ const isValidMsg = (msg: WbotMessage): boolean => {
   return false;
 };
 
-//!Tudo começa aqui!!
+//! Tudo começa aqui!!
 const handleMessage = async (
   msg: WbotMessage,
   wbot: Session
@@ -294,66 +344,64 @@ const handleMessage = async (
   if (!isValidMsg(msg)) {
     return;
   }
+  // Ignora mensagens enviadas pelo próprio bot para evitar loops
+  if (msg.fromMe) {
+    return;
+  }
 
   try {
+    const OpeningHours = await ShowOpenHours();
+
+    if (!isBusinessHours(OpeningHours)) {
+      await msg.reply(OpeningHours.message);
+      return;
+    }
+
     let msgContact: WbotContact;
     let groupContact: Contact | undefined;
 
-    /* fromMe deMin */
+    /* fromMe de Min */
     if (msg.fromMe) {
       if (msg.body.startsWith("> \u200B")) return;
-
-      // mensagens enviadas automaticamente pelo wbot possuem um caractere especial na frente delas
-      // se sim, esta mensagem já foi armazenada no banco de dados;
       if (msg.body.startsWith("\u200e")) return;
-      //if (/\u200e/.test(msg.body[0])) return;
-
-      // mensagens de mídia enviadas por mim pelo celular, primeiro vem com "hasMedia = false" e type = "image/ptt/etc"
-      // neste caso, retorne e deixe esta mensagem ser tratada pelo evento "media_uploaded", quando terá "hasMedia = true"
-
       if (
         !msg.hasMedia &&
         msg.type !== "location" &&
         msg.type !== "chat" &&
         msg.type !== "vcard"
-        //&& msg.type !== "multi_vcard"
-      )
+      ) {
         return;
-
+      }
       msgContact = await wbot.getContactById(msg.to);
     } else {
       msgContact = await msg.getContact();
     }
 
     const chat = await msg.getChat();
+
+    // Lógica para ignorar mensagens de grupo conforme solicitado.
     if (chat.isGroup) {
       return;
-      // let msgGroupContact;
-
-      // if (msg.fromMe) {
-      //   msgGroupContact = await wbot.getContactById(msg.to);
-      // } else {
-      //   msgGroupContact = await wbot.getContactById(msg.from);
-      // }
-
-      // groupContact = await verifyContact(msgGroupContact);
     }
-    const whatsapp = await ShowWhatsAppService(wbot.id!);
 
     const unreadMessages = msg.fromMe ? 0 : chat.unreadCount;
+    const isRating = /^[1-5]$/.test(msg.body);
+    const rating = isRating ? +msg.body : null;
 
-    const contact = await verifyContact(msgContact);
+    // Executa as chamadas de forma paralela para melhor performance
+    const [whatsapp, contact] = await Promise.all([
+      ShowWhatsAppService(wbot.id!),
+      verifyContact(msgContact)
+    ]);
 
     if (
       unreadMessages === 0 &&
       whatsapp.farewellMessage &&
       formatBody(whatsapp.farewellMessage, contact) === msg.body
-    )
+    ) {
       return;
+    }
 
-    const isRating = /^[1-5]$/.test(msg.body);
-
-    const rating = isRating ? +msg.body : null;
     const ticket = await FindOrCreateTicketService(
       contact,
       wbot.id!,
@@ -405,7 +453,7 @@ const handleMessage = async (
           }
         }
         for await (const ob of obj) {
-          const cont = await CreateContactService({
+          await CreateContactService({
             name: contact,
             number: ob.number.replace(/\D/g, "")
           });
