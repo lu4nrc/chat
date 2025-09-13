@@ -345,18 +345,11 @@ const handleMessage = async (
     return;
   }
   // Ignora mensagens enviadas pelo próprio bot para evitar loops
-  if (msg.fromMe) {
-    return;
-  }
+  // if (msg.fromMe) {
+  //   return;
+  // }
 
   try {
-    const OpeningHours = await ShowOpenHours();
-
-    if (!isBusinessHours(OpeningHours)) {
-      await msg.reply(OpeningHours.message);
-      return;
-    }
-
     let msgContact: WbotContact;
     let groupContact: Contact | undefined;
 
@@ -410,6 +403,17 @@ const handleMessage = async (
       false,
       rating
     );
+
+    const OpeningHours = await ShowOpenHours();
+
+    if (!isBusinessHours(OpeningHours)) {
+      if (msg.fromMe) {
+        return;
+      }
+      await msg.reply(
+        `> \u200B Mensagem automática \n ${OpeningHours.message}`
+      );
+    }
 
     if (ticket.rating) {
       msg.reply(
