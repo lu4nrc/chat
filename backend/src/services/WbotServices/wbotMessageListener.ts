@@ -144,7 +144,6 @@ const verifyMediaMessage = async (
   contact: Contact
 ): Promise<Message> => {
   const quotedMsg = await verifyQuotedMessage(msg);
-
   const fileSizeInBytes =
     msg.hasMedia && msg._data?.size ? msg._data.size : null;
 
@@ -404,16 +403,17 @@ const handleMessage = async (
       rating
     );
 
-    const OpeningHours = await ShowOpenHours();
+    //!Problemas com horário de funcionamento
+    // const OpeningHours = await ShowOpenHours();
 
-    if (!isBusinessHours(OpeningHours)) {
-      if (msg.fromMe) {
-        return;
-      }
-      await msg.reply(
-        `> \u200B Mensagem automática \n ${OpeningHours.message}`
-      );
-    }
+    // if (!isBusinessHours(OpeningHours)) {
+    //   if (msg.fromMe) {
+    //     return;
+    //   }
+    //   await msg.reply(
+    //     `> \u200B Mensagem automática \n ${OpeningHours.message}`
+    //   );
+    // }
 
     if (ticket.rating) {
       msg.reply(
