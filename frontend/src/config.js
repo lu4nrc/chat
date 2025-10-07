@@ -8,9 +8,12 @@ function getConfig(name, defaultValue = null) {
 }
 
 export function getBackendUrl() {
-  return getConfig("REACT_APP_BACKEND_URL");
+  return getConfig('REACT_APP_BACKEND_URL');
+}
+export function getPreviewTicket() {
+  return getConfig('REACT_APP_PREVIEW_TICKET');
 }
 
 export function getHoursCloseTicketsAuto() {
-  return getConfig("REACT_APP_HOURS_CLOSE_TICKETS_AUTO");
+  return getConfig('REACT_APP_HOURS_CLOSE_TICKETS_AUTO');
 }

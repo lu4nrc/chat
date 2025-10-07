@@ -1,4 +1,4 @@
-import React, { memo, useContext, useEffect, useRef, useState } from 'react';
+import React, { useContext, useRef, useState } from 'react';
 
 import {
   endOfDay,
@@ -11,30 +11,27 @@ import {
   subDays,
 } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
-import {
-  Link,
-  useNavigate,
-  useOutletContext,
-  useParams,
-} from 'react-router-dom';
+import { Link, useNavigate, useParams } from 'react-router-dom';
 import MarkdownWrapper from '../MarkdownWrapper';
 import api from '../../services/api';
 
 import { AuthContext } from '../../context/Auth/AuthContext';
 import toastError from '../../errors/toastError';
 import { Button } from '../ui/button';
-import { ChevronRight, Clock, LoaderCircle, Smile } from 'lucide-react';
+import { ChevronRight, LoaderCircle, Smile } from 'lucide-react';
 
 import { Avatar, AvatarFallback, AvatarImage } from '../ui/avatar';
 import { Tooltip, TooltipContent, TooltipTrigger } from '../ui/tooltip';
 import { cn } from '@/lib/utils';
-import { useToast } from '@/hooks/use-toast';
+
+import { getPreviewTicket } from '@/config';
 
 const TicketListItem = ({ ticket, setFilter }) => {
-  const { toast } = useToast();
   let { ticketId } = useParams();
-
   const navigate = useNavigate();
+
+  const preview = getPreviewTicket();
+
   const [loading, setLoading] = useState(false);
   const isMounted = useRef(true);
   const { user } = useContext(AuthContext);
@@ -96,7 +93,7 @@ const TicketListItem = ({ ticket, setFilter }) => {
         ticketId === ticket.id ? 'bg-muted' : ''
       )}
       key={currentTicket.id}
-      to={`/tickets/${ticket.id}`}
+      to={ticket.status === 'pending' && preview ? '' : `/tickets/${ticket.id}`}
     >
       <Tooltip>
         <TooltipTrigger asChild>
