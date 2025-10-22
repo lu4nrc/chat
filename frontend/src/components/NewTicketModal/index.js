@@ -1,5 +1,5 @@
-import React, { useContext, useEffect, useState } from "react";
-import { useNavigate, useOutletContext } from "react-router-dom";
+import React, { useContext, useEffect, useState } from 'react';
+import { useNavigate, useOutletContext } from 'react-router-dom';
 
 import {
   Dialog,
@@ -10,22 +10,22 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from "../ui/dialog";
-import { Button } from "../ui/button";
+} from '../ui/dialog';
+import { Button } from '../ui/button';
 
-import { AuthContext } from "../../context/Auth/AuthContext";
-import toastError from "../../errors/toastError";
-import api from "../../services/api";
+import { AuthContext } from '../../context/Auth/AuthContext';
+import toastError from '../../errors/toastError';
+import api from '../../services/api';
 
-import ContactModal from "../ContactModal";
-import formatarNumeroTelefone from "../../utils/numberFormat";
+import ContactModal from '../ContactModal';
+import formatarNumeroTelefone from '../../utils/numberFormat';
 
-import { MessageSquarePlus } from "lucide-react";
-import ComboboxContact from "../ui/combobox-Contact";
-import { useToast } from "@/hooks/use-toast";
+import { MessageSquarePlus } from 'lucide-react';
+import ComboboxContact from '../ui/combobox-Contact';
+import { useToast } from '@/hooks/use-toast';
 
 const NewTicketModal = () => {
-  const { toast } = useToast()
+  const { toast } = useToast();
   const navigate = useNavigate();
   const [open, setOpen] = useState(false);
 
@@ -40,17 +40,17 @@ const NewTicketModal = () => {
     if (!contactId) return;
     setLoading(true);
     try {
-      const { data: ticket } = await api.post("/tickets", {
+      const { data: ticket } = await api.post('/tickets', {
         contactId: contactId,
         userId: user.id,
-        status: "open",
+        status: 'open',
         isOutbound: true,
       });
-      setSelectedContact("");
+      setSelectedContact('');
       navigate(`/tickets/${ticket.id}`);
     } catch (err) {
       toast({
-        variant: "destructive",
+        variant: 'destructive',
         title: toastError(err),
       });
     }
@@ -73,7 +73,7 @@ const NewTicketModal = () => {
           </DialogDescription>
         </DialogHeader>
         <div className="flex items-center space-x-2">
-          <ComboboxContact setContactId={setSelectedContact} />
+          <ComboboxContact setContactId={setSelectedContact} user={user} />
         </div>
         <DialogFooter>
           <DialogClose asChild>
