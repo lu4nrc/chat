@@ -1,28 +1,27 @@
-import React, { useContext, useEffect, useReducer, useState } from "react";
-import { useNavigate } from "react-router-dom";
-import openSocket from "../../services/socket-io";
+import React, { useContext, useEffect, useReducer, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import openSocket from '../../services/socket-io';
 
-import api from "../../services/api";
+import api from '../../services/api';
 
-import { AuthContext } from "../../context/Auth/AuthContext";
-import toastError from "../../errors/toastError";
-import { i18n } from "../../translate/i18n";
+import { AuthContext } from '../../context/Auth/AuthContext';
+import toastError from '../../errors/toastError';
+import { i18n } from '../../translate/i18n';
 
-import formatarNumeroTelefone from "../../utils/numberFormat";
-import { Card, CardHeader } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import InfiniteScroll from "@/components/ui/InfiniteScroll";
-import { Loader2, MessageSquarePlus, Pen, Smile, Trash } from "lucide-react";
-import { ScrollArea } from "@/components/ui/scroll-area";
-import { Button } from "@/components/ui/button";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Badge } from '@/components/ui/badge';
+import InfiniteScroll from '@/components/ui/InfiniteScroll';
+import { Loader2, MessageSquarePlus, Pen, Smile, Trash } from 'lucide-react';
+import { ScrollArea } from '@/components/ui/scroll-area';
+import { Button } from '@/components/ui/button';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 
-import { Input } from "@/components/ui/input";
-import ContactModal from "@/components/ContactModal";
-import { useToast } from "@/hooks/use-toast";
+import { Input } from '@/components/ui/input';
+import ContactModal from '@/components/ContactModal';
+import { useToast } from '@/hooks/use-toast';
+import formatarNumeroBR from '../../utils/numberFormat';
 
 const reducer = (state, action) => {
-  if (action.type === "LOAD_CONTACTS") {
+  if (action.type === 'LOAD_CONTACTS') {
     const contacts = action.payload;
     const newContacts = [];
 
@@ -38,7 +37,7 @@ const reducer = (state, action) => {
     return [...state, ...newContacts];
   }
 
-  if (action.type === "UPDATE_CONTACTS") {
+  if (action.type === 'UPDATE_CONTACTS') {
     const contact = action.payload;
 
     const updatedState = state.map((c) => (c.id === contact.id ? contact : c));
@@ -48,12 +47,12 @@ const reducer = (state, action) => {
     return contactExists ? updatedState : [contact, ...updatedState];
   }
 
-  if (action.type === "DELETE_CONTACT") {
+  if (action.type === 'DELETE_CONTACT') {
     const contactId = action.payload;
     return state.filter((contact) => contact.id !== contactId);
   }
 
-  if (action.type === "RESET") {
+  if (action.type === 'RESET') {
     return [];
   }
 };
@@ -72,7 +71,7 @@ const Contacts = () => {
   const [hasMore, setHasMore] = useState(true);
   const [contacts, dispatch] = useReducer(reducer, []);
 
-  const [searchParam, setSearchParam] = useState("");
+  const [searchParam, setSearchParam] = useState('');
   const [debouncedSearchParam, setDebouncedSearchParam] = useState(searchParam);
 
   const { toast } = useToast();
@@ -88,7 +87,7 @@ const Contacts = () => {
   }, [searchParam]);
 
   useEffect(() => {
-    dispatch({ type: "RESET" });
+    dispatch({ type: 'RESET' });
     setPageNumber(1);
     search();
   }, [debouncedSearchParam]);
@@ -96,14 +95,14 @@ const Contacts = () => {
   const search = async () => {
     setLoading(true);
     try {
-      const { data } = await api.get("/contacts/", {
+      const { data } = await api.get('/contacts/', {
         params: { searchParam, pageNumber },
       });
-      dispatch({ type: "LOAD_CONTACTS", payload: data.contacts });
+      dispatch({ type: 'LOAD_CONTACTS', payload: data.contacts });
       setHasMore(data.hasMore);
     } catch (error) {
       toast({
-        variant: "destructive",
+        variant: 'destructive',
         title: toastError(error),
       });
     } finally {
@@ -114,15 +113,15 @@ const Contacts = () => {
   const next = async () => {
     setLoading(true);
     try {
-      const { data } = await api.get("/contacts/", {
+      const { data } = await api.get('/contacts/', {
         params: { searchParam, pageNumber },
       });
-      dispatch({ type: "LOAD_CONTACTS", payload: data.contacts });
+      dispatch({ type: 'LOAD_CONTACTS', payload: data.contacts });
       setHasMore(data.hasMore);
       setPageNumber((prev) => prev + 1);
     } catch (error) {
       toast({
-        variant: "destructive",
+        variant: 'destructive',
         title: toastError(error),
       });
     } finally {
@@ -133,13 +132,13 @@ const Contacts = () => {
   useEffect(() => {
     const socket = openSocket();
 
-    socket.on("contact", (data) => {
-      if (data.action === "update" || data.action === "create") {
-        dispatch({ type: "UPDATE_CONTACTS", payload: data.contact });
+    socket.on('contact', (data) => {
+      if (data.action === 'update' || data.action === 'create') {
+        dispatch({ type: 'UPDATE_CONTACTS', payload: data.contact });
       }
 
-      if (data.action === "delete") {
-        dispatch({ type: "DELETE_CONTACT", payload: +data.contactId });
+      if (data.action === 'delete') {
+        dispatch({ type: 'DELETE_CONTACT', payload: +data.contactId });
       }
     });
 
@@ -152,15 +151,15 @@ const Contacts = () => {
     if (!contactId) return;
     setLoading(true);
     try {
-      const { data: ticket } = await api.post("/tickets", {
+      const { data: ticket } = await api.post('/tickets', {
         contactId: contactId,
         userId: user?.id,
-        status: "open",
+        status: 'open',
       });
       navigate(`/tickets/${ticket.id}`);
     } catch (err) {
       toast({
-        variant: "destructive",
+        variant: 'destructive',
         title: toastError(err),
       });
     }
@@ -180,28 +179,28 @@ const Contacts = () => {
     try {
       await api.delete(`/contacts/${contactId}`);
       toast({
-        variant: "success",
-        title: "Sucesso!",
-        description: i18n.t("contacts.toasts.deleted"),
+        variant: 'success',
+        title: 'Sucesso!',
+        description: i18n.t('contacts.toasts.deleted'),
       });
     } catch (err) {
       toast({
-        variant: "destructive",
+        variant: 'destructive',
         title: toastError(err),
       });
     }
     setDeletingContact(null);
-    setSearchParam("");
+    setSearchParam('');
     setPageNumber(1);
   };
 
   const handleimportContact = async () => {
     try {
-      await api.post("/contacts/import");
+      await api.post('/contacts/import');
       navigate.go(0);
     } catch (err) {
       toast({
-        variant: "destructive",
+        variant: 'destructive',
         title: toastError(err),
       });
     }
@@ -273,7 +272,7 @@ const Contacts = () => {
                   </div>
 
                   <span className=" text-sm text-muted-foreground ">
-                    {contact.number}
+                    {formatarNumeroBR(contact.number, user.profile)}
                   </span>
 
                   <div className=" flex gap-1 justify-between items-center">
@@ -290,7 +289,7 @@ const Contacts = () => {
                       <Pen className="h-4 w-4" />
                     </Button>
 
-                    {user.profile === "admin" && (
+                    {user.profile === 'admin' && (
                       <Button
                         variant="ghost"
                         onClick={() => handleDeleteContact(contact.id)}

@@ -11,13 +11,16 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Avatar, AvatarFallback, AvatarImage } from '../ui/avatar';
 import Tags from './Tags';
-import { useState } from 'react';
+import { useContext, useState } from 'react';
 import { Button } from '../ui/button';
 import { Check, Copy } from 'lucide-react';
+import formatarNumeroBR from '@/utils/numberFormat';
+import { AuthContext } from '@/context/Auth/AuthContext';
 
 export default function ContactDrawer({ contact }) {
   const [open, setOpen] = useState(false);
   const [copied, setCopied] = useState(false);
+  const { user } = useContext(AuthContext);
 
   const copyToClipboard = () => {
     navigator.clipboard
@@ -29,18 +32,18 @@ export default function ContactDrawer({ contact }) {
       .catch((err) => console.error('Failed to copy: ', err));
   };
 
-  function formatPhoneNumber(phoneNumber) {
-    // Remove todos os caracteres não numéricos
-    const cleaned = ('' + phoneNumber).replace(/\D/g, '');
+  // function formatPhoneNumber(phoneNumber) {
+  //   // Remove todos os caracteres não numéricos
+  //   const cleaned = ('' + phoneNumber).replace(/\D/g, '');
 
-    // Verifica se o número de telefone tem o tamanho correto
-    const match = cleaned.match(/^(\d{2})(\d{2})(\d{4})(\d{4})$/);
-    if (match) {
-      return `+${match[1]} (${match[2]}) ${match[3]}-${match[4]}`;
-    }
-    // Retorna o número original se não for possível formatar
-    return phoneNumber;
-  }
+  //   // Verifica se o número de telefone tem o tamanho correto
+  //   const match = cleaned.match(/^(\d{2})(\d{2})(\d{4})(\d{4})$/);
+  //   if (match) {
+  //     return `+${match[1]} (${match[2]}) ${match[3]}-${match[4]}`;
+  //   }
+  //   // Retorna o número original se não for possível formatar
+  //   return phoneNumber;
+  // }
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
@@ -64,7 +67,9 @@ export default function ContactDrawer({ contact }) {
               <p className="text-m font-semibold">{contact.name}</p>
 
               <p className="text-sm text-muted-foreground inline-flex gap-2">
-                {contact.number ? formatPhoneNumber(contact.number) : null}
+                {contact.number
+                  ? formatarNumeroBR(contact.number, user.profile)
+                  : null}
               </p>
             </div>
             <Button variant="ghost" size="sm" onClick={copyToClipboard}>

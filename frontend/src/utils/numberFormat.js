@@ -1,23 +1,24 @@
-const formatarNumeroTelefone = (numero) => {
-  // Remove o prefixo "55" caso esteja presente
-  const numeroSemPrefixo = numero.startsWith("55") ? numero.slice(2) : numero;
+function formatarNumeroBR(numero, profile) {
+  if (!numero || numero.length < 12 || numero.length > 14) return numero; // formato inválido
 
-  if (numeroSemPrefixo.length < 11) {
-    // Formata o número no padrão (XX) XXXX-XXXX
-    const parte1 = numeroSemPrefixo.slice(0, 2);
-    const parte2 = numeroSemPrefixo.slice(2, 6);
-    const parte3 = numeroSemPrefixo.slice(6);
+  const pais = numero.slice(0, 2); // sempre 55
+  const ddd = numero.slice(2, 4);
+  const restante = numero.slice(4);
 
-    return `(${parte1}) ${parte2}-${parte3}`;
+  let formatted;
+
+  // Se não for admin, mascara parte do número
+  if (profile !== 'admin') {
+    // +55 (63) 9****-0032
+    formatted = `+${pais} (${ddd}) ${restante[0]}••••-${restante.slice(-4)}`;
   } else {
-    // Formata o número no padrão (XX) XXXXX-XXXX
-    const parte1 = numeroSemPrefixo.slice(0, 2);
-    const parte2 = numeroSemPrefixo.slice(2, 3);
-    const parte3 = numeroSemPrefixo.slice(3, 7);
-    const parte4 = numeroSemPrefixo.slice(7);
-
-    return `(${parte1}) ${parte2} ${parte3}-${parte4}`;
+    // +55 (63) **00-0032
+    formatted = `+${pais} (${ddd}) ${restante.slice(0, 4)}-${restante.slice(
+      -4
+    )}`;
   }
-};
 
-export default formatarNumeroTelefone;
+  return formatted;
+}
+
+export default formatarNumeroBR;
