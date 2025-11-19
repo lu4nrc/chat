@@ -9,15 +9,20 @@ import { useToast } from '@/hooks/use-toast';
 const Chat = () => {
   const { toast } = useToast();
   const [activeRating, setActiveRating] = useState();
+  const [ActiveSign, setActiveSign] = useState('enabled');
 
   useEffect(() => {
     const fetchSession = async () => {
       try {
         const { data } = await api.get('/settings');
         const activeRating = data.find(
-          (setting) => setting.key === 'activeRating'
+          (setting) => setting.key === 'activeRating',
         );
-        setActiveRating(activeRating);
+        const dataSign = data.find((setting) => setting.key === 'activeSign');
+        setActiveRating(activeRating.value);
+        if (dataSign) {
+          setActiveSign(dataSign.value);
+        }
       } catch (err) {
         toast({
           variant: 'destructive',
@@ -32,7 +37,7 @@ const Chat = () => {
     <div className="grid md:grid-cols-[320px_1fr] lg:grid-cols-[420px_1fr]">
       <TicketsManager />
 
-      <Outlet context={[activeRating]} />
+      <Outlet context={[activeRating, ActiveSign]} />
       {/*       ) : (
         <div className="hidden md:flex flex-col items-center justify-center h-full bg-muted">
           <img

@@ -1,20 +1,20 @@
-import data from "@emoji-mart/data";
-import Picker from "@emoji-mart/react";
+import data from '@emoji-mart/data';
+import Picker from '@emoji-mart/react';
 
-import MicRecorder from "mic-recorder-to-mp3";
-import React, { useContext, useEffect, useRef, useState } from "react";
-import { useOutletContext, useParams } from "react-router-dom";
+import MicRecorder from 'mic-recorder-to-mp3';
+import React, { useContext, useEffect, useRef, useState } from 'react';
+import { useOutletContext, useParams } from 'react-router-dom';
 
 //import { Menu, MenuItem } from "@mui/material";
 
-import { AuthContext } from "../../context/Auth/AuthContext";
-import { ReplyMessageContext } from "../../context/ReplyingMessage/ReplyingMessageContext";
-import toastError from "../../errors/toastError";
-import useLocalStorage from "../../hooks/useLocalStorage";
-import api from "../../services/api";
-import { i18n } from "../../translate/i18n";
-import RecordingTimer from "./RecordingTimer";
-import { Textarea } from "../ui/textarea";
+import { AuthContext } from '../../context/Auth/AuthContext';
+import { ReplyMessageContext } from '../../context/ReplyingMessage/ReplyingMessageContext';
+import toastError from '../../errors/toastError';
+import useLocalStorage from '../../hooks/useLocalStorage';
+import api from '../../services/api';
+import { i18n } from '../../translate/i18n';
+import RecordingTimer from './RecordingTimer';
+import { Textarea } from '../ui/textarea';
 import {
   Check,
   File,
@@ -24,21 +24,21 @@ import {
   Send,
   Smile,
   X,
-} from "lucide-react";
-import { useTheme } from "../theme/theme-provider";
-import { Button } from "../ui/button";
-import { Tooltip, TooltipContent, TooltipTrigger } from "../ui/tooltip";
-import { Switch } from "../ui/switch";
-import { useToast } from "@/hooks/use-toast";
+} from 'lucide-react';
+import { useTheme } from '../theme/theme-provider';
+import { Button } from '../ui/button';
+import { Tooltip, TooltipContent, TooltipTrigger } from '../ui/tooltip';
+import { Switch } from '../ui/switch';
+import { useToast } from '@/hooks/use-toast';
 
 const Mp3Recorder = new MicRecorder({ bitRate: 128 });
 
-const MessageInput = ({ ticketStatus }) => {
+const MessageInput = ({ ticketStatus, activeSign }) => {
   const { theme } = useTheme();
   const { ticketId } = useParams();
 
   const [medias, setMedias] = useState([]);
-  const [inputMessage, setInputMessage] = useState("");
+  const [inputMessage, setInputMessage] = useState('');
   const [showEmoji, setShowEmoji] = useState(false);
   const [loading, setLoading] = useState(false);
   const [recording, setRecording] = useState(false);
@@ -51,7 +51,7 @@ const MessageInput = ({ ticketStatus }) => {
   const { user } = useContext(AuthContext);
   const { toast } = useToast();
 
-  const [signMessage, setSignMessage] = useLocalStorage("signOption", true);
+  const [signMessage, setSignMessage] = useLocalStorage('signOption', true);
 
   useEffect(() => {
     textareaRef.current.focus();
@@ -64,7 +64,7 @@ const MessageInput = ({ ticketStatus }) => {
   useEffect(() => {
     textareaRef.current.focus();
     return () => {
-      setInputMessage("");
+      setInputMessage('');
       setShowEmoji(false);
       setMedias([]);
       setReplyingMessage(null);
@@ -106,17 +106,17 @@ const MessageInput = ({ ticketStatus }) => {
     e.preventDefault();
 
     const formData = new FormData();
-    formData.append("fromMe", true);
+    formData.append('fromMe', true);
     medias.forEach((media) => {
-      formData.append("medias", media);
-      formData.append("body", media.name);
+      formData.append('medias', media);
+      formData.append('body', media.name);
     });
 
     try {
       await api.post(`/messages/${ticketId}`, formData);
     } catch (err) {
       toast({
-        variant: "destructive",
+        variant: 'destructive',
         title: toastError(err),
       });
     }
@@ -130,7 +130,7 @@ const MessageInput = ({ ticketStatus }) => {
     const typedText = inputMessage.substring(1); // Remove o "/" da busca
     const matchIndex = shortcut.toLowerCase().indexOf(typedText.toLowerCase());
 
-    if (matchIndex === 0 && typedText !== "") {
+    if (matchIndex === 0 && typedText !== '') {
       return (
         <>
           <span className="text-primary">
@@ -144,13 +144,13 @@ const MessageInput = ({ ticketStatus }) => {
   };
 
   const handleSendMessage = async () => {
-    if (inputMessage.trim() === "") return;
+    if (inputMessage.trim() === '') return;
     setLoading(true);
 
     const message = {
       read: 1,
       fromMe: true,
-      mediaUrl: "",
+      mediaUrl: '',
       body: signMessage
         ? `> *${user?.name}*\n${inputMessage.trim()}`
         : inputMessage.trim(),
@@ -161,12 +161,12 @@ const MessageInput = ({ ticketStatus }) => {
       await api.post(`/messages/${ticketId}`, message);
     } catch (err) {
       toast({
-        variant: "destructive",
+        variant: 'destructive',
         title: toastError(err),
       });
     }
 
-    setInputMessage("");
+    setInputMessage('');
     setShowEmoji(false);
     setLoading(false);
     setReplyingMessage(null);
@@ -181,7 +181,7 @@ const MessageInput = ({ ticketStatus }) => {
       setLoading(false);
     } catch (err) {
       toast({
-        variant: "destructive",
+        variant: 'destructive',
         title: toastError(err),
       });
       setLoading(false);
@@ -190,9 +190,9 @@ const MessageInput = ({ ticketStatus }) => {
   };
 
   const handleLoadQuickAnswer = async (value) => {
-    if (value && value.indexOf("/") === 0) {
+    if (value && value.indexOf('/') === 0) {
       try {
-        const { data } = await api.get("/quickAnswers/", {
+        const { data } = await api.get('/quickAnswers/', {
           params: { searchParam: inputMessage.substring(1) },
         });
         setQuickAnswer(data.quickAnswers);
@@ -214,7 +214,7 @@ const MessageInput = ({ ticketStatus }) => {
   const handleKeyDown = (e) => {
     if (e.shiftKey) return;
 
-    if (e.key === "Enter") {
+    if (e.key === 'Enter') {
       if (typeBar && quickAnswers.length > 0) {
         // Seleciona a resposta rápida com base no índice selecionado
         setInputMessage(quickAnswers[selectedIndex].message);
@@ -238,14 +238,14 @@ const MessageInput = ({ ticketStatus }) => {
 
       const formData = new FormData();
       const filename = `${new Date().getTime()}.mp3`;
-      formData.append("medias", blob, filename);
-      formData.append("body", filename);
-      formData.append("fromMe", true);
+      formData.append('medias', blob, filename);
+      formData.append('body', filename);
+      formData.append('fromMe', true);
 
       await api.post(`/messages/${ticketId}`, formData);
     } catch (err) {
       toast({
-        variant: "destructive",
+        variant: 'destructive',
         title: toastError(err),
       });
     }
@@ -260,7 +260,7 @@ const MessageInput = ({ ticketStatus }) => {
       setRecording(false);
     } catch (err) {
       toast({
-        variant: "destructive",
+        variant: 'destructive',
         title: toastError(err),
       });
     }
@@ -281,7 +281,7 @@ const MessageInput = ({ ticketStatus }) => {
         </div>
         <X
           className="text-foreground"
-          disabled={loading || ticketStatus !== "open"}
+          disabled={loading || ticketStatus !== 'open'}
           onClick={() => setReplyingMessage(null)}
         />
       </div>
@@ -292,7 +292,7 @@ const MessageInput = ({ ticketStatus }) => {
     return (
       <div className="flex items-center bg-muted justify-between px-2 py-4 w-full">
         <div className="flex gap-1 ">
-          <File className="w-4 h-4 text-primary"/>
+          <File className="w-4 h-4 text-primary" />
           <p className="text-sm text-foreground">{medias[0]?.name}</p>
         </div>
 
@@ -324,8 +324,8 @@ const MessageInput = ({ ticketStatus }) => {
                 <div
                   className={`grid grid-cols-[auto_1fr] gap-2 py-1 px-2 rounded-md cursor-pointer ${
                     index === selectedIndex
-                      ? "bg-background"
-                      : "hover:bg-background"
+                      ? 'bg-background'
+                      : 'hover:bg-background'
                   }`}
                   key={index}
                   onClick={() => handleQuickAnswersClick(value.message)}
@@ -348,7 +348,7 @@ const MessageInput = ({ ticketStatus }) => {
               <div className="relative">
                 <Smile
                   className="text-muted-foreground"
-                  disabled={loading || recording || ticketStatus !== "open"}
+                  disabled={loading || recording || ticketStatus !== 'open'}
                   onClick={() => setShowEmoji((prevState) => !prevState)}
                 />
 
@@ -365,30 +365,32 @@ const MessageInput = ({ ticketStatus }) => {
               </div>
 
               <input
-                style={{ display: "none" }}
+                style={{ display: 'none' }}
                 multiple
                 type="file"
                 id="upload-button"
-                disabled={loading || recording || ticketStatus !== "open"}
-                sx={{ display: "none" }}
+                disabled={loading || recording || ticketStatus !== 'open'}
+                sx={{ display: 'none' }}
                 onChange={handleChangeMedias}
               />
               <label htmlFor="upload-button">
                 <Paperclip
                   className="text-muted-foreground"
-                  disabled={loading || recording || ticketStatus !== "open"}
+                  disabled={loading || recording || ticketStatus !== 'open'}
                 />
               </label>
               <Tooltip>
                 <TooltipTrigger asChild>
                   <div className="flex items-center space-x-2">
-                    <Switch
-                      checked={signMessage}
-                      onCheckedChange={() =>
-                        setSignMessage((prevState) => !prevState)
-                      }
-                      id="Assinar"
-                    />
+                    {activeSign === 'enabled' && (
+                      <Switch
+                        checked={signMessage}
+                        onCheckedChange={() =>
+                          setSignMessage((prevState) => !prevState)
+                        }
+                        id="Assinar"
+                      />
+                    )}
                   </div>
                 </TooltipTrigger>
                 <TooltipContent side="right">Assinar</TooltipContent>
@@ -397,7 +399,7 @@ const MessageInput = ({ ticketStatus }) => {
           </div>
 
           <Textarea
-            className={"min-h-[42px] h-[42px] max-h-[80px]"}
+            className={'min-h-[42px] h-[42px] max-h-[80px]'}
             ref={(input) => {
               textareaRef.current = input;
               if (input) {
@@ -407,9 +409,9 @@ const MessageInput = ({ ticketStatus }) => {
             placeholder="Mensagem..."
             value={inputMessage}
             onChange={handleChangeInput}
-            disabled={recording || loading || ticketStatus !== "open"}
+            disabled={recording || loading || ticketStatus !== 'open'}
             onPaste={(e) => {
-              ticketStatus === "open" && handleInputPaste(e);
+              ticketStatus === 'open' && handleInputPaste(e);
             }}
             onKeyDown={handleKeyDown}
             spellCheck={true}
@@ -449,7 +451,7 @@ const MessageInput = ({ ticketStatus }) => {
           ) : (
             <Button
               aria-label="showRecorder"
-              disabled={loading || ticketStatus !== "open"}
+              disabled={loading || ticketStatus !== 'open'}
               onClick={handleStartRecording}
             >
               <Mic size={24} color="#fff" />

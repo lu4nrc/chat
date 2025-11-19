@@ -17,8 +17,7 @@ import { cn } from '@/lib/utils';
 import { useToast } from '@/hooks/use-toast';
 
 const Ticket = () => {
-  const [activeRating] = useOutletContext();
-
+  const [activeRating, activeSign] = useOutletContext();
   const { ticketId } = useParams();
   const navigate = useNavigate();
 
@@ -124,7 +123,7 @@ const Ticket = () => {
                             ? 'bg-pink-500/20 text-pink-600'
                             : e.typetag === 'enterprise'
                             ? 'bg-blue-500/20 text-blue-600'
-                            : 'bg-orange-500/20 text-orange-600'
+                            : 'bg-orange-500/20 text-orange-600',
                         )}
                       >
                         {e.name}
@@ -137,7 +136,7 @@ const Ticket = () => {
 
         <MessagesList ticketId={ticketId} isGroup={ticket.isGroup} />
 
-        <MessageInput ticketStatus={ticket.status} />
+        <MessageInput ticketStatus={ticket.status} activeSign={activeSign} />
       </div>
     </ReplyMessageProvider>
   );
