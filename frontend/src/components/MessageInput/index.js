@@ -451,10 +451,16 @@ const MessageInput = ({ ticketStatus, activeSign }) => {
           ) : (
             <Button
               aria-label="showRecorder"
-              disabled={loading || ticketStatus !== 'open'}
+              disabled={
+                loading || ticketStatus !== 'open' || activeSign !== 'enabled'
+              }
               onClick={handleStartRecording}
             >
-              <Mic size={24} color="#fff" />
+              {activeSign === 'enabled' ? (
+                <Mic size={24} color="#fff" />
+              ) : (
+                <Send />
+              )}
             </Button>
           )}
         </div>
