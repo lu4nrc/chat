@@ -3,7 +3,7 @@ import Picker from '@emoji-mart/react';
 
 import MicRecorder from 'mic-recorder-to-mp3';
 import React, { useContext, useEffect, useRef, useState } from 'react';
-import { useOutletContext, useParams } from 'react-router-dom';
+import { useParams } from 'react-router-dom';
 
 //import { Menu, MenuItem } from "@mui/material";
 
@@ -12,7 +12,6 @@ import { ReplyMessageContext } from '../../context/ReplyingMessage/ReplyingMessa
 import toastError from '../../errors/toastError';
 import useLocalStorage from '../../hooks/useLocalStorage';
 import api from '../../services/api';
-import { i18n } from '../../translate/i18n';
 import RecordingTimer from './RecordingTimer';
 import { Textarea } from '../ui/textarea';
 import {
@@ -33,7 +32,7 @@ import { useToast } from '@/hooks/use-toast';
 
 const Mp3Recorder = new MicRecorder({ bitRate: 128 });
 
-const MessageInput = ({ ticketStatus, activeSign }) => {
+const MessageInput = ({ ticketStatus, activeSign, activeSendAudio }) => {
   const { theme } = useTheme();
   const { ticketId } = useParams();
 
@@ -452,11 +451,13 @@ const MessageInput = ({ ticketStatus, activeSign }) => {
             <Button
               aria-label="showRecorder"
               disabled={
-                loading || ticketStatus !== 'open' || activeSign !== 'enabled'
+                loading ||
+                ticketStatus !== 'open' ||
+                activeSendAudio !== 'enabled'
               }
               onClick={handleStartRecording}
             >
-              {activeSign === 'enabled' ? (
+              {activeSendAudio === 'enabled' ? (
                 <Mic size={24} color="#fff" />
               ) : (
                 <Send />

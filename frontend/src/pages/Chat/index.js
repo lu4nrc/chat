@@ -10,18 +10,27 @@ const Chat = () => {
   const { toast } = useToast();
   const [activeRating, setActiveRating] = useState();
   const [ActiveSign, setActiveSign] = useState('enabled');
+  const [activeSendAudio, setActiveSendAudio] = useState('enabled');
 
   useEffect(() => {
-    const fetchSession = async () => {
+    const fetchSettings = async () => {
       try {
         const { data } = await api.get('/settings');
-        const activeRating = data.find(
-          (setting) => setting.key === 'activeRating',
-        );
-        const dataSign = data.find((setting) => setting.key === 'activeSign');
-        setActiveRating(activeRating.value);
-        if (dataSign) {
-          setActiveSign(dataSign.value);
+
+        const activeRating = data.find((s) => s.key === 'activeRating');
+        const activeSign = data.find((s) => s.key === 'activeSign');
+        const activeSendAudio = data.find((s) => s.key === 'activeSendAudio');
+
+        if (activeRating) {
+          setActiveRating(activeRating.value);
+        }
+
+        if (activeSign) {
+          setActiveSign(activeSign.value);
+        }
+
+        if (activeSendAudio) {
+          setActiveSendAudio(activeSendAudio.value);
         }
       } catch (err) {
         toast({
@@ -30,14 +39,15 @@ const Chat = () => {
         });
       }
     };
-    fetchSession();
+
+    fetchSettings();
   }, []);
 
   return (
     <div className="grid md:grid-cols-[320px_1fr] lg:grid-cols-[420px_1fr]">
       <TicketsManager />
 
-      <Outlet context={[activeRating, ActiveSign]} />
+      <Outlet context={[activeRating, ActiveSign, activeSendAudio]} />
       {/*       ) : (
         <div className="hidden md:flex flex-col items-center justify-center h-full bg-muted">
           <img

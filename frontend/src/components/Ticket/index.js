@@ -17,7 +17,7 @@ import { cn } from '@/lib/utils';
 import { useToast } from '@/hooks/use-toast';
 
 const Ticket = () => {
-  const [activeRating, activeSign] = useOutletContext();
+  const [activeRating, activeSign, activeSendAudio] = useOutletContext();
   const { ticketId } = useParams();
   const navigate = useNavigate();
 
@@ -136,7 +136,11 @@ const Ticket = () => {
 
         <MessagesList ticketId={ticketId} isGroup={ticket.isGroup} />
 
-        <MessageInput ticketStatus={ticket.status} activeSign={activeSign} />
+        <MessageInput
+          ticketStatus={ticket.status}
+          activeSign={activeSign}
+          activeSendAudio={activeSendAudio}
+        />
       </div>
     </ReplyMessageProvider>
   );
