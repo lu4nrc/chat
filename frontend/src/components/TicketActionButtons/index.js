@@ -1,21 +1,20 @@
-import React, { useContext, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import React, { useContext, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 
-import { AuthContext } from "../../context/Auth/AuthContext";
+import { AuthContext } from '../../context/Auth/AuthContext';
 
-import api from "../../services/api";
+import api from '../../services/api';
 
-import TicketOptionsMenu from "../TicketOptionsMenu";
-import { Tooltip, TooltipContent, TooltipTrigger } from "../ui/tooltip";
-import { Check, EllipsisVertical, LoaderCircle, RotateCcw } from "lucide-react";
-import { Button } from "../ui/button";
-import { useToast } from "@/hooks/use-toast";
-import toastError from "@/errors/toastError";
+import TicketOptionsMenu from '../TicketOptionsMenu';
+import { Tooltip, TooltipContent, TooltipTrigger } from '../ui/tooltip';
+import { Check, EllipsisVertical, LoaderCircle, RotateCcw } from 'lucide-react';
+import { Button } from '../ui/button';
+import { useToast } from '@/hooks/use-toast';
+import toastError from '@/errors/toastError';
 
 const TicketActionButtons = ({ ticket, activeRating }) => {
   const { toast } = useToast();
   const navigate = useNavigate();
-
   const [loading, setLoading] = useState(false);
 
   const { user } = useContext(AuthContext);
@@ -29,15 +28,15 @@ const TicketActionButtons = ({ ticket, activeRating }) => {
       });
 
       setLoading(false);
-      if (status === "open") {
+      if (status === 'open') {
         navigate(`/tickets/${ticket.id}`);
       } else {
-        navigate("/tickets");
+        navigate('/tickets');
       }
     } catch (err) {
       setLoading(false);
       toast({
-        variant: "destructive",
+        variant: 'destructive',
         title: toastError(err),
       });
     }
@@ -45,13 +44,13 @@ const TicketActionButtons = ({ ticket, activeRating }) => {
 
   return (
     <div>
-      {ticket.status === "open" && (
+      {ticket.status === 'open' && (
         <>
           <div className="flex gap-2">
             <Tooltip>
               <TooltipTrigger asChild>
                 <div
-                  onClick={() => handleUpdateTicketStatus("pending", null)}
+                  onClick={() => handleUpdateTicketStatus('pending', null)}
                   className="flex h-9 w-9 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:text-foreground md:h-9 md:w-9 aria-[current=page]:bg-primary aria-[current=page]:text-white   "
                 >
                   <RotateCcw className="h-6 w-6" />
@@ -68,10 +67,8 @@ const TicketActionButtons = ({ ticket, activeRating }) => {
                 <div
                   onClick={() =>
                     handleUpdateTicketStatus(
-                      activeRating.value === "disabled"
-                        ? "closed"
-                        : "waitingRating",
-                      user?.id
+                      activeRating === 'disabled' ? 'closed' : 'waitingRating',
+                      user?.id,
                     )
                   }
                   className="flex h-9 w-9 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:text-foreground"
@@ -88,11 +85,11 @@ const TicketActionButtons = ({ ticket, activeRating }) => {
           </div>
         </>
       )}
-      {ticket.status === "pending" && (
+      {ticket.status === 'pending' && (
         <Button
           size="sm"
           disabled={loading}
-          onClick={() => handleUpdateTicketStatus("open", user?.id)}
+          onClick={() => handleUpdateTicketStatus('open', user?.id)}
         >
           {loading && <LoaderCircle className="mr-2 h-4 w-4 animate-spin" />}
           Iniciar atendimento
