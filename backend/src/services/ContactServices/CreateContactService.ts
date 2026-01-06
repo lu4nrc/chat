@@ -3,21 +3,6 @@ import Contact from "../../models/Contact";
 import ContactCustomField from "../../models/ContactCustomField";
 import Tag from "../../models/Tag";
 
-
-
-// interface ExtraInfo {
-//   name: string;
-//   value: string;
-// }
-// interface TagInterface {
-//   id?: number;
-//   name: string;
-//   value: string;
-//   typetag?: string;
-//   createdAt: string;
-//   updatedAt: string;
-// }
-
 interface Request {
   name: string;
   number: string;
@@ -34,28 +19,41 @@ const CreateContactService = async ({
   extraInfo = [],
   tagslist = []
 }: Request): Promise<Contact> => {
-  const numberExists = await Contact.findOne({
-    where: { number }
-  });
+  try {
+    const [contact, created] = await Contact.findOrCreate({
+      where: { number },
+      defaults: {
+        name,
+        number,
+        email
+      }
+    });
 
-  if (numberExists) {
-    throw new AppError("ERR_DUPLICATED_CONTACT");
-  }
+    // 👉 Só cria associações se o contato for novo
+    if (created) {
+      if (extraInfo.length) {
+        await ContactCustomField.bulkCreate(
+          extraInfo.map(info => ({
+            ...info,
+            contactId: contact.id
+          }))
+        );
+      }
 
-  const contact = await Contact.create(
-    {
-      name,
-      number,
-      email,
-      extraInfo,
-      tagslist
-    },
-    {
-      include: ["extraInfo"],
-
+      if (tagslist.length) {
+        await contact.$set("tagslist", tagslist);
+      }
     }
-  );
-  return contact;
+
+    return contact;
+  } catch (err: any) {
+    if (err.name === "SequelizeUniqueConstraintError") {
+      const contact = await Contact.findOne({ where: { number } });
+      if (contact) return contact;
+    }
+
+    throw new AppError("ERR_CREATING_CONTACT");
+  }
 };
 
 export default CreateContactService;

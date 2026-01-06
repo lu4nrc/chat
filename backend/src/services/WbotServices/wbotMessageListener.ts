@@ -441,25 +441,38 @@ const handleMessage = async (
 
     if (msg.type === "vcard") {
       try {
-        const array = msg.body.split("\n");
-        const obj = [];
+        const lines = msg.body.split("\n");
+
         let contact = "";
-        for (let index = 0; index < array.length; index++) {
-          const v = array[index];
-          const values = v.split(":");
-          for (let ind = 0; ind < values.length; ind++) {
-            if (values[ind].indexOf("+") !== -1) {
-              obj.push({ number: values[ind] });
-            }
-            if (values[ind].indexOf("FN") !== -1) {
-              contact = values[ind + 1];
+        const numbers = [];
+
+        for (const line of lines) {
+          // Nome
+          if (line.startsWith("FN:")) {
+            contact = line.replace("FN:", "").trim();
+          }
+
+          // Telefone
+          if (line.startsWith("TEL")) {
+            // tenta extrair waid
+            const waidMatch = line.match(/waid=(\d+)/);
+
+            if (waidMatch) {
+              numbers.push(waidMatch[1]);
+            } else {
+              // fallback: número após :
+              const numberPart = line.split(":")[1];
+              if (numberPart) {
+                numbers.push(numberPart.replace(/\D/g, ""));
+              }
             }
           }
         }
-        for await (const ob of obj) {
+
+        for (const number of numbers) {
           await CreateContactService({
             name: contact,
-            number: ob.number.replace(/\D/g, "")
+            number
           });
         }
       } catch (error) {
