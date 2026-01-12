@@ -1,36 +1,34 @@
-import faker from "jabber";
+import { faker } from "@faker-js/faker";
 import User from "../../../models/User";
 import CreateUserService from "../../../services/UserServices/CreateUserService";
 import ListUsersService from "../../../services/UserServices/ListUsersService";
 import { disconnect, truncate } from "../../utils/database";
 
-const Faker = new faker();
-
 describe("User", () => {
-    beforeEach(async () => {
-        await truncate();
+  beforeEach(async () => {
+    await truncate();
+  });
+
+  afterEach(async () => {
+    await truncate();
+  });
+
+  afterAll(async () => {
+    await disconnect();
+  });
+
+  it("should be able to list users", async () => {
+    await CreateUserService({
+      name: faker.person.fullName(),
+      email: faker.internet.email(),
+      password: faker.string.alpha({ length: 10 })
     });
 
-    afterEach(async () => {
-        await truncate();
+    const response = await ListUsersService({
+      pageNumber: 1
     });
 
-    afterAll(async () => {
-        await disconnect();
-    });
-
-    it("should be able to list users", async () => {
-        await CreateUserService({
-            name: Faker.createFullName(),
-            email: Faker.createEmail(),
-            password: Faker.createWord(10)
-        });
-
-        const response = await ListUsersService({
-            pageNumber: 1
-        });
-
-        expect(response).toHaveProperty("users");
-        expect(response.users[0]).toBeInstanceOf(User);
-    });
+    expect(response).toHaveProperty("users");
+    expect(response.users[0]).toBeInstanceOf(User);
+  });
 });

@@ -14,7 +14,7 @@ const FindOrCreateTicketService = async (
   groupContact?: Contact,
   isScheduled?: boolean,
   rating?: number | null
-): Promise<Ticket> => {
+): Promise<Ticket | null> => {
   const durationDate = new Date();
 
   let ticket = await Ticket.findOne({
@@ -82,7 +82,17 @@ const FindOrCreateTicketService = async (
         attributes: ["name"]
       }
     ],
-    attributes: ["id", "status", "createdAt", "unreadMessages", "queueId", "userId", "contactId", "rating", "lastMessage"],
+    attributes: [
+      "id",
+      "status",
+      "createdAt",
+      "unreadMessages",
+      "queueId",
+      "userId",
+      "contactId",
+      "rating",
+      "lastMessage"
+    ],
     order: [["createdAt", "DESC"]]
   });
 

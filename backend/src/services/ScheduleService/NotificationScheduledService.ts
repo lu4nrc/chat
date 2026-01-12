@@ -43,7 +43,7 @@ const NotificationScheduledService = async (): Promise<void> => {
       if (e === 1) {
         await Promise.all(
           scheduled.externals.map(async contact => {
-            var ticket: Ticket = await FindOrCreateTicketService(
+            var ticket: any = await FindOrCreateTicketService(
               contact,
               whatsappDefault[0].id,
               0,

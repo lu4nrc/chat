@@ -1,27 +1,86 @@
 import Ticket from "../../models/Ticket";
 import { Includeable, Op } from "sequelize";
-import {
-  startOfDay,
-  endOfDay,
-  subDays,
-  differenceInMinutes,
-  format,
-  isEqual
-} from "date-fns";
+import { startOfDay, endOfDay, differenceInMinutes, format } from "date-fns";
 import User from "../../models/User";
 import Contact from "../../models/Contact";
 import Queue from "../../models/Queue";
 
-interface Response {
-  today: any;
-  status: any;
-  media: any;
-  queues: any;
-  users: any;
-  outin: any;
+/* =======================
+   TIPOS
+======================= */
+
+type TicketStatus = "open" | "pending" | "closed";
+
+interface RatingGroup {
+  qtd: number;
+  value: number;
 }
 
-const ListToday = async (): Promise<Response> => {
+interface TodayGroup {
+  hour: string;
+  total: number;
+}
+
+interface MediaGroup {
+  total: number;
+  m_accept: number;
+  m_atend: number;
+  m_total: number;
+}
+
+interface OutInGroup {
+  outbound: number;
+  inbound: number;
+}
+
+interface StatusGroup {
+  total: number;
+  open: number;
+  pending: number;
+  closed: number;
+}
+
+interface UserGroup {
+  id: number;
+  imageUrl?: string;
+  user_name: string;
+  total: number;
+  m_time: number;
+  m_time_avg: number;
+  rating: RatingGroup;
+  tickets: Ticket[];
+  open: number;
+  pending: number;
+  closed: number;
+}
+
+interface QueueGroup {
+  id: number;
+  queue_name: string;
+  fill: string;
+  total: number;
+  mq_time: number;
+  mq_time_avg: number;
+  rating: RatingGroup;
+  open: number;
+  pending: number;
+  closed: number;
+}
+
+interface GroupedResult {
+  today: TodayGroup[];
+  status: StatusGroup;
+  media: MediaGroup;
+  users: UserGroup[];
+  queues: QueueGroup[];
+  outin: OutInGroup;
+}
+
+/* =======================
+   SERVICE
+======================= */
+
+const ListToday = async (): Promise<GroupedResult> => {
   const includeCondition: Includeable[] = [
     {
       model: User,
@@ -47,167 +106,126 @@ const ListToday = async (): Promise<Response> => {
       isGroup: false,
       status: "closed",
       createdAt: {
-        [Op.between]: [startOfDay(today), endOfDay(today)]
+        [Op.between]: [startOfDay(today).getTime(), endOfDay(today).getTime()]
       }
     },
     include: includeCondition,
     attributes: { exclude: ["lastMessage", "whatsappId", "unreadMessages"] }
   });
 
-  const grouped = tickets.reduce(
-    (acc: any, current: any) => {
+  const grouped = tickets.reduce<GroupedResult>(
+    (acc, current) => {
+      const status = current.status as TicketStatus;
+
       const {
-        status,
         userId,
         queueId,
-        contactId,
         createdAt,
+        updatedAt,
         acceptDate,
         isOutbound,
-        updatedAt,
         rating
       } = current;
 
-      const formattedHour = format(
-        status !== "closed" ? createdAt : updatedAt,
-        "HH"
-      );
+      const hour = format(updatedAt ?? createdAt, "HH");
 
-      //? Group by Today
-      const todayEntry = acc.today.find(entry => entry.hour === formattedHour);
-      if (todayEntry) {
-        todayEntry.total++;
-      } else {
-        acc.today.push({
-          hour: formattedHour,
-          total: 1
-        });
-      }
+      /* TODAY */
+      const todayEntry = acc.today.find(e => e.hour === hour);
+      todayEntry ? todayEntry.total++ : acc.today.push({ hour, total: 1 });
 
-      //?Grouped by ativoPassivo
-      if (isOutbound) {
-        acc.outin.outbound++;
-      } else {
-        acc.outin.inbound++;
-      }
+      /* IN / OUT */
+      isOutbound ? acc.outin.outbound++ : acc.outin.inbound++;
 
-      /*       //?Grouped by Status
+      /* STATUS */
       acc.status.total++;
-      if (status === "open") {
-        acc.status.open++;
-      }
-      if (status === "pending") {
-        acc.status.pending++;
-      }
-      if (status === "closed") {
-        acc.status.closed++;
-      } */
+      acc.status[status]++;
 
-      //?Grouped by Media
+      /* MEDIA */
       acc.media.total++;
-      const accept = differenceInMinutes(acceptDate, createdAt);
-      const atend = differenceInMinutes(updatedAt, acceptDate);
-      const total = differenceInMinutes(updatedAt, createdAt);
-      acc.media.m_accept += Math.round(accept);
-      acc.media.m_atend += Math.round(atend);
-      acc.media.m_total += Math.round(total);
+      acc.media.m_accept += differenceInMinutes(acceptDate, createdAt);
+      acc.media.m_atend += differenceInMinutes(updatedAt, acceptDate);
+      acc.media.m_total += differenceInMinutes(updatedAt, createdAt);
 
-      //?Grouped by Users
+      /* USERS */
       if (userId) {
-        let user = acc.users.find(user => user.id === userId);
-        const m_time = differenceInMinutes(updatedAt, createdAt);
+        let user = acc.users.find(u => u.id === userId);
+        const mTime = differenceInMinutes(updatedAt, createdAt);
 
-        if (user) {
-          user[status]++;
-          user.total++;
-          user.m_time += m_time;
-          user.m_time_avg = Math.round(user.m_time / user.total);
-          rating ? (user.rating.value += rating) : null;
-          rating ? (user.rating.qtd += 1) : null;
-          user.tickets.push(current);
-        } else {
-          acc.users.push({
+        if (!user) {
+          user = {
             id: userId,
             imageUrl: current.user?.imageUrl,
             user_name: current.user?.name || "Sem usuário",
-            total: 1,
-            m_time: m_time,
-            m_time_avg: m_time,
-            rating: { qtd: rating ? 1 : 0, value: rating ? rating : 0 },
-            tickets: [current]
-          });
+            total: 0,
+            m_time: 0,
+            m_time_avg: 0,
+            rating: { qtd: 0, value: 0 },
+            tickets: [],
+            open: 0,
+            pending: 0,
+            closed: 0
+          };
+          acc.users.push(user);
+        }
+
+        user[status]++;
+        user.total++;
+        user.m_time += mTime;
+        user.m_time_avg = Math.round(user.m_time / user.total);
+        user.tickets.push(current);
+
+        if (rating) {
+          user.rating.qtd++;
+          user.rating.value += rating;
         }
       }
-      //?Grouped by Queue
-      const queueName = current.queue ? current.queue.name : "Sem departamento";
-      const queueIdKey = queueId || -1;
-      let queue = acc.queues.find(queue => queue.id === queueIdKey);
 
-      const mq_time = differenceInMinutes(updatedAt, createdAt);
+      /* QUEUES */
+      const queueKey = queueId ?? -1;
+      let queue = acc.queues.find(q => q.id === queueKey);
+      const mqTime = differenceInMinutes(updatedAt, createdAt);
 
-      if (queue) {
-        queue[status]++;
-        queue.total++;
-        // queue.tickets.push(current);
-        rating ? (queue.rating.value += rating) : null;
-        rating ? (queue.rating.qtd += 1) : null;
-        queue.mq_time += mq_time;
-        queue.mq_time_avg = Math.round(queue.mq_time / queue.total); //Media queue
-      } else {
-        acc.queues.push({
-          id: queueIdKey,
-          queue_name: queueName,
-          fill: current.queue ? current.queue.color : "hsl(347, 76%, 50%)",
-          total: 1,
-          rating: { qtd: rating ? 1 : 0, value: rating ? rating : 0 },
-          mq_time: mq_time,
-          mq_time_avg: mq_time
-          //  tickets: []
-        });
-      }
-
-      //?Grouped by Contact
-
-/*       if (!acc.contacts[contactId]) {
-        acc.contacts[contactId] = {
-          contact_name: current.contact?.name || "Sem contato",
-          n_closed: 0
+      if (!queue) {
+        queue = {
+          id: queueKey,
+          queue_name: current.queue?.name || "Sem departamento",
+          fill: current.queue?.color || "hsl(347, 76%, 50%)",
+          total: 0,
+          mq_time: 0,
+          mq_time_avg: 0,
+          rating: { qtd: 0, value: 0 },
+          open: 0,
+          pending: 0,
+          closed: 0
         };
+        acc.queues.push(queue);
       }
-      if (status === "closed") {
-        acc.contacts[contactId].n_closed++;
+
+      queue[status]++;
+      queue.total++;
+      queue.mq_time += mqTime;
+      queue.mq_time_avg = Math.round(queue.mq_time / queue.total);
+
+      if (rating) {
+        queue.rating.qtd++;
+        queue.rating.value += rating;
       }
- */
+
       return acc;
     },
     {
-      outin: { outbound: 0, inbound: 0 },
-      status: { total: 0, open: 0, pending: 0, closed: 0 },
       today: [],
-      media: {
-        total: 0,
-        m_accept: 0,
-        m_atend: 0,
-        m_total: 0
-      },
+      status: { total: 0, open: 0, pending: 0, closed: 0 },
+      media: { total: 0, m_accept: 0, m_atend: 0, m_total: 0 },
+      outin: { inbound: 0, outbound: 0 },
       users: [],
-      queues: [],
-      contactId: {}
+      queues: []
     }
   );
 
-  const sortedHours = grouped.today.sort(
-    (a, b) => parseInt(a.hour, 10) - parseInt(b.hour, 10)
-  );
+  grouped.today.sort((a, b) => Number(a.hour) - Number(b.hour));
 
-  return {
-    today: sortedHours,
-    status: grouped.status,
-    media: grouped.media,
-    queues: grouped.queues,
-    users: grouped.users,
-    outin: grouped.outin
-  };
+  return grouped;
 };
 
 export default ListToday;

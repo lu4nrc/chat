@@ -11,6 +11,7 @@ interface UserData {
   profile?: string;
   queueIds?: number[];
   whatsappId?: number;
+  imageUrl: string;
 }
 
 interface Request {

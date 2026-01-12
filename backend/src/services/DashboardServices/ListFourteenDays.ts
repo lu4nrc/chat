@@ -10,18 +10,17 @@ import {
 import User from "../../models/User";
 import Contact from "../../models/Contact";
 import Queue from "../../models/Queue";
-import { init } from "@sentry/node";
 
-interface Response {
-  today: any;
+interface DashboardResponse {
+  today: any[];
   status: any;
   media: any;
-  queues: any;
-  users: any;
+  queues: any[];
+  users: any[];
   outin: any;
 }
 
-const ListSevenDays = async (): Promise<Response> => {
+const ListSevenDays = async (): Promise<DashboardResponse> => {
   const includeCondition: Includeable[] = [
     {
       model: User,
@@ -41,14 +40,16 @@ const ListSevenDays = async (): Promise<Response> => {
   ];
 
   const today = new Date();
-  //const sevenDaysAgo = subDays(today, 7);
   const fourteenDaysAgo = subDays(today, 14);
 
   const tickets = await Ticket.findAll({
     where: {
       isGroup: false,
       createdAt: {
-        [Op.between]: [startOfDay(fourteenDaysAgo), endOfDay(today)]
+        [Op.between]: [
+          startOfDay(fourteenDaysAgo).getTime(),
+          endOfDay(today).getTime()
+        ]
       }
     },
     include: includeCondition,
@@ -61,7 +62,6 @@ const ListSevenDays = async (): Promise<Response> => {
         status,
         userId,
         queueId,
-        contactId,
         createdAt,
         acceptDate,
         isOutbound,
@@ -69,116 +69,99 @@ const ListSevenDays = async (): Promise<Response> => {
         rating
       } = current;
 
-      //? Group by Today
+      // 🔹 Agrupado por dia
       const formattedCreatedAt = format(createdAt, "yyyy-MM-dd");
 
       const todayEntry = acc.today.find(
-        entry => entry.date === formattedCreatedAt
+        (entry: any) => entry.date === formattedCreatedAt
       );
+
       if (todayEntry) {
         todayEntry.total++;
-        // todayEntry.tickets.push(current)
       } else {
         acc.today.push({
           date: formattedCreatedAt,
           total: 1
-          // tickets: [current]
         });
       }
 
-      //?Grouped by ativoPassivo
+      // 🔹 Inbound / Outbound
       if (isOutbound) {
         acc.outin.outbound++;
       } else {
         acc.outin.inbound++;
       }
 
-      /*       //?Grouped by Status
-      acc.status.total++;
-      if (status === "open") {
-        acc.status.open++;
-      }
-      if (status === "pending") {
-        acc.status.pending++;
-      }
-      if (status === "closed") {
-        acc.status.closed++;
-      } */
-
-      //?Grouped by Media
+      // 🔹 Média de tempo
       acc.media.total++;
       const accept = differenceInMinutes(acceptDate, createdAt);
       const atend = differenceInMinutes(updatedAt, acceptDate);
       const total = differenceInMinutes(updatedAt, createdAt);
+
       acc.media.m_accept += Math.round(accept);
       acc.media.m_atend += Math.round(atend);
       acc.media.m_total += Math.round(total);
 
-      //?Grouped by Users
+      // 🔹 Agrupado por usuário
       if (userId) {
-        let user = acc.users.find(user => user.id === userId);
         const m_time = differenceInMinutes(updatedAt, createdAt);
+        let user = acc.users.find((user: any) => user.id === userId);
 
         if (user) {
           user[status]++;
           user.total++;
           user.m_time += m_time;
           user.m_time_avg = Math.round(user.m_time / user.total);
-          rating ? (user.rating.value += rating) : null;
-          rating ? (user.rating.qtd += 1) : null;
-          user.tickets.push(current);
+          if (rating) {
+            user.rating.value += rating;
+            user.rating.qtd += 1;
+          }
         } else {
           acc.users.push({
             id: userId,
             imageUrl: current.user?.imageUrl,
             user_name: current.user?.name || "Sem usuário",
             total: 1,
-            m_time: m_time,
+            m_time,
             m_time_avg: m_time,
-            rating: { qtd: rating ? 1 : 0, value: rating ? rating : 0 },
-            tickets: [current]
+            rating: {
+              qtd: rating ? 1 : 0,
+              value: rating ? rating : 0
+            }
           });
         }
       }
-      //?Grouped by Queue
+
+      // 🔹 Agrupado por fila
       const queueName = current.queue ? current.queue.name : "Sem departamento";
       const queueIdKey = queueId || -1;
-      let queue = acc.queues.find(queue => queue.id === queueIdKey);
-
       const mq_time = differenceInMinutes(updatedAt, createdAt);
+
+      let queue = acc.queues.find((queue: any) => queue.id === queueIdKey);
 
       if (queue) {
         queue[status]++;
         queue.total++;
-        // queue.tickets.push(current);
-        rating ? (queue.rating.value += rating) : null;
-        rating ? (queue.rating.qtd += 1) : null;
+        if (rating) {
+          queue.rating.value += rating;
+          queue.rating.qtd += 1;
+        }
         queue.mq_time += mq_time;
-        queue.mq_time_avg = Math.round(queue.mq_time / queue.total); //Media queue
+        queue.mq_time_avg = Math.round(queue.mq_time / queue.total);
       } else {
         acc.queues.push({
           id: queueIdKey,
           queue_name: queueName,
           fill: current.queue ? current.queue.color : "hsl(347, 76%, 50%)",
           total: 1,
-          rating: { qtd: rating ? 1 : 0, value: rating ? rating : 0 },
-          mq_time: mq_time,
+          rating: {
+            qtd: rating ? 1 : 0,
+            value: rating ? rating : 0
+          },
+          mq_time,
           mq_time_avg: mq_time
-          //  tickets: []
         });
       }
-
-      //?Grouped by Contact
-
-      /*       if (!acc.contacts[contactId]) {
-        acc.contacts[contactId] = {
-          contact_name: current.contact?.name || "Sem contato",
-          n_closed: 0
-        };
-      }
-      if (status === "closed") {
-        acc.contacts[contactId].n_closed++;
-      }  */
 
       return acc;
     },
@@ -193,17 +176,16 @@ const ListSevenDays = async (): Promise<Response> => {
         m_total: 0
       },
       users: [],
-      queues: [],
-      contactId: {}
+      queues: []
     }
   );
 
-  const sortedHours = grouped.today.sort(
-    (a, b) => new Date(a.date) - new Date(b.date)
+  const sortedDays = grouped.today.sort(
+    (a: any, b: any) => new Date(a.date).getTime() - new Date(b.date).getTime()
   );
 
   return {
-    today: sortedHours,
+    today: sortedDays,
     status: grouped.status,
     media: grouped.media,
     queues: grouped.queues,

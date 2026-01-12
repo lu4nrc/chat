@@ -31,6 +31,13 @@ interface Session extends Client {
   id?: number;
 }
 
+type WbotMessageWithData = WbotMessage & {
+  _data?: {
+    size?: number;
+  };
+  filename?: string;
+};
+
 const MAX_FILE_SIZE = 20 * 1024 * 1024;
 const DEBOUNCE_TIME_MS = 3000;
 
@@ -143,29 +150,34 @@ const verifyMediaMessage = async (
   ticket: Ticket,
   contact: Contact
 ): Promise<Message> => {
+  const message = msg as WbotMessageWithData;
+
   const quotedMsg = await verifyQuotedMessage(msg);
+
+  // ✅ tamanho real do arquivo (antes de baixar)
   const fileSizeInBytes =
-    msg.hasMedia && msg._data?.size ? msg._data.size : null;
+    message.hasMedia && message._data?.size ? message._data.size : null;
 
-  const isMemoryExceeded = fileSizeInBytes && fileSizeInBytes > MAX_FILE_SIZE;
+  const isMemoryExceeded =
+    typeof fileSizeInBytes === "number" && fileSizeInBytes > MAX_FILE_SIZE;
 
+  // 🚫 Arquivo excedeu limite
   if (isMemoryExceeded) {
     const messageData = {
       id: msg.id.id,
       ticketId: ticket.id,
       contactId: msg.fromMe ? undefined : contact.id,
-      body: msg.filename || msg.body,
+      body: message.filename || msg.body,
       fromMe: msg.fromMe,
       read: msg.fromMe,
       mediaType: "exceededfile"
     };
 
     await updateTicketLastMessage(ticket, msg.body);
-    const newMessage = await CreateMessageService({ messageData });
-
-    return newMessage;
+    return CreateMessageService({ messageData });
   }
 
+  // ⬇️ download da mídia
   const media = await msg.downloadMedia();
 
   if (!media) {
@@ -174,14 +186,16 @@ const verifyMediaMessage = async (
 
   let randomId = makeRandomId(5);
 
+  // 🧠 garante nome do arquivo
   if (!media.filename) {
     const ext = media.mimetype.split("/")[1].split(";")[0];
-    media.filename = `${randomId}-${new Date().getTime()}.${ext}`;
+    media.filename = `${randomId}-${Date.now()}.${ext}`;
   } else {
     const [fileName, fileExt] = media.filename.split(".");
     media.filename = `${fileName}.${randomId}.${fileExt}`;
   }
 
+  // 💾 grava arquivo
   try {
     await writeFileAsync(
       join(__dirname, "..", "..", "..", "public", media.filename),
@@ -206,9 +220,8 @@ const verifyMediaMessage = async (
   };
 
   await updateTicketLastMessage(ticket, msg.body || media.filename);
-  const newMessage = await CreateMessageService({ messageData });
 
-  return newMessage;
+  return CreateMessageService({ messageData });
 };
 
 const verifyMessage = async (
@@ -415,12 +428,15 @@ const handleMessage = async (
     //   );
     // }
 
-    if (ticket.rating) {
+    if (ticket?.rating) {
       msg.reply(
         "> \u200B Mensagem automática \nObrigado por avaliar o meu atendimento 😄."
       );
       ticket.update({ status: "closed" });
       return;
+    }
+    if (!ticket) {
+      throw new Error("Ticket não encontrado ou encerrado");
     }
 
     if (msg.hasMedia) {

@@ -46,7 +46,6 @@ export const store = async (req: Request, res: Response): Promise<Response> => {
     throw new AppError("ERR_NO_PERMISSION", 403);
   }
 
-
   const user = await CreateUserService({
     email,
     password,
@@ -91,7 +90,6 @@ export const update = async (
   const { userId } = req.params;
   const userData = req.body;
 
-
   const user = await UpdateUserService({ userData, userId });
 
   const io = getIO();
@@ -127,10 +125,14 @@ export const updateProfileImage = async (
   try {
     // Processa e comprime a imagem com sharp
     const compressedBuffer = await sharp(filePath)
-      .resize(Number(process.env.WIDTH) || 350, Number(process.env.HEIGHT) || 350, {
-        fit: "inside",
-        withoutEnlargement: true
-      })
+      .resize(
+        Number(process.env.WIDTH) || 350,
+        Number(process.env.HEIGHT) || 350,
+        {
+          fit: "inside",
+          withoutEnlargement: true
+        }
+      )
       .toFormat("jpeg", {
         progressive: true,
         quality: 90
@@ -153,14 +155,15 @@ export const updateProfileImage = async (
       .status(200)
       .json({ message: "Imagem de perfil atualizada com sucesso!", imageUrl });
   } catch (error) {
-    console.error("Error processing image:", error.message);
-
-    // Limpa o arquivo original se houver erro
-    if (fs.existsSync(filePath)) {
-      fs.unlinkSync(filePath);
+    if (error instanceof Error) {
+      console.error("Error processing image:", error.message);
+    } else {
+      console.error("Error processing image:", error);
     }
 
-    throw new AppError("ERR_PROCESSING_IMAGE", 500);
+    return res.status(500).json({
+      error: "Erro ao processar a imagem"
+    });
   }
 };
 
