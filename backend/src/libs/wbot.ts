@@ -55,6 +55,7 @@ export const initWbot = async (whatsapp: Whatsapp): Promise<Session> => {
         qrMaxRetries: 4,
         webVersionCache: { type: "none" },
         puppeteer: {
+          //executablePath: "/usr/bin/google-chrome",
           executablePath: process.env.CHROME_BIN || undefined,
           headless: true,
           args: [

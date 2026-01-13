@@ -16,9 +16,6 @@ moment.tz.setDefault("America/Sao_Paulo");
 
 const app = express();
 
-/* =======================
-   CORS
-======================= */
 app.use(
   cors({
     origin: process.env.FRONTEND_URL,
@@ -26,26 +23,13 @@ app.use(
   })
 );
 
-/* =======================
-   PARSERS (ORDEM IMPORTA)
-======================= */
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-app.use(cookieParser()); // ✅ ESSENCIAL PARA req.cookies
+app.use(cookieParser());
 
-/* =======================
-   STATIC FILES
-======================= */
 app.use("/public", express.static(uploadConfig.directory));
-
-/* =======================
-   ROUTES
-======================= */
 app.use(routes);
 
-/* =======================
-   ERROR HANDLER
-======================= */
 app.use((err: Error, req: Request, res: Response, _: NextFunction) => {
   if (err instanceof AppError) {
     logger.warn(err);
