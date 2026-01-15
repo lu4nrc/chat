@@ -54,7 +54,7 @@ export const initWbot = async (whatsapp: Whatsapp): Promise<Session> => {
         authStrategy: new LocalAuth({ clientId: `bd_${whatsapp.id}` }),
         puppeteer: {
           // headless: false, // TODO make sure chromium closes on session disconnection / delete
-          executablePath: process.env.CHROME_BIN || undefined,
+          executablePath: "/usr/bin/chromium",
           browserWSEndpoint: process.env.CHROME_WS || undefined,
           args: [
             "--no-sandbox",
