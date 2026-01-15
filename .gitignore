@@ -1,3 +1,7 @@
+/backend/.DS_Store
+/backend/node_modules
+/frontend/node_modules
+/frontend/.DS_Store
 .docker/data/
 ssl/
 .env
