@@ -53,10 +53,15 @@ export const initWbot = async (whatsapp: Whatsapp): Promise<Session> => {
         session: sessionCfg,
         authStrategy: new LocalAuth({ clientId: `bd_${whatsapp.id}` }),
         puppeteer: {
+          webVersionCache: {
+            type: "remote",
+            remotePath:
+              "https://raw.githubusercontent.com/wppconnect-team/wa-version/refs/heads/main/html/2.3000.1031490220-alpha.html"
+          },
           // 1. If a WebSocket URL is provided, use it. Otherwise, use local path.
           ...(process.env.CHROME_WS
             ? { browserWSEndpoint: process.env.CHROME_WS }
-            : { executablePath: "/usr/bin/google-chrome-stable" }), // Updated path
+            : { executablePath: "/usr/bin/google-chrome-stable" }),
           args: [
             "--no-sandbox",
             "--disable-setuid-sandbox",
