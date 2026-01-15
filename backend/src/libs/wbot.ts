@@ -59,7 +59,7 @@ export const initWbot = async (whatsapp: Whatsapp): Promise<Session> => {
         },
         puppeteer: {
           //executablePath: "/usr/bin/google-chrome",
-          executablePath: process.env.CHROME_BIN || undefined,
+          executablePath: "/usr/bin/chromium-browser",
           headless: true,
           args: [
             "--autoplay-policy=user-gesture-required",
