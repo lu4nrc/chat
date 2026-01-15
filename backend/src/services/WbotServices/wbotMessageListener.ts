@@ -303,7 +303,9 @@ const verifyQueue = async (
     });
 
     const body = formatBody(`\u200e${choosenQueue.greetingMessage}`, contact);
-    const sentMessage = await wbot.sendMessage(`${contact.number}@c.us`, body);
+    const sentMessage = await wbot.sendMessage(`${contact.number}@c.us`, body, {
+      sendSeen: false
+    });
     await verifyMessage(sentMessage, ticket, contact);
   } else {
     let options = "";
@@ -318,7 +320,8 @@ const verifyQueue = async (
       async () => {
         const sentMessage = await wbot.sendMessage(
           `${contact.number}@c.us`,
-          body
+          body,
+          { sendSeen: false }
         );
         verifyMessage(sentMessage, ticket, contact);
       },

@@ -31,7 +31,8 @@ const SendWhatsAppMessage = async ({
       formatBody(body, ticket.contact),
       {
         quotedMessageId: quotedMsgSerializedId,
-        linkPreview: false
+        linkPreview: false,
+        sendSeen: false
       }
     );
     if (!body.startsWith("> \u200B")) {
