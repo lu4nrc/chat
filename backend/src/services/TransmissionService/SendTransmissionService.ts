@@ -29,7 +29,8 @@ const SendTransmissionService = async ({
     try {
       await wbot.sendMessage(
         `${contact.number}@${contact.isGroup ? "g" : "c"}.us`,
-        data
+        data,
+        { sendSeen: false }
       );
     } catch (e: any) {
       contactsErr.push(` ${contact.name}`);
