@@ -53,9 +53,10 @@ export const initWbot = async (whatsapp: Whatsapp): Promise<Session> => {
         session: sessionCfg,
         authStrategy: new LocalAuth({ clientId: `bd_${whatsapp.id}` }),
         puppeteer: {
-          // headless: false, // TODO make sure chromium closes on session disconnection / delete
-          executablePath: "/usr/bin/chromium",
-          browserWSEndpoint: process.env.CHROME_WS || undefined,
+          // 1. If a WebSocket URL is provided, use it. Otherwise, use local path.
+          ...(process.env.CHROME_WS
+            ? { browserWSEndpoint: process.env.CHROME_WS }
+            : { executablePath: "/usr/bin/google-chrome-stable" }), // Updated path
           args: [
             "--no-sandbox",
             "--disable-setuid-sandbox",
@@ -63,6 +64,7 @@ export const initWbot = async (whatsapp: Whatsapp): Promise<Session> => {
             "--disable-accelerated-2d-canvas",
             "--no-first-run",
             "--no-zygote",
+            "--single-process", // Added to help with the 'memlock' error
             "--disable-gpu",
             ...args.split(" ")
           ]
