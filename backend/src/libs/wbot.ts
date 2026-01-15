@@ -64,11 +64,10 @@ export const initWbot = async (whatsapp: Whatsapp): Promise<Session> => {
             "--no-sandbox",
             "--disable-setuid-sandbox",
             "--disable-dev-shm-usage",
-            "--disable-accelerated-2d-canvas",
-            "--no-first-run",
-            "--no-zygote",
-            "--single-process", // Added to help with the 'memlock' error
             "--disable-gpu",
+            "--no-zygote",
+            "--disable-features=IsolateOrigins,site-per-process",
+            "--disable-blink-features=AutomationControlled",
             ...args.split(" ")
           ]
         }
