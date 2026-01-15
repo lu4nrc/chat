@@ -66,6 +66,9 @@ export const initWbot = async (whatsapp: Whatsapp): Promise<Session> => {
             "--disable-dev-shm-usage",
             "--disable-gpu",
             "--no-zygote",
+            // Add these two:
+            "--disable-skia-runtime-opts",
+            "--single-process",
             "--disable-features=IsolateOrigins,site-per-process",
             "--disable-blink-features=AutomationControlled",
             ...args.split(" ")
