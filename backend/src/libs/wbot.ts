@@ -57,11 +57,11 @@ export const initWbot = async (whatsapp: Whatsapp): Promise<Session> => {
           // executablePath:
           //   "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome",
           //! browserWSEndpoint: process.env.CHROME_WS || undefined, não ativar sem pesquisar antes
-          webVersionCache: {
-            type: "remote",
-            remotePath:
-              "https://raw.githubusercontent.com/wppconnect-team/wa-version/refs/heads/main/html/2.3000.1031490220-alpha.html"
-          },
+          // webVersionCache: {
+          //   type: "remote",
+          //   remotePath:
+          //     "https://raw.githubusercontent.com/wppconnect-team/wa-version/refs/heads/main/html/2.3000.1031490220-alpha.html"
+          // },
           args: [
             "--no-sandbox",
             "--disable-setuid-sandbox",
@@ -70,7 +70,6 @@ export const initWbot = async (whatsapp: Whatsapp): Promise<Session> => {
             "--no-zygote",
             // Add these two:
             "--disable-skia-runtime-opts",
-            "--single-process",
             "--disable-features=IsolateOrigins,site-per-process",
             "--disable-blink-features=AutomationControlled",
             ...args.split(" ")
