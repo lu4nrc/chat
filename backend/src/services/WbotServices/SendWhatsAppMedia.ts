@@ -30,7 +30,8 @@ const SendWhatsAppMedia = async ({
       {
         // Fix: custom sendAudioAsVoice must be true
         sendAudioAsVoice: false,
-        caption: hasBody
+        caption: hasBody,
+        sendSeen: false
       }
     );
     await ticket.update({ lastMessage: body || media.filename });

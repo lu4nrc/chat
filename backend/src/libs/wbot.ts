@@ -54,6 +54,8 @@ export const initWbot = async (whatsapp: Whatsapp): Promise<Session> => {
         authStrategy: new LocalAuth({ clientId: `bd_${whatsapp.id}` }),
         puppeteer: {
           executablePath: "/usr/bin/google-chrome",
+          // executablePath:
+          //   "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome",
           browserWSEndpoint: process.env.CHROME_WS || undefined,
           webVersionCache: {
             type: "remote",
