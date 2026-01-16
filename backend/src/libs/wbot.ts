@@ -56,7 +56,7 @@ export const initWbot = async (whatsapp: Whatsapp): Promise<Session> => {
           executablePath: "/usr/bin/google-chrome",
           // executablePath:
           //   "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome",
-          browserWSEndpoint: process.env.CHROME_WS || undefined,
+          //! browserWSEndpoint: process.env.CHROME_WS || undefined, não ativar sem pesquisar antes
           webVersionCache: {
             type: "remote",
             remotePath:
