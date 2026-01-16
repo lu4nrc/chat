@@ -29,7 +29,7 @@ const SendWhatsAppMedia = async ({
       newMedia,
       {
         // Fix: custom sendAudioAsVoice must be true
-        sendAudioAsVoice: false,
+        sendAudioAsVoice: true,
         caption: hasBody,
         sendSeen: false
       }
