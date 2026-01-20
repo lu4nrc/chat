@@ -2,9 +2,9 @@ version: '3.8' # Adicione a versão para compatibilidade
 services:
   postgres:
     image: postgres:latest
-    container_name: pg-hellow
+    container_name: current-hellow
     ports:
-      - "5432:5432"
+      - '5432:5432'
     environment:
       POSTGRES_DB: postgres-db
       POSTGRES_USER: postgres
